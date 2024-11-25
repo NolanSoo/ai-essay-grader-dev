@@ -78,6 +78,9 @@
           </td>
         </tr>
       </table>
+        <!-- Add this below the table -->
+<input type="button" value="Add New Subgrade Column" onclick="addNewSubgradeColumn()" />
+
       <h3>Playground/Demo</h3>
         <h4>Please copy and paste your graded essays (straight from Docs, Word, etc) - no rubric is required!</h4>
       <input
@@ -104,186 +107,180 @@
         onclick="predictGrade()"
       />
       <div id="predicted_grade_output"></div>
+      <div id="subgrades_section">
+  <h3>Subgrades:</h3>
+  <div id="subgrades_outputs"></div>
+</div>
+
     </div>
     <script>
-      var finalModel;
+var finalModel; // Model for main grade
+var subgradeModels = []; // Array to store models for subgrades
 
+// Function to update progress during training (no change needed)
+function updateProgress(percentage, totalTimeTaken) {
+  percentage = Math.max(0, Math.min(100, percentage));
+  percentage = percentage.toFixed(2);
 
-  function updateProgress(percentage, totalTimeTaken) {
-    // Ensure the percentage is between 0 and 100
-    percentage = Math.max(0, Math.min(100, percentage));
-    percentage = percentage.toFixed(2);
+  const loadingBar = document.getElementById("loading_bar");
+  const percentageLabel = document.getElementById("percentage_label");
 
-    // Get the loading bar and percentage label elements
-    const loadingBar = document.getElementById("loading_bar");
-    const percentageLabel = document.getElementById("percentage_label");
+  loadingBar.style.width = percentage + "%";
+  percentageLabel.textContent = percentage + "%";
 
-    // Update the width of the loading bar
-    loadingBar.style.width = percentage + "%";
+  if (percentage > 0) {
+    const elapsedTime = totalTimeTaken;
+    const expectedTotalTime = elapsedTime / (percentage / 100);
+    const remainingTime = expectedTotalTime - elapsedTime;
+    const formatTime = (timeInSeconds) => {
+      const minutes = Math.floor(timeInSeconds / 60);
+      const seconds = Math.floor(timeInSeconds % 60);
+      return `${minutes} minutes - ${seconds.toString().padStart(2, "0")} seconds`;
+    };
 
-    // Update the percentage label text
-    percentageLabel.textContent = percentage + "%";
+    const timeTaken = formatTime(elapsedTime);
+    const totalTime = formatTime(expectedTotalTime);
 
-    // Calculate the estimated total time based on total time taken and percentage done
-    if (percentage > 0) {
-      const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs
-
-      // Estimate the total time based on the current progress (linear approximation)
-      const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time
-
-      // Calculate remaining time
-      const remainingTime = expectedTotalTime - elapsedTime;
-
-      // Format time (minutes:seconds)
-      const formatTime = (timeInSeconds) => {
-        const minutes = Math.floor(timeInSeconds / 60);
-        const seconds = Math.floor(timeInSeconds % 60);
-        return `${minutes} minutes - ${seconds
-          .toString()
-          .padStart(2, "0")} seconds`;
-      };
-
-      // Display the time taken and expected total time in a human-readable format
-      const timeTaken = formatTime(elapsedTime);
-      const totalTime = formatTime(expectedTotalTime);
-
-      // Update the label with time information
-      const timeLabel = document.getElementById("time_label");
-      timeLabel.textContent = `${timeTaken} / ${totalTime}`;
-    }
+    const timeLabel = document.getElementById("time_label");
+    timeLabel.textContent = `${timeTaken} / ${totalTime}`;
   }
+}
 
-      // Function for predicting the grade
-      async function predictGrade() {
-        function preprocessText(essays) {
-          const tokenizedInputs = essays.map((essay) => {
-            const words = essay.trim().split(/\s+/);
-            const vector = new Array(1200).fill(0);
-            for (let word of words) {
-              const index = Math.min(word.length, 1199);
-              vector[index] += 1;
-            }
-            return vector;
-          });
-          return tf.tensor2d(tokenizedInputs);
-        }
+// Function to preprocess essays
+function preprocessText(essays) {
+  const tokenizedInputs = essays.map((essay) => {
+    const words = essay.trim().split(/\s+/);
+    const vector = new Array(1200).fill(0);
+    for (let word of words) {
+      const index = Math.min(word.length, 1199);
+      vector[index] += 1;
+    }
+    return vector;
+  });
+  return tf.tensor2d(tokenizedInputs);
+}
 
-        const essayInput = document
-          .getElementById("new_essay_input")
-          .value.trim();
+// Function to add a new subgrade column
+function addNewSubgradeColumn() {
+  const table = document.getElementById("data_table");
+  const headersRow = table.querySelector("tr");
 
-        // Check if the input is not empty
-        if (!essayInput) {
-          alert("Please enter an essay to predict the grade.");
-          return;
-        }
+  // Add header for new subgrade column
+  const th = document.createElement("th");
+  th.innerText = "Subgrade " + (headersRow.cells.length - 2); // Automatically number the new column
+  headersRow.appendChild(th);
 
-        // Preprocess the input essay into tensor format
-        const essayTensor = preprocessText([essayInput]); // Wrap in an array for single input
+  // Add input field for new subgrade prediction
+  const rows = table.querySelectorAll("tr:not(:first-child)");
+  rows.forEach((row) => {
+    const td = document.createElement("td");
+    td.innerHTML = "<input type='text' class='subgrade_input' />";
+    row.appendChild(td);
+  });
 
-        if (!finalModel) {
-          alert(
-            "The model is not trained yet. Please train the model before predicting."
-          );
-          return;
-        }
+  // Create a new model for this subgrade
+  const newSubgradeModel = createSubgradeModel();
+  subgradeModels.push(newSubgradeModel);
+}
 
-        // Use the trained model to predict
-        const prediction = await finalModel.predict(essayTensor).data();
+// Function to create a model for each subgrade
+function createSubgradeModel() {
+  const subgradeModel = tf.sequential();
+  subgradeModel.add(tf.layers.dense({ inputShape: [1200], units: 1 }));
+  const subgradeOptimizer = tf.train.adam(0.005);
+  subgradeModel.compile({
+    optimizer: subgradeOptimizer,
+    loss: "meanSquaredError",
+  });
+  return subgradeModel;
+}
 
-        // Round the predicted grade and display it
-        const predictedGrade = prediction[0];
-        document.getElementById(
-          "predicted_grade_output"
-        ).innerText = `Predicted Grade: ${predictedGrade}`;
-      }
-
-      // Function for training the model
-      async function trainModel() {
-        const learningRate = 0.005;
-        var percentageDone = 0;
+// Function to train the models
+async function trainModels() {
+  const learningRate = 0.005;
+  var percentageDone = 0;
   var totalTimeTaken = 0;
   var startTime = Date.now() / 1000;
   var currentTime = 0;
-        function preprocessText(essays) {
-          const tokenizedInputs = essays.map((essay) => {
-            const words = essay.trim().split(/\s+/);
-            const vector = new Array(1200).fill(0);
-            for (let word of words) {
-              const index = Math.min(word.length, 1199);
-              vector[index] += 1;
-            }
-            return vector;
-          });
-          return tf.tensor2d(tokenizedInputs);
-        }
 
-        const mainGradeInputEssays = [];
-        const mainGradeTargets = [];
+  const mainGradeInputEssays = [];
+  const mainGradeTargets = [];
+  const subgradeInputs = Array(subgradeModels.length).fill([]); // Array to hold subgrade inputs
 
-        // Collect data from table rows
-        const rows = document.querySelectorAll(
-          "#data_table tr:not(:first-child)"
-        ); // Excluding header row
-        rows.forEach((row) => {
-          const essay = row.querySelector("td:nth-child(1)").innerText.trim();
-          const grade = parseInt(
-            row.querySelector("td:nth-child(2)").innerText.trim(),
-            10
-          );
-          if (essay && !isNaN(grade)) {
-            mainGradeInputEssays.push(essay);
-            mainGradeTargets.push(grade);
-          }
-        });
+  // Collect data from table rows
+  const rows = document.querySelectorAll("#data_table tr:not(:first-child)");
+  rows.forEach((row) => {
+    const essay = row.querySelector("td:nth-child(1)").innerText.trim();
+    const mainGrade = parseInt(row.querySelector("td:nth-child(2)").innerText.trim(), 10);
 
-        const mainGradeInputTrainTensor = preprocessText(mainGradeInputEssays);
-        const mainGradeTargetTrainTensor = tf.tensor1d(mainGradeTargets);
+    mainGradeInputEssays.push(essay);
+    mainGradeTargets.push(mainGrade);
 
-        // Create and train a model for main grade predictions
-        finalModel = tf.sequential();
-        finalModel.add(tf.layers.dense({ inputShape: [1200], units: 1 }));
-        const mainGradeOptimizer = tf.train.adam(learningRate);
-        finalModel.compile({
-          optimizer: mainGradeOptimizer,
-          loss: "meanSquaredError",
-        });
+    // Collect subgrade inputs
+    subgradeModels.forEach((model, index) => {
+      const subgradeInput = row.querySelectorAll("td")[index + 2].querySelector("input").value;
+      subgradeInputs[index].push(subgradeInput ? parseInt(subgradeInput, 10) : 0);
+    });
+  });
 
-        // Train the model
-        let mainGradeEpoch = 0;
-        while (mainGradeEpoch < 3000) {
-          mainGradeEpoch += 1;
-          await finalModel.fit(
-            mainGradeInputTrainTensor,
-            mainGradeTargetTrainTensor,
-            {
-              epochs: 1,
-              verbose: 0,
-            }
-          );
+  const mainGradeInputTrainTensor = preprocessText(mainGradeInputEssays);
+  const mainGradeTargetTrainTensor = tf.tensor1d(mainGradeTargets);
 
-          // Log progress every 10 epochs
-          if (mainGradeEpoch % 10 === 0) {
-            console.log(
-              `Main Grade (Playground) Training Epoch ${mainGradeEpoch} completed.`
-            );
-            percentageDone += 0.3333333333;
-    currentTime = Date.now() / 1000;
-    totalTimeTaken = currentTime - startTime;
-    updateProgress(percentageDone, totalTimeTaken);
-          }
-        }
+  // Train main grade model
+  finalModel = tf.sequential();
+  finalModel.add(tf.layers.dense({ inputShape: [1200], units: 1 }));
+  finalModel.compile({ optimizer: tf.train.adam(learningRate), loss: "meanSquaredError" });
 
-        console.log("Model training completed!");
-        document.getElementById("output").innerText =
-          "Model training completed!";
-        // Show the prediction input section after training
-        document.getElementById("predict_section").style.display = "block";
-      }
+  // Train the model for each subgrade
+  subgradeModels.forEach((subgradeModel, index) => {
+    const subgradeTensor = tf.tensor1d(subgradeInputs[index]);
+    subgradeModel.fit(mainGradeInputTrainTensor, subgradeTensor, {
+      epochs: 3000,
+      verbose: 0,
+    });
+  });
 
-      document
-  .getElementById("predict_grade")
-  .addEventListener("click", predictGrade);
+  // Train the main grade model as well
+  await finalModel.fit(mainGradeInputTrainTensor, mainGradeTargetTrainTensor, {
+    epochs: 3000,
+    verbose: 0,
+  });
+
+  console.log("Model training completed!");
+  document.getElementById("output").innerText = "Model training completed!";
+  document.getElementById("predict_section").style.display = "block";
+}
+
+// Function to predict grade and subgrades
+async function predictGrade() {
+  const essayInput = document.getElementById("new_essay_input").value.trim();
+
+  if (!essayInput) {
+    alert("Please enter an essay to predict the grade.");
+    return;
+  }
+
+  const essayTensor = preprocessText([essayInput]);
+
+  if (!finalModel) {
+    alert("The model is not trained yet. Please train the model before predicting.");
+    return;
+  }
+
+  // Predict main grade
+  const prediction = await finalModel.predict(essayTensor).data();
+  const predictedMainGrade = prediction[0];
+  document.getElementById("predicted_grade_output").innerText = `Predicted Grade: ${predictedMainGrade}`;
+
+  // Predict subgrades
+  subgradeModels.forEach((subgradeModel, index) => {
+    const subgradePrediction = await subgradeModel.predict(essayTensor).data();
+    document.getElementById(`subgrade_output_${index}`).innerText = `Subgrade ${index + 1}: ${subgradePrediction[0]}`;
+  });
+}
+
+document.getElementById("predict_grade").addEventListener("click", predictGrade);
+
 // i know this is worst syntax of all time :(
       function edit_row(no) {
         document.getElementById("edit_button" + no).style.display = "none";
