@@ -77,10 +77,19 @@ async function trainModels() {
     const cells = table.rows[i].cells;
     essays.push(cells[0].innerText.trim());
     mainGrades.push(parseInt(cells[1].innerText.trim(), 10));
+
+    // Gather subgrades
     for (let j = 0; j < subgrades.length; j++) {
-      const value = cells[j + 2]?.querySelector("input").value || 0;
+      const inputElement = cells[j + 2]?.querySelector("input");
+      const value = inputElement?.value || 0; // Default to 0 if empty
       subgrades[j].push(parseInt(value, 10));
     }
+  }
+
+  // Validate data
+  if (essays.length === 0 || mainGrades.length === 0) {
+    alert("No data to train on.");
+    return;
   }
 
   // Train main grade model
@@ -107,6 +116,8 @@ async function predictGrade() {
   }
 
   const inputTensor = preprocessText([essayInput]);
+
+  // Predict main grade
   const mainGradePrediction = await finalModel.predict(inputTensor).data();
   document.getElementById("predicted_grade_output").innerText = `Predicted Grade: ${mainGradePrediction[0].toFixed(
     2
@@ -129,8 +140,13 @@ function addRow() {
   const newEssay = document.getElementById("new_essay").value.trim();
   const newGrade = document.getElementById("new_grade").value.trim();
   const actionsColumnIndex = table.rows[0].cells.length - 1;
-  const row = table.insertRow(table.rows.length - 1);
 
+  if (!newEssay || !newGrade) {
+    alert("Please enter both essay and grade.");
+    return;
+  }
+
+  const row = table.insertRow(table.rows.length - 1);
   row.innerHTML = `
     <td>${newEssay}</td>
     <td>${newGrade}</td>
@@ -148,3 +164,4 @@ function deleteRow(index) {
 
 // Initialize the table on load
 window.onload = initializeTable;
+
