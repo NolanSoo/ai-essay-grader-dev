@@ -148,4 +148,3 @@ function deleteRow(index) {
 
 // Initialize the table on load
 window.onload = initializeTable;
-
