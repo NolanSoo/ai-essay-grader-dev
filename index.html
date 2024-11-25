@@ -255,6 +255,25 @@
       `;
       document.getElementById("predicted_grade_output").innerHTML = output;
     }
+    function makeSubgradesRenamable() {
+  const headers = document.querySelectorAll("#data_table thead th.subgrade");
+  headers.forEach((header) => {
+    const currentName = header.textContent.trim();
+    header.innerHTML = `<input type="text" value="${currentName}" onchange="updateSubgradeNames()">`;
+  });
+}
+
+function updateSubgradeNames() {
+  const subgradeHeaders = document.querySelectorAll("#data_table thead th.subgrade input");
+  const subgradeNames = Array.from(subgradeHeaders).map((input) => input.value.trim());
+
+  // Update any references to subgrade names (if needed in code)
+  console.log("Updated Subgrade Names:", subgradeNames); // Debugging log
+  // Use `subgradeNames` for predictions or validations if required
+}
+
+// Initialize the table 
+makeSubgradesRenamable();
   </script>
 </body>
 </html>
