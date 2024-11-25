@@ -202,9 +202,20 @@
       document.getElementById("output").textContent = "Models trained successfully.";
     }
 
-    function vectorizeData(data) {
-      return tf.tensor(data.map((essay) => Array.from(essay).map((char) => char.charCodeAt(0) % 128)));
-    }
+   function vectorizeData(data, maxLength = 24) {
+  return tf.tensor(
+    data.map((essay) => {
+      const charCodes = Array.from(essay)
+        .map((char) => char.charCodeAt(0) % 128)
+        .slice(0, maxLength); // Truncate to maxLength
+      while (charCodes.length < maxLength) {
+        charCodes.push(0); // Pad with zeros
+      }
+      return charCodes;
+    })
+  );
+}
+
 
     function createAndTrainModel(trainX, trainY, testX, testY) {
       const model = tf.sequential();
