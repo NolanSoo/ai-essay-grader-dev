@@ -96,18 +96,24 @@
     };
 
     function addEssayRow() {
-      const tableBody = document.querySelector("#data_table tbody");
-      const subgradeCount = document.querySelector("#data_table thead tr th").length - 3;
-      const row = document.createElement("tr");
+  const tableBody = document.querySelector("#data_table tbody");
+  const subgradeCount = document.querySelectorAll("#data_table thead tr th").length - 3; // Calculate the number of subgrades
+  const row = document.createElement("tr");
 
-      row.innerHTML = `
-        <td><textarea rows="2" placeholder="Enter essay text"></textarea></td>
-        <td><input type="number" min="1" max="4" placeholder="Main grade"></td>
-        ${'<td><input type="number" min="1" max="4" placeholder="Subgrade"></td>'.repeat(subgradeCount)}
-        <td class="actions"><button onclick="removeRow(this)">Remove Essay</button></td>
-      `;
-      tableBody.appendChild(row);
-    }
+  let subgradeInputs = "";
+  for (let i = 0; i < subgradeCount; i++) {
+    subgradeInputs += `<td><input type="number" min="1" max="4" placeholder="Subgrade"></td>`;
+  }
+
+  row.innerHTML = `
+    <td><textarea rows="2" placeholder="Enter essay text"></textarea></td>
+    <td><input type="number" min="1" max="4" placeholder="Main grade"></td>
+    ${subgradeInputs}
+    <td class="actions"><button onclick="removeRow(this)">Remove Essay</button></td>
+  `;
+  tableBody.appendChild(row);
+}
+
 
     function addSubgradeColumn() {
       const tableHead = document.querySelector("#data_table thead tr");
