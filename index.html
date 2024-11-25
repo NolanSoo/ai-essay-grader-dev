@@ -7,109 +7,113 @@
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.4.0"></script>
   </head>
+
   <body>
     <h1>AI Essay Grader</h1>
-    <div id="app">
-      <div class="w3-black">
-        <div
-          class="w3-container w3-green w3-center"
-          id="loading_bar"
-          style="width: 0%"
-        >
-          <p id="percentage_label">0%</p>
+    <h2>Revised Solution Trials (Prompt 2)</h2>
+    <div id="app"></div>
+    <div class="w3-black">
+      <div
+        class="w3-container w3-green w3-center"
+        id="loading_bar"
+        style="width: 0%"
+      >
+        <p id="percentage_label">0%</p>
+        <break>
           <p id="time_label"></p>
-        </div>
-      </div>
-
-      <div id="wrapper" align="center">
-        <table
-          align="center"
-          cellspacing="2"
-          cellpadding="5"
-          id="data_table"
-          border="1"
-        >
-          <tr>
-            <th>Essay</th>
-            <th>Main Grade</th>
-            <th>Actions</th>
-          </tr>
-          <tr id="row1">
-            <td id="essay_row1">This is a terrblie essay</td>
-            <td id="grade_row1">1</td>
-            <td>
-              <input
-                type="button"
-                value="Remove Essay"
-                class="delete"
-                onclick="deleteRow(1)"
-              />
-            </td>
-          </tr>
-          <tr id="row2">
-            <td id="essay_row2">This is an excellent essay.</td>
-            <td id="grade_row2">4</td>
-            <td>
-              <input
-                type="button"
-                value="Remove Essay"
-                class="delete"
-                onclick="deleteRow(2)"
-              />
-            </td>
-          </tr>
-          <tr>
-            <td><input type="text" id="new_essay" /></td>
-            <td><input type="text" id="new_grade" /></td>
-            <td>
-              <input
-                type="button"
-                class="add"
-                onclick="addRow();"
-                value="Add Essay"
-              />
-            </td>
-          </tr>
-        </table>
-
-        <input
-          type="button"
-          value="Add New Subgrade Column"
-          onclick="addNewSubgradeColumn()"
-        />
-
-        <h3>Train and Predict</h3>
-        <input
-          type="button"
-          id="train_model"
-          value="Train Models"
-          onclick="trainModels()"
-        />
-        <div id="output"></div>
-      </div>
-
-      <div id="predict_section" style="display: none; margin-top: 20px">
-        <h3>Enter a new essay to predict its grade:</h3>
-        <textarea
-          id="new_essay_input"
-          rows="4"
-          cols="50"
-          placeholder="Type your essay here..."
-        ></textarea>
-        <br />
-        <input
-          type="button"
-          id="predict_grade"
-          value="Predict Grade"
-          onclick="predictGrade()"
-        />
-        <div id="predicted_grade_output"></div>
-        <div id="subgrades_section">
-          <h3>Subgrades:</h3>
-          <div id="subgrades_outputs"></div>
-        </div>
       </div>
     </div>
+    <h1></h1>
+    <div id="wrapper" align="center">
+      <break>
+      <table
+        align="center"
+        cellspacing="2"
+        cellpadding="5"
+        id="data_table"
+        border="1"
+      >
+        <tr id="header_row">
+          <th>Essay</th>
+          <th>Main Grade</th>
+          <!-- Subgrade columns will be added dynamically -->
+          <th>Actions</th>
+        </tr>
+
+        <tr id="row1">
+          <td id="essay_row1">This is a terrblie essay</td>
+          <td id="grade_row1">1</td>
+          <!-- Subgrades will be added here dynamically -->
+          <td>
+            <input
+              type="button"
+              value="Remove Essay"
+              class="delete"
+              onclick="delete_row('1')"
+            />
+          </td>
+        </tr>
+
+        <tr id="row2">
+          <td id="essay_row2">This is an excellent essay.</td>
+          <td id="grade_row2">4</td>
+          <!-- Subgrades will be added here dynamically -->
+          <td>
+            <input
+              type="button"
+              value="Remove Essay"
+              class="delete"
+              onclick="delete_row('2')"
+            />
+          </td>
+        </tr>
+
+        <tr id="new_row">
+          <td><input type="text" id="new_essay" /></td>
+          <td><input type="text" id="new_main_grade" /></td>
+          <!-- Subgrade input fields will be added dynamically -->
+          <td>
+            <input
+              type="button"
+              class="add"
+              onclick="add_row();"
+              value="Add Essay"
+            />
+          </td>
+        </tr>
+      </table>
+      <button onclick="addSubgradeColumn()">Add Subgrade Column</button>
+      <h3>Playground/Demo</h3>
+      <h4>
+        Please copy and paste your graded essays (straight from Docs, Word,
+        etc) - no rubric is required!
+      </h4>
+      <input
+        type="button"
+        id="train_model"
+        value="Start Playground Model"
+        onclick="trainModel()"
+      />
+      <div id="output"></div>
+    </div>
+    <div id="predict_section" style="display: none; margin-top: 20px">
+      <h3>Enter a new essay to predict its grade:</h3>
+      <textarea
+        id="new_essay_input"
+        rows="4"
+        cols="50"
+        placeholder="Type your essay here..."
+      ></textarea>
+      <br />
+      <input
+        type="button"
+        id="predict_grade"
+        value="Predict Grade"
+        onclick="predictGrade()"
+      />
+      <div id="predicted_grade_output"></div>
+    </div>
+    <script src="index.js"></script>
+    <div id="output"></div>
   </body>
-  <script src="index.js"></script>
 </html>
