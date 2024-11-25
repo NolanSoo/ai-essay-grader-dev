@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AI Essay Grader Demo</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.4.0"></script>
+  </head>
+
+  <body>
+    <h1>AI Essay Grader</h1>
+    <h2>Revised Solution Trials (Prompt 2)</h2>
+    <div id="app"></div>
+    <div class="w3-black">
+      <div
+        class="w3-container w3-green w3-center"
+        id="loading_bar"
+        style="width: 0%"
+      >
+        <p id="percentage_label">0%</p>
+        <break>
+          <p id="time_label"></p>
+      </div>
+    </div>
+    <h1></h1>
+    <div id="wrapper" align="center">
+      <break>
+      <table
+        align="center"
+        cellspacing="2"
+        cellpadding="5"
+        id="data_table"
+        border="1"
+      >
+        <tr>
+          <th>Essay</th>
+          <th>Main Grade</th>
+          <th>Actions</th>
+        </tr>
+
+        <tr id="row1">
+          <td id="essay_row1">This is a terrblie essay</td>
+          <td id="grade_row1">1</td>
+          <td>
+            <input
+              type="button"
+              value="Remove Essay"
+              class="delete"
+              onclick="delete_row('1')"
+            />
+          </td>
+        </tr>
+
+        <tr id="row2">
+          <td id="essay_row2">This is an excellent essay.</td>
+          <td id="grade_row2">4</td>
+          <td>
+            <input
+              type="button"
+              value="Remove Essay"
+              class="delete"
+              onclick="delete_row('2')"
+            />
+          </td>
+        </tr>
+
+        <tr>
+          <td><input type="text" id="new_name" /></td>
+          <td><input type="text" id="new_country" /></td>
+          <td>
+            <input
+              type="button"
+              class="add"
+              onclick="add_row();"
+              value="Add Essay"
+            />
+          </td>
+        </tr>
+      </table>
+      <h3>Playground/Demo</h3>
+        <h4>Please copy and paste your graded essays (straight from Docs, Word, etc) - no rubric is required!</h4>
+      <input
+        type="button"
+        id="train_model"
+        value="Start Playground Model"
+        onclick="trainModel()"
+      />
+      <div id="output"></div>
+    </div>
+    <div id="predict_section" style="display: none; margin-top: 20px">
+      <h3>Enter a new essay to predict its grade:</h3>
+      <textarea
+        id="new_essay_input"
+        rows="4"
+        cols="50"
+        placeholder="Type your essay here..."
+      ></textarea>
+      <br />
+      <input
+        type="button"
+        id="predict_grade"
+        value="Predict Grade"
+        onclick="predictGrade()"
+      />
+      <div id="predicted_grade_output"></div>
+    </div>
+    <script>
+      var finalModel;
+
+
+  function updateProgress(percentage, totalTimeTaken) {
+    // Ensure the percentage is between 0 and 100
+    percentage = Math.max(0, Math.min(100, percentage));
+    percentage = percentage.toFixed(2);
+
+    // Get the loading bar and percentage label elements
+    const loadingBar = document.getElementById("loading_bar");
+    const percentageLabel = document.getElementById("percentage_label");
+
+    // Update the width of the loading bar
+    loadingBar.style.width = percentage + "%";
+
+    // Update the percentage label text
+    percentageLabel.textContent = percentage + "%";
+
+    // Calculate the estimated total time based on total time taken and percentage done
+    if (percentage > 0) {
+      const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs
+
+      // Estimate the total time based on the current progress (linear approximation)
+      const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time
+
+      // Calculate remaining time
+      const remainingTime = expectedTotalTime - elapsedTime;
+
+      // Format time (minutes:seconds)
+      const formatTime = (timeInSeconds) => {
+        const minutes = Math.floor(timeInSeconds / 60);
+        const seconds = Math.floor(timeInSeconds % 60);
+        return `${minutes} minutes - ${seconds
+          .toString()
+          .padStart(2, "0")} seconds`;
+      };
+
+      // Display the time taken and expected total time in a human-readable format
+      const timeTaken = formatTime(elapsedTime);
+      const totalTime = formatTime(expectedTotalTime);
+
+      // Update the label with time information
+      const timeLabel = document.getElementById("time_label");
+      timeLabel.textContent = `${timeTaken} / ${totalTime}`;
+    }
+  }
+
+      // Function for predicting the grade
+      async function predictGrade() {
+        function preprocessText(essays) {
+          const tokenizedInputs = essays.map((essay) => {
+            const words = essay.trim().split(/\s+/);
+            const vector = new Array(1200).fill(0);
+            for (let word of words) {
+              const index = Math.min(word.length, 1199);
+              vector[index] += 1;
+            }
+            return vector;
+          });
+          return tf.tensor2d(tokenizedInputs);
+        }
+
+        const essayInput = document
+          .getElementById("new_essay_input")
+          .value.trim();
+
+        // Check if the input is not empty
+        if (!essayInput) {
+          alert("Please enter an essay to predict the grade.");
+          return;
+        }
+
+        // Preprocess the input essay into tensor format
+        const essayTensor = preprocessText([essayInput]); // Wrap in an array for single input
+
+        if (!finalModel) {
+          alert(
+            "The model is not trained yet. Please train the model before predicting."
+          );
+          return;
+        }
+
+        // Use the trained model to predict
+        const prediction = await finalModel.predict(essayTensor).data();
+
+        // Round the predicted grade and display it
+        const predictedGrade = prediction[0];
+        document.getElementById(
+          "predicted_grade_output"
+        ).innerText = `Predicted Grade: ${predictedGrade}`;
+      }
+
+      // Function for training the model
+      async function trainModel() {
+        const learningRate = 0.005;
+        var percentageDone = 0;
+  var totalTimeTaken = 0;
+  var startTime = Date.now() / 1000;
+  var currentTime = 0;
+        function preprocessText(essays) {
+          const tokenizedInputs = essays.map((essay) => {
+            const words = essay.trim().split(/\s+/);
+            const vector = new Array(1200).fill(0);
+            for (let word of words) {
+              const index = Math.min(word.length, 1199);
+              vector[index] += 1;
+            }
+            return vector;
+          });
+          return tf.tensor2d(tokenizedInputs);
+        }
+
+        const mainGradeInputEssays = [];
+        const mainGradeTargets = [];
+
+        // Collect data from table rows
+        const rows = document.querySelectorAll(
+          "#data_table tr:not(:first-child)"
+        ); // Excluding header row
+        rows.forEach((row) => {
+          const essay = row.querySelector("td:nth-child(1)").innerText.trim();
+          const grade = parseInt(
+            row.querySelector("td:nth-child(2)").innerText.trim(),
+            10
+          );
+          if (essay && !isNaN(grade)) {
+            mainGradeInputEssays.push(essay);
+            mainGradeTargets.push(grade);
+          }
+        });
+
+        const mainGradeInputTrainTensor = preprocessText(mainGradeInputEssays);
+        const mainGradeTargetTrainTensor = tf.tensor1d(mainGradeTargets);
+
+        // Create and train a model for main grade predictions
+        finalModel = tf.sequential();
+        finalModel.add(tf.layers.dense({ inputShape: [1200], units: 1 }));
+        const mainGradeOptimizer = tf.train.adam(learningRate);
+        finalModel.compile({
+          optimizer: mainGradeOptimizer,
+          loss: "meanSquaredError",
+        });
+
+        // Train the model
+        let mainGradeEpoch = 0;
+        while (mainGradeEpoch < 3000) {
+          mainGradeEpoch += 1;
+          await finalModel.fit(
+            mainGradeInputTrainTensor,
+            mainGradeTargetTrainTensor,
+            {
+              epochs: 1,
+              verbose: 0,
+            }
+          );
+
+          // Log progress every 10 epochs
+          if (mainGradeEpoch % 10 === 0) {
+            console.log(
+              `Main Grade (Playground) Training Epoch ${mainGradeEpoch} completed.`
+            );
+            percentageDone += 0.3333333333;
+    currentTime = Date.now() / 1000;
+    totalTimeTaken = currentTime - startTime;
+    updateProgress(percentageDone, totalTimeTaken);
+          }
+        }
+
+        console.log("Model training completed!");
+        document.getElementById("output").innerText =
+          "Model training completed!";
+        // Show the prediction input section after training
+        document.getElementById("predict_section").style.display = "block";
+      }
+
+      document
+  .getElementById("predict_grade")
+  .addEventListener("click", predictGrade);
+// i know this is worst syntax of all time :(
+      function edit_row(no) {
+        document.getElementById("edit_button" + no).style.display = "none";
+
+        var essayCell = document.getElementById("essay_row" + no);
+        var gradeCell = document.getElementById("grade_row" + no);
+
+        var essayData = essayCell.innerHTML;
+        var gradeData = gradeCell.innerHTML;
+
+        essayCell.innerHTML =
+          "<input type='text' id='essay_text" +
+          no +
+          "' value='" +
+          essayData +
+          "'>";
+        gradeCell.innerHTML =
+          "<input type='text' id='grade_text" +
+          no +
+          "' value='" +
+          gradeData +
+          "'>";
+      }
+
+      // Modify the save_row function
+      function save_row(no) {
+        var essayVal = document.getElementById("essay_text" + no).value;
+        var gradeVal = document.getElementById("grade_text" + no).value;
+
+        document.getElementById("name_row" + no).innerHTML = essayVal;
+        document.getElementById("country_row" + no).innerHTML = gradeVal;
+
+        document.getElementById("edit_button" + no).style.display = "block";
+      }
+
+      // Modify the add_row function
+      function add_row() {
+        var newEssay = document.getElementById("new_name").value;
+        var newGrade = document.getElementById("new_country").value;
+
+        // Assuming that the row ID should increment correctly based on total rows
+        var table = document.getElementById("data_table");
+        var tableLen = table.rows.length - 1; // Excluding header
+        var row = (table.insertRow(tableLen).outerHTML =
+          "<tr id='row" +
+          (tableLen + 1) +
+          "'>" +
+          "<td id='name_row" +
+          (tableLen + 1) +
+          "'>" +
+          newEssay +
+          "</td>" +
+          "<td id='country_row" +
+          (tableLen + 1) +
+          "'>" +
+          newGrade +
+          "</td>" +
+          "<td><input type='button' id='edit_button" +
+          (tableLen + 1) +
+          "' value='Edit' class='edit' onclick='edit_row(" +
+          (tableLen + 1) +
+          ")'> " +
+          "<input type='button' id='save_button" +
+          (tableLen + 1) +
+          "' value='Save' class='save' onclick='save_row(" +
+          (tableLen + 1) +
+          ")'> " +
+          "<input type='button' value='Delete' class='delete' onclick='delete_row(" +
+          (tableLen + 1) +
+          ")'></td>" +
+          "</tr>");
+
+        document.getElementById("new_name").value = "";
+        document.getElementById("new_country").value = "";
+      }
+
+      // Modify the delete_row function to match the new row structure
+      function delete_row(no) {
+        document.getElementById("row" + no).outerHTML = "";
+      }
+    </script>
+     <script src="index.js"></script>
+    <div id="output"></div>
+  </body>
+</html>

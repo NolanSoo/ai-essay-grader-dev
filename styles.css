@@ -1,0 +1,39 @@
+body {
+  font-family: sans-serif;
+  background: #dedede;
+  padding: 4%; 
+  box-sizing: border-box; /* So padding doesn't affect the layout size */
+}
+
+h1 {
+  text-align: center;
+  display: inline-block;
+  font-size: 72px;
+  margin: 0; 
+}
+/* Container for the canvas elements */
+.charts-container {
+  display: flex;
+  justify-content: space-between;  /* Space out the items equally */
+  gap: 20px;                      /* Adds space between the canvases */
+  flex-wrap: wrap;                 /* Allow wrapping on smaller screens */
+}
+
+/* Make the canvas elements take up equal space */
+.charts-container > div {
+  flex: 1;                         /* Allow the divs to grow and take equal width */
+  min-width: 300px;                /* Ensure they don't get too small on mobile */
+}
+
+/* Media query for mobile devices: stacks the canvases vertically */
+@media (max-width: 768px) {
+  .charts-container {
+    flex-direction: column;        /* Stack elements vertically on mobile */
+    align-items: center;           /* Center align the elements when stacked */
+  }
+  
+  .charts-container > div {
+    width: 100%;                   /* Full width for each canvas on mobile */
+    margin-bottom: 20px;           /* Add space between stacked elements */
+  }
+}
