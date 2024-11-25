@@ -48,7 +48,18 @@
       // Function for predicting the grade
       async function predictGrade() {
   const essayInput = document.getElementById("new_essay_input").value.trim();
-
+    function preprocessText(essays) {
+    const tokenizedInputs = essays.map((essay) => {
+      const words = essay.trim().split(/\s+/);
+      const vector = new Array(1200).fill(0);
+      for (let word of words) {
+        const index = Math.min(word.length, 1199);
+        vector[index] += 1;
+      }
+      return vector;
+    });
+    return tf.tensor2d(tokenizedInputs);
+  }
   if (!essayInput) {
     alert("Please enter an essay to predict the grade.");
     return;
@@ -77,7 +88,18 @@
   const mainGradeInputEssays = [];
   const mainGradeTargets = [];
   const subgradeTargets = Array.from({ length: subgradeCount }, () => []);
-
+    function preprocessText(essays) {
+    const tokenizedInputs = essays.map((essay) => {
+      const words = essay.trim().split(/\s+/);
+      const vector = new Array(1200).fill(0);
+      for (let word of words) {
+        const index = Math.min(word.length, 1199);
+        vector[index] += 1;
+      }
+      return vector;
+    });
+    return tf.tensor2d(tokenizedInputs);
+  }
   const rows = document.querySelectorAll("#data_table tr:not(:first-child)");
   rows.forEach((row, idx) => {
     if (idx === rows.length - 1) return; // Skip last row
