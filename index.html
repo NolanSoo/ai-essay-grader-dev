@@ -3,205 +3,176 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grade Predictor</title>
+  <title>Essay Grading Model</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    #predict_section {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <h1>Grade Predictor</h1>
+  <h1>Essay Grading Model</h1>
 
-  <!-- Table for data input -->
-  <table id="data_table" border="1">
-    <thead>
+  <div class="section">
+    <h2>Training Data</h2>
+    <table id="data_table">
       <tr>
         <th>Essay</th>
         <th>Main Grade</th>
-        <th>Actions</th>
+        <th>Subgrade 1</th>
+        <th>Subgrade 2</th>
+        <!-- Add more subgrades here as needed -->
       </tr>
-    </thead>
-    <tbody>
       <tr>
-        <td>Example Essay</td>
+        <td>This is the first essay.</td>
         <td>85</td>
-        <td><button onclick="removeRow(this)">Delete</button></td>
+        <td>90</td>
+        <td>80</td>
       </tr>
       <tr>
-        <td><input type="text" id="new_essay_input"></td>
-        <td><input type="text" id="new_main_grade"></td>
-        <td><button onclick="addRow()">Add Row</button></td>
+        <td>This is the second essay.</td>
+        <td>75</td>
+        <td>70</td>
+        <td>65</td>
       </tr>
-    </tbody>
-  </table>
+      <!-- Add more training data rows here -->
+    </table>
+    <button onclick="trainModel()">Train Models</button>
+    <div id="output"></div>
+  </div>
 
-  <!-- Buttons for actions -->
-  <button onclick="addSubgradeColumn()">Add Subgrade Column</button>
-  <button onclick="trainModel()">Train Model</button>
-  <button onclick="trainSubgradeModels()">Train Subgrade Models</button>
-  <button onclick="predictGrade()">Predict Grade</button>
+  <div id="predict_section" class="section">
+    <h2>Predict Grades</h2>
+    <textarea id="new_essay_input" rows="4" cols="50" placeholder="Enter an essay to predict the grade..."></textarea><br>
+    <button onclick="predictGrade()">Predict</button>
+    <div id="predicted_grade_output"></div>
+  </div>
 
-  <!-- Output -->
-  <h3>Predicted Grades</h3>
-  <p id="predicted_grade_output"></p>
-
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
   <script>
-    let finalModel = null;
+    const models = {
+      mainGrade: null,
+      subGrades: {},
+    };
 
-    // Add a new row to the table
-    function addRow() {
-      const table = document.getElementById("data_table");
-      const inputRow = table.rows[table.rows.length - 1];
-      const essayInput = document.getElementById("new_essay_input").value.trim();
-      const gradeInput = document.getElementById("new_main_grade").value.trim();
-
-      if (!essayInput || !gradeInput || isNaN(gradeInput)) {
-        alert("Please provide a valid essay and numeric grade.");
-        return;
-      }
-
-      const newRow = table.insertRow(table.rows.length - 1);
-      newRow.innerHTML = `
-        <td>${essayInput}</td>
-        <td>${gradeInput}</td>
-        <td><button onclick="removeRow(this)">Delete</button></td>
-      `;
-      inputRow.cells[0].querySelector("input").value = "";
-      inputRow.cells[1].querySelector("input").value = "";
-    }
-
-    // Remove a row from the table
-    function removeRow(button) {
-      const row = button.parentNode.parentNode;
-      row.parentNode.removeChild(row);
-    }
-
-    // Preprocess text for training and prediction
-    function preprocessText(essays) {
-      // Dummy preprocessing for simplicity
-      return tf.tensor2d(
-        essays.map((essay) => Array(1200).fill(essay.length % 10))
-      );
-    }
-
-    // Train the main model
     async function trainModel() {
       const learningRate = 0.005;
-      const table = document.getElementById("data_table");
-      const inputEssays = [];
-      const targets = [];
 
-      // Gather data from the table
-      for (let i = 1; i < table.rows.length - 1; i++) {
-        const row = table.rows[i];
-        const essay = row.cells[0].innerText.trim();
-        const grade = parseInt(row.cells[1].innerText.trim(), 10);
-
-        if (essay && !isNaN(grade)) {
-          inputEssays.push(essay);
-          targets.push(grade);
-        }
+      function preprocessText(essays) {
+        const tokenizedInputs = essays.map((essay) => {
+          const words = essay.trim().split(/\s+/);
+          const vector = new Array(1200).fill(0);
+          for (let word of words) {
+            const index = Math.min(word.length, 1199);
+            vector[index] += 1;
+          }
+          return vector;
+        });
+        return tf.tensor2d(tokenizedInputs);
       }
 
-      const inputTensor = preprocessText(inputEssays);
-      const targetTensor = tf.tensor1d(targets);
+      const mainGradeInputEssays = [];
+      const mainGradeTargets = [];
+      const subGradeData = {};
+      const rows = document.querySelectorAll("#data_table tr:not(:first-child)");
 
-      // Define the model
-      finalModel = tf.sequential();
-      finalModel.add(tf.layers.dense({ inputShape: [1200], units: 1 }));
-      const optimizer = tf.train.adam(learningRate);
-      finalModel.compile({
-        optimizer: optimizer,
+      rows.forEach((row) => {
+        const essay = row.querySelector("td:nth-child(1)").innerText.trim();
+        const grade = parseInt(row.querySelector("td:nth-child(2)").innerText.trim(), 10);
+        if (essay && !isNaN(grade)) {
+          mainGradeInputEssays.push(essay);
+          mainGradeTargets.push(grade);
+        }
+
+        const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");
+        subgradeCells.forEach((cell, index) => {
+          if (!subGradeData[index]) subGradeData[index] = { inputs: [], targets: [] };
+          const subgrade = parseInt(cell.innerText.trim(), 10);
+          if (!isNaN(subgrade)) {
+            subGradeData[index].inputs.push(essay);
+            subGradeData[index].targets.push(subgrade);
+          }
+        });
+      });
+
+      const mainGradeInputTrainTensor = preprocessText(mainGradeInputEssays);
+      const mainGradeTargetTrainTensor = tf.tensor1d(mainGradeTargets);
+
+      models.mainGrade = tf.sequential();
+      models.mainGrade.add(tf.layers.dense({ inputShape: [1200], units: 1 }));
+      const mainGradeOptimizer = tf.train.adam(learningRate);
+      models.mainGrade.compile({
+        optimizer: mainGradeOptimizer,
         loss: "meanSquaredError",
       });
 
-      // Train the model
-      for (let epoch = 0; epoch < 3000; epoch++) {
-        await finalModel.fit(inputTensor, targetTensor, {
-          epochs: 1,
-          verbose: 0,
-        });
-        if (epoch % 10 === 0) {
-          console.log(`Training Epoch ${epoch} completed.`);
-        }
-      }
+      await models.mainGrade.fit(mainGradeInputTrainTensor, mainGradeTargetTrainTensor, {
+        epochs: 10,
+        verbose: 0,
+      });
+      console.log("Main Grade Model Trained");
 
-      console.log("Main model training completed.");
-    }
+      for (const [subgradeIndex, data] of Object.entries(subGradeData)) {
+        const subgradeInputTrainTensor = preprocessText(data.inputs);
+        const subgradeTargetTrainTensor = tf.tensor1d(data.targets);
 
-    // Add a new subgrade column
-    function addSubgradeColumn() {
-      const table = document.getElementById("data_table");
-      const headerRow = table.rows[0];
-      const columnCount = headerRow.cells.length;
-
-      // Insert the subgrade column header before the Actions column
-      const newHeaderCell = headerRow.insertCell(columnCount - 1);
-      newHeaderCell.outerHTML = `<th id="subgrade_header${columnCount}">Subgrade ${columnCount - 2}</th>`;
-
-      // Add a new subgrade cell for each row
-      for (let i = 1; i < table.rows.length - 1; i++) {
-        const row = table.rows[i];
-        const newCell = row.insertCell(columnCount - 1);
-        newCell.outerHTML = `<td id="subgrade_row${i}_${columnCount - 2}">0</td>`;
-      }
-
-      // Add a new input field for the subgrade in the last row
-      const inputRow = table.rows[table.rows.length - 1];
-      const inputCell = inputRow.insertCell(columnCount - 1);
-      inputCell.outerHTML = `<td><input type="text" id="new_subgrade${columnCount - 2}" /></td>`;
-    }
-
-    // Train models for subgrades
-    async function trainSubgradeModels() {
-      const learningRate = 0.005;
-      const table = document.getElementById("data_table");
-      const headerRow = table.rows[0];
-      const subgradeHeaders = Array.from(headerRow.cells).filter((cell) =>
-        cell.id.includes("subgrade_header")
-      );
-
-      for (let subgradeIndex = 0; subgradeIndex < subgradeHeaders.length; subgradeIndex++) {
-        const subgradeColumnIndex = subgradeIndex + 2;
-        const subgradeInputEssays = [];
-        const subgradeTargets = [];
-
-        for (let i = 1; i < table.rows.length - 1; i++) {
-          const row = table.rows[i];
-          const essay = row.cells[0].innerText.trim();
-          const subgrade = parseInt(row.cells[subgradeColumnIndex].innerText.trim(), 10);
-          if (essay && !isNaN(subgrade)) {
-            subgradeInputEssays.push(essay);
-            subgradeTargets.push(subgrade);
-          }
-        }
-
-        const subgradeInputTensor = preprocessText(subgradeInputEssays);
-        const subgradeTargetTensor = tf.tensor1d(subgradeTargets);
-
-        const subgradeModel = tf.sequential();
-        subgradeModel.add(tf.layers.dense({ inputShape: [1200], units: 1 }));
-        const subgradeOptimizer = tf.train.adam(learningRate);
-        subgradeModel.compile({
-          optimizer: subgradeOptimizer,
+        models.subGrades[subgradeIndex] = tf.sequential();
+        models.subGrades[subgradeIndex].add(tf.layers.dense({ inputShape: [1200], units: 1 }));
+        const subGradeOptimizer = tf.train.adam(learningRate);
+        models.subGrades[subgradeIndex].compile({
+          optimizer: subGradeOptimizer,
           loss: "meanSquaredError",
         });
 
-        for (let epoch = 0; epoch < 3000; epoch++) {
-          await subgradeModel.fit(subgradeInputTensor, subgradeTargetTensor, {
-            epochs: 1,
-            verbose: 0,
-          });
-          if (epoch % 10 === 0) {
-            console.log(`Subgrade ${subgradeIndex + 1} Training Epoch ${epoch} completed.`);
-          }
-        }
-
-        console.log(`Subgrade ${subgradeIndex + 1} model training completed.`);
+        await models.subGrades[subgradeIndex].fit(subgradeInputTrainTensor, subgradeTargetTrainTensor, {
+          epochs: 10,
+          verbose: 0,
+        });
+        console.log(`Subgrade Model ${subgradeIndex} Trained`);
       }
+
+      console.log("All Models Trained!");
+      document.getElementById("output").innerText = "All Models Trained!";
+      document.getElementById("predict_section").style.display = "block";
     }
 
-    // Predict grade
     async function predictGrade() {
-      const essayInput = document.getElementById("new_essay_input").value.trim();
+      function preprocessText(essays) {
+        const tokenizedInputs = essays.map((essay) => {
+          const words = essay.trim().split(/\s+/);
+          const vector = new Array(1200).fill(0);
+          for (let word of words) {
+            const index = Math.min(word.length, 1199);
+            vector[index] += 1;
+          }
+          return vector;
+        });
+        return tf.tensor2d(tokenizedInputs);
+      }
 
+      const essayInput = document.getElementById("new_essay_input").value.trim();
       if (!essayInput) {
         alert("Please enter an essay to predict the grade.");
         return;
@@ -209,30 +180,29 @@
 
       const essayTensor = preprocessText([essayInput]);
 
-      if (!finalModel) {
-        alert("The main grade model is not trained yet.");
+      if (!models.mainGrade) {
+        alert("The main grade model is not trained yet. Please train the model.");
         return;
       }
-
-      const mainGradePrediction = await finalModel.predict(essayTensor).data();
+      const mainGradePrediction = await models.mainGrade.predict(essayTensor).data();
       const predictedMainGrade = mainGradePrediction[0];
 
-      const predictions = [`Main Grade: ${predictedMainGrade.toFixed(2)}`];
-      const table = document.getElementById("data_table");
-      const headerRow = table.rows[0];
-      const subgradeHeaders = Array.from(headerRow.cells).filter((cell) =>
-        cell.id.includes("subgrade_header")
-      );
-
-      for (let subgradeIndex = 0; subgradeIndex < subgradeHeaders.length; subgradeIndex++) {
-        const subgradeModel = finalModel;
-        const subgradePrediction = await subgradeModel.predict(essayTensor).data();
-        predictions.push(
-          `Subgrade ${subgradeIndex + 1}: ${subgradePrediction[0].toFixed(2)}`
-        );
+      const subGradePredictions = [];
+      for (const [subgradeIndex, model] of Object.entries(models.subGrades)) {
+        const subgradePrediction = await model.predict(essayTensor).data();
+        subGradePredictions.push({ subgradeIndex, grade: subgradePrediction[0] });
       }
 
-      document.getElementById("predicted_grade_output").innerText = predictions.join("\n");
+      const predictionOutput = `
+        Predicted Main Grade: ${predictedMainGrade.toFixed(2)}
+        ${subGradePredictions
+          .map(
+            (sub) =>
+              `Predicted Subgrade ${parseInt(sub.subgradeIndex) + 1}: ${sub.grade.toFixed(2)}`
+          )
+          .join("\n")}
+      `;
+      document.getElementById("predicted_grade_output").innerText = predictionOutput;
     }
   </script>
 </body>
