@@ -19,13 +19,10 @@
         style="width: 0%"
       >
         <p id="percentage_label">0%</p>
-        <break>
-          <p id="time_label"></p>
+        <p id="time_label"></p>
       </div>
     </div>
-    <h1></h1>
     <div id="wrapper" align="center">
-      <break>
       <table
         align="center"
         cellspacing="2"
@@ -36,20 +33,18 @@
         <tr id="header_row">
           <th>Essay</th>
           <th>Main Grade</th>
-          <!-- Subgrade columns will be added dynamically -->
           <th>Actions</th>
         </tr>
 
         <tr id="row1">
-          <td id="essay_row1">This is a terrblie essay</td>
+          <td id="essay_row1">This is a terrible essay</td>
           <td id="grade_row1">1</td>
-          <!-- Subgrades will be added here dynamically -->
           <td>
             <input
               type="button"
               value="Remove Essay"
               class="delete"
-              onclick="delete_row('1')"
+              onclick="delete_row(1)"
             />
           </td>
         </tr>
@@ -57,13 +52,12 @@
         <tr id="row2">
           <td id="essay_row2">This is an excellent essay.</td>
           <td id="grade_row2">4</td>
-          <!-- Subgrades will be added here dynamically -->
           <td>
             <input
               type="button"
               value="Remove Essay"
               class="delete"
-              onclick="delete_row('2')"
+              onclick="delete_row(2)"
             />
           </td>
         </tr>
@@ -71,22 +65,21 @@
         <tr id="new_row">
           <td><input type="text" id="new_essay" /></td>
           <td><input type="text" id="new_main_grade" /></td>
-          <!-- Subgrade input fields will be added dynamically -->
           <td>
             <input
               type="button"
               class="add"
-              onclick="add_row();"
+              onclick="add_row()"
               value="Add Essay"
             />
           </td>
         </tr>
       </table>
+
       <button onclick="addSubgradeColumn()">Add Subgrade Column</button>
       <h3>Playground/Demo</h3>
       <h4>
-        Please copy and paste your graded essays (straight from Docs, Word,
-        etc) - no rubric is required!
+        Please copy and paste your graded essays (straight from Docs, Word, etc) - no rubric is required!
       </h4>
       <input
         type="button"
@@ -96,6 +89,7 @@
       />
       <div id="output"></div>
     </div>
+
     <div id="predict_section" style="display: none; margin-top: 20px">
       <h3>Enter a new essay to predict its grade:</h3>
       <textarea
@@ -113,7 +107,8 @@
       />
       <div id="predicted_grade_output"></div>
     </div>
+
     <script src="index.js"></script>
-    <div id="output"></div>
   </body>
 </html>
+
