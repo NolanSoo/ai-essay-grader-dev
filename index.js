@@ -17,6 +17,19 @@ function preprocessText(essays) {
   );
 }
 
+function moveActionsToLast() {
+  const table = document.getElementById("data_table");
+
+  for (let row of table.rows) {
+    const actionsCell = row.cells[row.cells.length - 1]; // Current last cell
+    row.appendChild(actionsCell); // Move actions cell to the end
+  }
+}
+
+function initializeTable() {
+  moveActionsToLast();
+}
+
 function addNewSubgradeColumn() {
   const table = document.getElementById("data_table");
   const headersRow = table.rows[0];
@@ -41,6 +54,9 @@ function addNewSubgradeColumn() {
   // Add new subgrade model
   const subgradeModel = createModel();
   subgradeModels.push(subgradeModel);
+
+  // Ensure actions remain at the last column
+  moveActionsToLast();
 }
 
 function createModel() {
@@ -123,12 +139,13 @@ function addRow() {
       .join("")}
     <td><input type="button" value="Remove Essay" onclick="deleteRow(${table.rows.length - 1})" /></td>`;
 
-  // Ensure "Actions" remains last
-  row.insertCell(actionsColumnIndex).innerHTML = `
-    <input type="button" value="Remove Essay" onclick="deleteRow(${table.rows.length - 1})" />
-  `;
+  moveActionsToLast();
 }
 
 function deleteRow(index) {
   document.getElementById("data_table").deleteRow(index);
 }
+
+// Initialize the table on load
+window.onload = initializeTable;
+
