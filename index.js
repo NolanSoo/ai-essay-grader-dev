@@ -20,21 +20,23 @@ function preprocessText(essays) {
 function addNewSubgradeColumn() {
   const table = document.getElementById("data_table");
   const headersRow = table.rows[0];
-  const columnIndex = headersRow.cells.length;
+  const actionsColumnIndex = headersRow.cells.length - 1;
 
-  // Add header
+  // Add header for new subgrade column
   const th = document.createElement("th");
-  th.innerText = `Subgrade ${columnIndex - 2}`;
-  headersRow.appendChild(th);
+  th.innerText = `Subgrade ${actionsColumnIndex - 1}`;
+  headersRow.insertBefore(th, headersRow.cells[actionsColumnIndex]);
 
-  // Add input fields for subgrades
+  // Add input fields for subgrades in each data row
   for (let i = 1; i < table.rows.length - 1; i++) {
-    const cell = table.rows[i].insertCell(-1);
+    const cell = table.rows[i].insertCell(actionsColumnIndex - 1);
     cell.innerHTML = `<input type="text" class="subgrade_input" />`;
   }
 
-  // Add empty cell for the input row
-  table.rows[table.rows.length - 1].insertCell(-1).innerHTML = "";
+  // Add an empty cell for the input row (last row)
+  const inputRow = table.rows[table.rows.length - 1];
+  const cell = inputRow.insertCell(actionsColumnIndex - 1);
+  cell.innerHTML = ""; // No input required here for new subgrade
 
   // Add new subgrade model
   const subgradeModel = createModel();
@@ -110,13 +112,21 @@ function addRow() {
   const table = document.getElementById("data_table");
   const newEssay = document.getElementById("new_essay").value.trim();
   const newGrade = document.getElementById("new_grade").value.trim();
+  const actionsColumnIndex = table.rows[0].cells.length - 1;
   const row = table.insertRow(table.rows.length - 1);
 
   row.innerHTML = `
     <td>${newEssay}</td>
     <td>${newGrade}</td>
-    ${subgradeModels.map(() => `<td><input type="text" class="subgrade_input" /></td>`).join("")}
+    ${subgradeModels
+      .map(() => `<td><input type="text" class="subgrade_input" /></td>`)
+      .join("")}
     <td><input type="button" value="Remove Essay" onclick="deleteRow(${table.rows.length - 1})" /></td>`;
+
+  // Ensure "Actions" remains last
+  row.insertCell(actionsColumnIndex).innerHTML = `
+    <input type="button" value="Remove Essay" onclick="deleteRow(${table.rows.length - 1})" />
+  `;
 }
 
 function deleteRow(index) {
