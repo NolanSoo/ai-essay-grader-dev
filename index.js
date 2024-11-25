@@ -1,4 +1,4 @@
-  let finalModel;
+let finalModel;
 let subgradeCount = 0; // Track number of subgrades
 
 function updateProgress(percentage, totalTimeTaken) {
