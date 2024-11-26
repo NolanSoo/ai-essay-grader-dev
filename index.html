@@ -153,7 +153,9 @@
   
       // Update the training label text  
       trainingLabelElement.textContent = trainingLabel;  
-  
+      if (percentage === 100) {
+        loadingBar.className = "w3-teal";
+      }
       // Calculate the estimated total time based on total time taken and percentage done  
       if (percentage > 0) {  
        const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs  
@@ -221,10 +223,11 @@
       const prediction = await finalModel.predict(essayTensor).data();  
   
       // Round the predicted grade and display it  
-      const predictedGrade = prediction[0];  
+      const predictedGrade = prediction[0]; 
+      console.log("predicted unrounded", prediction[0]);
       document.getElementById(  
        "predicted_grade_output"  
-      ).innerText = `Predicted Grade: ${predictedGrade}`;  
+      ).innerText = `Predicted Grade: ${Math.round(predictedGrade)}`;  
   
       // Predict subgrades  
       const subgradePredictions = {};  
@@ -234,7 +237,7 @@
       }  
   
       // Display subgrade predictions  
-      const subgradePredictionText = Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${subgradePredictions[subgrade]}`).join(', ');  
+      const subgradePredictionText = Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(', ');  
       document.getElementById("predicted_grade_output").innerText += `\nSubgrade Predictions: ${subgradePredictionText}`;  
     }  
   
