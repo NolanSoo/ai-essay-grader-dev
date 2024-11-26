@@ -52,8 +52,8 @@
         <tr>
           <th>Essay</th>
           <th>Main Grade</th>
-          <th>Subgrade 1</th>
-          <th>Subgrade 2</th>
+          <th class="subgrade"><input type="text" value="Subgrade 1" onchange="updateSubgradeNames()"></th>
+          <th class="subgrade"><input type="text" value="Subgrade 2" onchange="updateSubgradeNames()"></th>
           <th class="actions">Actions</th>
         </tr>
       </thead>
@@ -96,33 +96,33 @@
     };
 
     function addEssayRow() {
-  const tableBody = document.querySelector("#data_table tbody");
-  const subgradeCount = document.querySelectorAll("#data_table thead tr th").length - 3; // Calculate the number of subgrades
-  const row = document.createElement("tr");
+      const tableBody = document.querySelector("#data_table tbody");
+      const subgradeCount = document.querySelectorAll("#data_table thead th.subgrade").length; // Calculate the number of subgrades
+      const row = document.createElement("tr");
 
-  let subgradeInputs = "";
-  for (let i = 0; i < subgradeCount; i++) {
-    subgradeInputs += `<td><input type="number" min="1" max="4" placeholder="Subgrade"></td>`;
-  }
+      let subgradeInputs = "";
+      for (let i = 0; i < subgradeCount; i++) {
+        subgradeInputs += `<td><input type="number" min="1" max="4" placeholder="Subgrade"></td>`;
+      }
 
-  row.innerHTML = `
-    <td><textarea rows="2" placeholder="Enter essay text"></textarea></td>
-    <td><input type="number" min="1" max="4" placeholder="Main grade"></td>
-    ${subgradeInputs}
-    <td class="actions"><button onclick="removeRow(this)">Remove Essay</button></td>
-  `;
-  tableBody.appendChild(row);
-}
-
+      row.innerHTML = `
+        <td><textarea rows="2" placeholder="Enter essay text"></textarea></td>
+        <td><input type="number" min="1" max="4" placeholder="Main grade"></td>
+        ${subgradeInputs}
+        <td class="actions"><button onclick="removeRow(this)">Remove Essay</button></td>
+      `;
+      tableBody.appendChild(row);
+    }
 
     function addSubgradeColumn() {
       const tableHead = document.querySelector("#data_table thead tr");
-      const subgradeIndex = tableHead.querySelectorAll("th").length - 2;
+      const subgradeIndex = tableHead.querySelectorAll("th.subgrade").length + 1;
       const tableBodyRows = document.querySelectorAll("#data_table tbody tr");
 
       // Add column header
       const subgradeHeader = document.createElement("th");
-      subgradeHeader.textContent = `Subgrade ${subgradeIndex}`;
+      subgradeHeader.classList.add("subgrade");
+      subgradeHeader.innerHTML = `<input type="text" value="Subgrade ${subgradeIndex}" onchange="updateSubgradeNames()">`;
       tableHead.insertBefore(subgradeHeader, tableHead.querySelector(".actions"));
 
       // Add column to each row
@@ -136,6 +136,14 @@
     function removeRow(button) {
       const row = button.closest("tr");
       row.remove();
+    }
+
+    function updateSubgradeNames() {
+      const subgradeHeaders = document.querySelectorAll("#data_table thead th.subgrade input");
+      const subgradeNames = Array.from(subgradeHeaders).map((input) => input.value.trim());
+
+      console.log("Updated Subgrade Names:", subgradeNames); // Debugging log
+      // Update references to subgrade names if needed in the app logic
     }
 
     async function trainModel() {
@@ -202,89 +210,57 @@
       document.getElementById("output").textContent = "Models trained successfully.";
     }
 
-   function vectorizeData(data, maxLength = 24) {
-  return tf.tensor(
-    data.map((essay) => {
-      const charCodes = Array.from(essay)
-        .map((char) => char.charCodeAt(0) % 128)
-        .slice(0, maxLength); // Truncate to maxLength
-      while (charCodes.length < maxLength) {
-        charCodes.push(0); // Pad with zeros
-      }
-      return charCodes;
-    })
-  );
-}
-
+    function vectorizeData(data, maxLength = 24) {
+      return tf.tensor(
+        data.map((essay) => {
+          const charCodes = Array.from(essay)
+            .map((char) => char.charCodeAt(0) % 128)
+            .slice(0, maxLength); // Truncate to maxLength
+          while (charCodes.length < maxLength) {
+            charCodes.push(0); // Pad with zeros
+          }
+          return charCodes;
+        })
+      );
+    }
 
     function createAndTrainModel(trainX, trainY, testX, testY) {
       const model = tf.sequential();
-      model.add(tf.layers.dense({ inputShape: [trainX.shape[1]], units: 128, activation: "relu" }));
-      model.add(tf.layers.dense({ units: 64, activation: "relu" }));
+      model.add(tf.layers.dense({ inputShape: [trainX.shape[1]], units: 16, activation: "relu" }));
+      model.add(tf.layers.dense({ units: 8, activation: "relu" }));
       model.add(tf.layers.dense({ units: 1, activation: "linear" }));
       model.compile({ optimizer: "adam", loss: "meanSquaredError" });
 
-      let epochCount = 0;
-      let consecutiveCorrect = 0;
-
-      model.fit(trainX, trainY, {
-        epochs: 100,
-        validationData: [testX, tf.tensor(testY)],
-        callbacks: {
-          onEpochEnd: async (epoch, logs) => {
-            epochCount++;
-            const preds = model.predict(testX).arraySync().map((val) => Math.round(val));
-            const correct = preds.every((pred, i) => pred === testY[i]);
-            if (correct) {
-              consecutiveCorrect++;
-            } else {
-              consecutiveCorrect = 0;
-            }
-
-            if (consecutiveCorrect >= 4) {
-              model.stopTraining = true;
-            }
-          },
-        },
-      });
+      model
+        .fit(trainX, trainY, { epochs: 10, validationData: [testX, testY], verbose: 0 })
+        .then(() => console.log("Model trained successfully."));
 
       return model;
     }
 
-    function predictGrade() {
+    async function predictGrade() {
       const essay = document.getElementById("new_essay_input").value;
+
+      if (!essay.trim()) {
+        document.getElementById("predicted_grade_output").textContent = "Enter an essay to predict grades.";
+        return;
+      }
+
       const vectorizedEssay = vectorizeData([essay]);
 
-      const mainGrade = models.mainGrade.predict(vectorizedEssay).arraySync()[0][0].toFixed(2);
-      const subGrades = models.subGrades.map((model) =>
-        model.predict(vectorizedEssay).arraySync()[0][0].toFixed(2)
+      const mainGradePrediction = await models.mainGrade.predict(vectorizedEssay).data();
+      const subGradePredictions = await Promise.all(
+        models.subGrades.map((model) => model.predict(vectorizedEssay).data())
       );
 
-      const output = `
-        <p>Main Grade: ${mainGrade}</p>
-        ${subGrades.map((subGrade, i) => `<p>Subgrade ${i + 1}: ${subGrade}</p>`).join("")}
+      const predictedSubGrades = subGradePredictions.map((pred) => Math.round(pred[0]));
+      const predictedMainGrade = Math.round(mainGradePrediction[0]);
+
+      document.getElementById("predicted_grade_output").innerHTML = `
+        <strong>Predicted Main Grade:</strong> ${predictedMainGrade}<br>
+        <strong>Predicted Subgrades:</strong> ${predictedSubGrades.join(", ")}
       `;
-      document.getElementById("predicted_grade_output").innerHTML = output;
     }
-    function makeSubgradesRenamable() {
-  const headers = document.querySelectorAll("#data_table thead th.subgrade");
-  headers.forEach((header) => {
-    const currentName = header.textContent.trim();
-    header.innerHTML = `<input type="text" value="${currentName}" onchange="updateSubgradeNames()">`;
-  });
-}
-
-function updateSubgradeNames() {
-  const subgradeHeaders = document.querySelectorAll("#data_table thead th.subgrade input");
-  const subgradeNames = Array.from(subgradeHeaders).map((input) => input.value.trim());
-
-  // Update any references to subgrade names (if needed in code)
-  console.log("Updated Subgrade Names:", subgradeNames); // Debugging log
-  // Use `subgradeNames` for predictions or validations if required
-}
-
-// Initialize the table 
-makeSubgradesRenamable();
   </script>
 </body>
 </html>
