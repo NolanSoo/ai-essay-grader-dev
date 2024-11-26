@@ -321,9 +321,9 @@
        );  
   
        // Log progress every 10 epochs  
-          if (subgradeEpoch % 10 === 0) {  
+          if (mainGradeEpoch % 10 === 0) {  
           console.log(  
-           `${subgrade} (Playground) Training Epoch ${subgradeEpoch} completed.`  
+           `Main Grade Training Epoch ${subgradeEpoch} completed.`  
           );  
           percentageDone += 0.3333333333 / (Object.keys(subgradeInputEssays).length + 1);  
           currentTime = Date.now() / 1000;  
