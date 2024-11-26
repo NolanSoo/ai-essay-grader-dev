@@ -263,24 +263,28 @@
       return data.map((item) => item.split(' ').map(word => word.length)); // Example
     }
 
-    function createAndTrainModel(trainData, trainLabels, testData, testLabels, modelName) {
-      const model = tf.sequential();
-      model.add(tf.layers.dense({ units: 64, inputShape: [trainData.shape[1]], activation: 'relu' }));
-      model.add(tf.layers.dense({ units: 1 }));
+   function createAndTrainModel(trainData, trainLabels, testData, testLabels, modelName) {
+  const tensorTrainData = tf.tensor2d(trainData); // Convert to 2D tensor
+  const tensorTestData = tf.tensor2d(testData);   // Convert to 2D tensor
+  
+  const model = tf.sequential();
+  model.add(tf.layers.dense({ units: 64, inputShape: [tensorTrainData.shape[1]], activation: 'relu' }));
+  model.add(tf.layers.dense({ units: 1 }));
 
-      model.compile({ optimizer: 'adam', loss: 'meanSquaredError' });
+  model.compile({ optimizer: 'adam', loss: 'meanSquaredError' });
 
-      return model.fit(trainData, trainLabels, {
-        epochs: totalEpochs,
-        batchSize: 5,
-        validationData: [testData, testLabels],
-        callbacks: {
-          onEpochEnd: (epoch, logs) => {
-            updateProgress(epoch + 1, totalEpochs);
-          }
-        }
-      });
+  return model.fit(tensorTrainData, trainLabels, {
+    epochs: totalEpochs,
+    batchSize: 5,
+    validationData: [tensorTestData, testLabels],
+    callbacks: {
+      onEpochEnd: (epoch, logs) => {
+        updateProgress(epoch + 1, totalEpochs);
+      }
     }
+  });
+}
+
 
     function predictGrade() {
       const essay = document.getElementById("new_essay_input").value;
