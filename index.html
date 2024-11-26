@@ -21,6 +21,8 @@
       <p id="percentage_label">0%</p>  
       <break>  
        <p id="time_label"></p>  
+        <break>
+             <p id="training_label"></p> 
     </div>  
    </div>  
    <h1></h1>  
@@ -131,50 +133,54 @@
     var finalModel;  
     var subgradeModels = {};  
   
-    // Function to update progress bar  
-    function updateProgress(percentage, totalTimeTaken) {  
-      // Ensure the percentage is between 0 and 100  
-      percentage = Math.max(0, Math.min(100, percentage));  
-      percentage = percentage.toFixed(2);  
+   // Function to update progress bar  
+    function updateProgress(percentage, totalTimeTaken, trainingLabel) {  
+      // Ensure the percentage is between 0 and 100  
+      percentage = Math.max(0, Math.min(100, percentage));  
+      percentage = percentage.toFixed(2);  
   
-      // Get the loading bar and percentage label elements  
-      const loadingBar = document.getElementById("loading_bar");  
-      const percentageLabel = document.getElementById("percentage_label");  
+      // Get the loading bar and percentage label elements  
+      const loadingBar = document.getElementById("loading_bar");  
+      const percentageLabel = document.getElementById("percentage_label");  
+      const timeLabel = document.getElementById("time_label");  
+      const trainingLabelElement = document.getElementById("training_label");  
   
-      // Update the width of the loading bar  
-      loadingBar.style.width = percentage + "%";  
+      // Update the width of the loading bar  
+      loadingBar.style.width = percentage + "%";  
   
-      // Update the percentage label text  
-      percentageLabel.textContent = percentage + "%";  
+      // Update the percentage label text  
+      percentageLabel.textContent = percentage + "%";  
   
-      // Calculate the estimated total time based on total time taken and percentage done  
-      if (percentage > 0) {  
-       const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs  
+      // Update the training label text  
+      trainingLabelElement.textContent = trainingLabel;  
   
-       // Estimate the total time based on the current progress (linear approximation)  
-       const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time  
+      // Calculate the estimated total time based on total time taken and percentage done  
+      if (percentage > 0) {  
+       const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs  
   
-       // Calculate remaining time  
-       const remainingTime = expectedTotalTime - elapsedTime;  
+       // Estimate the total time based on the current progress (linear approximation)  
+       const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time  
   
-       // Format time (minutes:seconds)  
-       const formatTime = (timeInSeconds) => {  
-        const minutes = Math.floor(timeInSeconds / 60);  
-        const seconds = Math.floor(timeInSeconds % 60);  
-        return `${minutes} minutes - ${seconds  
-          .toString()  
-          .padStart(2, "0")} seconds`;  
-       };  
+       // Calculate remaining time  
+       const remainingTime = expectedTotalTime - elapsedTime;  
   
-       // Display the time taken and expected total time in a human-readable format  
-       const timeTaken = formatTime(elapsedTime);  
-       const totalTime = formatTime(expectedTotalTime);  
+       // Format time (minutes:seconds)  
+       const formatTime = (timeInSeconds) => {  
+        const minutes = Math.floor(timeInSeconds / 60);  
+        const seconds = Math.floor(timeInSeconds % 60);  
+        return `${minutes} minutes - ${seconds  
+          .toString()  
+          .padStart(2, "0")} seconds`;  
+       };  
   
-       // Update the label with time information  
-       const timeLabel = document.getElementById("time_label");  
-       timeLabel.textContent = `${timeTaken} / ${totalTime}`;  
-      }  
-    }  
+       // Display the time taken and expected total time in a human-readable format  
+       const timeTaken = formatTime(elapsedTime);  
+       const totalTime = formatTime(expectedTotalTime);  
+  
+       // Update the label with time information  
+       timeLabel.textContent = `${timeTaken} / ${totalTime}`;  
+      }  
+    }  
   
     // Function for predicting the grade  
     async function predictGrade() {  
@@ -234,11 +240,12 @@
   
     // Function for training the model  
     async function trainModel() {  
-      const learningRate = 0.005;  
-      var percentageDone = 0;  
-      var totalTimeTaken = 0;  
-      var startTime = Date.now() / 1000;  
-      var currentTime = 0;  
+        const learningRate = 0.005;  
+      var percentageDone = 0;  
+      var totalTimeTaken = 0;  
+      var startTime = Date.now() / 1000;  
+      var currentTime = 0;  
+  
   
       function preprocessText(essays) {  
        const tokenizedInputs = essays.map((essay) => {  
@@ -314,15 +321,15 @@
        );  
   
        // Log progress every 10 epochs  
-       if (mainGradeEpoch % 10 === 0) {  
-        console.log(  
-          `Main Grade (Playground) Training Epoch ${mainGradeEpoch} completed.`  
-        );  
-        percentageDone += 0.3333333333;  
-        currentTime = Date.now() / 1000;  
-        totalTimeTaken = currentTime - startTime;  
-        updateProgress(percentageDone, totalTimeTaken);  
-       }  
+          if (subgradeEpoch % 10 === 0) {  
+          console.log(  
+           `${subgrade} (Playground) Training Epoch ${subgradeEpoch} completed.`  
+          );  
+          percentageDone += 0.3333333333 / (Object.keys(subgradeInputEssays).length + 1);  
+          currentTime = Date.now() / 1000;  
+          totalTimeTaken = currentTime - startTime;  
+          updateProgress(percentageDone, totalTimeTaken, `Training Subgrade: ${subgrade}...`);  
+        }  
       }  
   
       // Train subgrade models  
