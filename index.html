@@ -60,18 +60,18 @@
       <tbody>
         <tr>
           <td><textarea rows="2">This is the first essay.</textarea></td>
-          <td><input type="number" value="3" min="1" max="4"></td>
-          <td><input type="number" value="3" min="1" max="4"></td>
-          <td><input type="number" value="2" min="1" max="4"></td>
+          <td><input type="number" value="3" ></td>
+          <td><input type="number" value="3" ></td>
+          <td><input type="number" value="2" ></td>
           <td class="actions">
             <button onclick="removeRow(this)">Remove Essay</button>
           </td>
         </tr>
         <tr>
           <td><textarea rows="2">This is the second essay.</textarea></td>
-          <td><input type="number" value="4" min="1" max="4"></td>
-          <td><input type="number" value="4" min="1" max="4"></td>
-          <td><input type="number" value="3" min="1" max="4"></td>
+          <td><input type="number" value="4" ></td>
+          <td><input type="number" value="4" ></td>
+          <td><input type="number" value="3" ></td>
           <td class="actions">
             <button onclick="removeRow(this)">Remove Essay</button>
           </td>
@@ -102,12 +102,12 @@
 
       let subgradeInputs = "";
       for (let i = 0; i < subgradeCount; i++) {
-        subgradeInputs += `<td><input type="number" min="1" max="4" placeholder="Subgrade"></td>`;
+        subgradeInputs += `<td><input type="number"  placeholder="Subgrade"></td>`;
       }
 
       row.innerHTML = `
         <td><textarea rows="2" placeholder="Enter essay text"></textarea></td>
-        <td><input type="number" min="1" max="4" placeholder="Main grade"></td>
+        <td><input type="number"  placeholder="Main grade"></td>
         ${subgradeInputs}
         <td class="actions"><button onclick="removeRow(this)">Remove Essay</button></td>
       `;
@@ -128,7 +128,7 @@
       // Add column to each row
       tableBodyRows.forEach((row) => {
         const subgradeCell = document.createElement("td");
-        subgradeCell.innerHTML = `<input type="number" min="1" max="4" placeholder="Subgrade">`;
+        subgradeCell.innerHTML = `<input type="number"  placeholder="Subgrade">`;
         row.insertBefore(subgradeCell, row.querySelector(".actions"));
       });
     }
