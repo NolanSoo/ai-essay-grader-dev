@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Essay Grader Demo</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -39,34 +38,6 @@
     button {
       margin: 5px 0;
     }
-    /* Loading Screen Styles */
-    #loading_screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
-      color: white;
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    .progress-bar-container {
-      width: 80%;
-      background-color: gray;
-      margin: 10px;
-    }
-    .progress-bar {
-      height: 24px;
-      background-color: green;
-      width: 0%;
-    }
-    .progress-text {
-      font-size: 18px;
-    }
   </style>
 </head>
 <body>
@@ -87,7 +58,24 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Essay rows will be added here -->
+        <tr>
+          <td><textarea rows="2">This is the first essay.</textarea></td>
+          <td><input type="number" value="3" ></td>
+          <td><input type="number" value="3" ></td>
+          <td><input type="number" value="2" ></td>
+          <td class="actions">
+            <button onclick="removeRow(this)">Remove Essay</button>
+          </td>
+        </tr>
+        <tr>
+          <td><textarea rows="2">This is the second essay.</textarea></td>
+          <td><input type="number" value="4" ></td>
+          <td><input type="number" value="4" ></td>
+          <td><input type="number" value="3" ></td>
+          <td class="actions">
+            <button onclick="removeRow(this)">Remove Essay</button>
+          </td>
+        </tr>
       </tbody>
     </table>
     <button onclick="trainModel()">Train Models</button>
@@ -101,37 +89,25 @@
     <div id="predicted_grade_output"></div>
   </div>
 
-  <!-- Loading Screen -->
-  <div id="loading_screen">
-    <div class="progress-text" id="loading-text">Training in Progress...</div>
-    <div class="progress-bar-container">
-      <div class="progress-bar" id="progress-bar"></div>
-    </div>
-    <div class="progress-text" id="time-left">Estimated Time Left: Calculating...</div>
-  </div>
-
   <script>
     const models = {
       mainGrade: null,
       subGrades: [],
     };
 
-    let epochStartTime = 0;
-    let totalEpochs = 0;
-
     function addEssayRow() {
       const tableBody = document.querySelector("#data_table tbody");
-      const subgradeCount = document.querySelectorAll("#data_table thead th.subgrade").length;
+      const subgradeCount = document.querySelectorAll("#data_table thead th.subgrade").length; // Calculate the number of subgrades
       const row = document.createElement("tr");
 
       let subgradeInputs = "";
       for (let i = 0; i < subgradeCount; i++) {
-        subgradeInputs += `<td><input type="number" placeholder="Subgrade"></td>`;
+        subgradeInputs += `<td><input type="number"  placeholder="Subgrade"></td>`;
       }
 
       row.innerHTML = `
         <td><textarea rows="2" placeholder="Enter essay text"></textarea></td>
-        <td><input type="number" placeholder="Main grade"></td>
+        <td><input type="number"  placeholder="Main grade"></td>
         ${subgradeInputs}
         <td class="actions"><button onclick="removeRow(this)">Remove Essay</button></td>
       `;
@@ -143,14 +119,16 @@
       const subgradeIndex = tableHead.querySelectorAll("th.subgrade").length + 1;
       const tableBodyRows = document.querySelectorAll("#data_table tbody tr");
 
+      // Add column header
       const subgradeHeader = document.createElement("th");
       subgradeHeader.classList.add("subgrade");
       subgradeHeader.innerHTML = `<input type="text" value="Subgrade ${subgradeIndex}" onchange="updateSubgradeNames()">`;
       tableHead.insertBefore(subgradeHeader, tableHead.querySelector(".actions"));
 
+      // Add column to each row
       tableBodyRows.forEach((row) => {
         const subgradeCell = document.createElement("td");
-        subgradeCell.innerHTML = `<input type="number" placeholder="Subgrade">`;
+        subgradeCell.innerHTML = `<input type="number"  placeholder="Subgrade">`;
         row.insertBefore(subgradeCell, row.querySelector(".actions"));
       });
     }
@@ -163,157 +141,124 @@
     function updateSubgradeNames() {
       const subgradeHeaders = document.querySelectorAll("#data_table thead th.subgrade input");
       const subgradeNames = Array.from(subgradeHeaders).map((input) => input.value.trim());
-      console.log("Updated Subgrade Names:", subgradeNames);
+
+      console.log("Updated Subgrade Names:", subgradeNames); // Debugging log
+      // Update references to subgrade names if needed in the app logic
     }
 
- async function trainModel() {
-  const tableBodyRows = document.querySelectorAll("#data_table tbody tr");
+    async function trainModel() {
+      const tableBodyRows = document.querySelectorAll("#data_table tbody tr");
 
-  if (tableBodyRows.length < 8) {
-    document.getElementById("output").textContent = "You need at least 8 essays to train the model.";
-    return;
-  }
-
-  const essays = [];
-  const mainGrades = [];
-  const subGrades = [];
-
-  tableBodyRows.forEach((row) => {
-    const cells = row.querySelectorAll("td");
-    const essayText = cells[0].querySelector("textarea").value.trim();
-    const mainGrade = Number(cells[1].querySelector("input").value);
-    const subgradeRow = [];
-
-    for (let i = 2; i < cells.length - 1; i++) {
-      const subgradeValue = Number(cells[i].querySelector("input").value);
-      if (isNaN(subgradeValue)) {
-        document.getElementById("output").textContent = "Please fill all subgrade fields with numbers.";
+      if (tableBodyRows.length < 8) {
+        document.getElementById("output").textContent = "You need at least 8 essays to train the model.";
         return;
       }
-      subgradeRow.push(subgradeValue);
-    }
 
-    if (!essayText || isNaN(mainGrade)) {
-      document.getElementById("output").textContent = "Please ensure all essays and main grades are filled correctly.";
-      return;
-    }
+      // Prepare data
+      const essays = [];
+      const mainGrades = [];
+      const subGrades = [];
 
-    essays.push(essayText);
-    mainGrades.push(mainGrade);
-    subGrades.push(subgradeRow);
-  });
-  
+      tableBodyRows.forEach((row) => {
+        const cells = row.querySelectorAll("td");
+        essays.push(cells[0].querySelector("textarea").value);
+        mainGrades.push(Number(cells[1].querySelector("input").value));
+        const subgradeRow = [];
+        for (let i = 2; i < cells.length - 1; i++) {
+          subgradeRow.push(Number(cells[i].querySelector("input").value));
+        }
+        subGrades.push(subgradeRow);
+      });
 
+      const trainSize = Math.floor(essays.length * 0.75);
+      const trainEssays = essays.slice(0, trainSize);
+      const trainMainGrades = mainGrades.slice(0, trainSize);
+      const trainSubGrades = subGrades.slice(0, trainSize);
 
-  const trainSize = Math.floor(essays.length * 0.75);
-  const trainEssays = essays.slice(0, trainSize);
-  const trainMainGrades = mainGrades.slice(0, trainSize);
-  const trainSubGrades = subGrades.slice(0, trainSize);
+      const testEssays = essays.slice(trainSize);
+      const testMainGrades = mainGrades.slice(trainSize);
+      const testSubGrades = subGrades.slice(trainSize);
 
-  const testEssays = essays.slice(trainSize);
-  const testMainGrades = mainGrades.slice(trainSize);
-  const testSubGrades = subGrades.slice(trainSize);
+      // Vectorize essays
+      const vectorizedTrainEssays = vectorizeData(trainEssays);
+      const vectorizedTestEssays = vectorizeData(testEssays);
 
-  const vectorizedTrainEssays = vectorizeData(trainEssays);
-  const vectorizedTestEssays = vectorizeData(testEssays);
-
-  totalEpochs = 10; // Set total number of epochs
-
-  showLoadingScreen();
-
-  models.mainGrade = createAndTrainModel(
-    vectorizedTrainEssays,
-    tf.tensor(trainMainGrades),
-    vectorizedTestEssays,
-    testMainGrades,
-    'mainGrade'
-  );
-
-  models.subGrades = [];
-  for (let i = 0; i < trainSubGrades[0].length; i++) {
-    const subTrainGrades = trainSubGrades.map((row) => row[i] || 0); // Default to 0 if undefined
-    const subTestGrades = testSubGrades.map((row) => row[i] || 0); // Default to 0 if undefined
-    models.subGrades.push(
-      createAndTrainModel(
+      // Train main grade model
+      models.mainGrade = createAndTrainModel(
         vectorizedTrainEssays,
-        tf.tensor(subTrainGrades),
+        tf.tensor(trainMainGrades),
         vectorizedTestEssays,
-        subTestGrades,
-        `subGrade${i}`
-      )
-    );
-  }
+        testMainGrades
+      );
 
-  document.getElementById("predict_section").style.display = "block";
-  document.getElementById("output").textContent = "Models trained successfully.";
-  hideLoadingScreen();
-}
-
-
-
-    function showLoadingScreen() {
-      document.getElementById("loading_screen").style.display = 'flex';
-      epochStartTime = Date.now();  // Capture the starting time
-    }
-
-    function hideLoadingScreen() {
-      document.getElementById("loading_screen").style.display = 'none';
-    }
-
-    function updateProgress(epoch, totalEpochs) {
-      const elapsedTime = (Date.now() - epochStartTime) / 1000; // Time in seconds
-      const timePerEpoch = elapsedTime / epoch;
-      const remainingTime = timePerEpoch * (totalEpochs - epoch);
-      
-      document.getElementById("progress-bar").style.width = `${(epoch / totalEpochs) * 100}%`;
-      document.getElementById("loading-text").textContent = `Epoch ${epoch} of ${totalEpochs}`;
-      document.getElementById("time-left").textContent = `Estimated Time Left: ${formatTime(remainingTime)}`;
-    }
-
-    function formatTime(seconds) {
-      const hours = Math.floor(seconds / 3600);
-      const minutes = Math.floor((seconds % 3600) / 60);
-      const remainingSeconds = Math.floor(seconds % 60);
-      return `${hours}h ${minutes}m ${remainingSeconds}s`;
-    }
-
-    function vectorizeData(data) {
-      return data.map((item) => item.split(' ').map(word => word.length)); // Example
-    }
-
-   function createAndTrainModel(trainData, trainLabels, testData, testLabels, modelName) {
-  const tensorTrainData = tf.tensor2d(trainData); // Convert to 2D tensor
-  const tensorTestData = tf.tensor2d(testData);   // Convert to 2D tensor
-  
-  const model = tf.sequential();
-  model.add(tf.layers.dense({ units: 64, inputShape: [tensorTrainData.shape[1]], activation: 'relu' }));
-  model.add(tf.layers.dense({ units: 1 }));
-
-  model.compile({ optimizer: 'adam', loss: 'meanSquaredError' });
-
-  return model.fit(tensorTrainData, trainLabels, {
-    epochs: totalEpochs,
-    batchSize: 5,
-    validationData: [tensorTestData, testLabels],
-    callbacks: {
-      onEpochEnd: (epoch, logs) => {
-        updateProgress(epoch + 1, totalEpochs);
+      // Train subgrade models
+      models.subGrades = [];
+      for (let i = 0; i < trainSubGrades[0].length; i++) {
+        const subTrainGrades = trainSubGrades.map((row) => row[i]);
+        const subTestGrades = testSubGrades.map((row) => row[i]);
+        models.subGrades.push(
+          createAndTrainModel(
+            vectorizedTrainEssays,
+            tf.tensor(subTrainGrades),
+            vectorizedTestEssays,
+            subTestGrades
+          )
+        );
       }
+
+      document.getElementById("predict_section").style.display = "block";
+      document.getElementById("output").textContent = "Models trained successfully.";
     }
-  });
-}
 
+    function vectorizeData(data, maxLength = 24) {
+      return tf.tensor(
+        data.map((essay) => {
+          const charCodes = Array.from(essay)
+            .map((char) => char.charCodeAt(0) % 128)
+            .slice(0, maxLength); // Truncate to maxLength
+          while (charCodes.length < maxLength) {
+            charCodes.push(0); // Pad with zeros
+          }
+          return charCodes;
+        })
+      );
+    }
 
-    function predictGrade() {
+    function createAndTrainModel(trainX, trainY, testX, testY) {
+      const model = tf.sequential();
+      model.add(tf.layers.dense({ inputShape: [trainX.shape[1]], units: 16, activation: "relu" }));
+      model.add(tf.layers.dense({ units: 8, activation: "relu" }));
+      model.add(tf.layers.dense({ units: 1, activation: "linear" }));
+      model.compile({ optimizer: "adam", loss: "meanSquaredError" });
+
+      model
+        .fit(trainX, trainY, { epochs: 10, validationData: [testX, testY], verbose: 0 })
+        .then(() => console.log("Model trained successfully."));
+
+      return model;
+    }
+
+    async function predictGrade() {
       const essay = document.getElementById("new_essay_input").value;
+
+      if (!essay.trim()) {
+        document.getElementById("predicted_grade_output").textContent = "Enter an essay to predict grades.";
+        return;
+      }
+
       const vectorizedEssay = vectorizeData([essay]);
 
-      const mainGradePrediction = models.mainGrade.predict(tf.tensor(vectorizedEssay)).arraySync()[0];
-      let subGradePredictions = models.subGrades.map((model) => model.predict(tf.tensor(vectorizedEssay)).arraySync()[0]);
+      const mainGradePrediction = await models.mainGrade.predict(vectorizedEssay).data();
+      const subGradePredictions = await Promise.all(
+        models.subGrades.map((model) => model.predict(vectorizedEssay).data())
+      );
+
+      const predictedSubGrades = subGradePredictions.map((pred) => Math.round(pred[0]));
+      const predictedMainGrade = Math.round(mainGradePrediction[0]);
 
       document.getElementById("predicted_grade_output").innerHTML = `
-        Main Grade: ${mainGradePrediction.toFixed(2)}<br>
-        Subgrades: ${subGradePredictions.map((score) => score.toFixed(2)).join(', ')}
+        <strong>Predicted Main Grade:</strong> ${predictedMainGrade}<br>
+        <strong>Predicted Subgrades:</strong> ${predictedSubGrades.join(", ")}
       `;
     }
   </script>
