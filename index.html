@@ -153,9 +153,6 @@
   
       // Update the training label text  
       trainingLabelElement.textContent = trainingLabel;  
-      if (percentage === 100) {
-        loadingBar.className = "w3-teal";
-      }
       // Calculate the estimated total time based on total time taken and percentage done  
       if (percentage > 0) {  
        const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs  
@@ -233,7 +230,8 @@
       const subgradePredictions = {};  
       for (const subgrade in subgradeModels) {  
        const subgradePrediction = await subgradeModels[subgrade].predict(essayTensor).data();  
-       subgradePredictions[subgrade] = subgradePrediction[0];  
+       subgradePredictions[subgrade] = subgradePrediction[0]; 
+      console.log("subgrade unrounded", subgradePrediction[0]);
       }  
   
       // Display subgrade predictions  
