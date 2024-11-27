@@ -146,11 +146,6 @@
     var finalModel;  
     var subgradeModels = {};  
   
-    // Initialize the Groq client  
-    const client = new Groq({  
-      apiKey: "YOUR_API_KEY_HERE",  
-      dangerouslyAllowBrowser: true,  
-    });  
   
     // Function to update progress bar  
     function updateProgress(percentage, totalTimeTaken, trainingLabel) {  
@@ -258,11 +253,19 @@
       document.getElementById("predicted_grade_output").innerText += `\nSubgrade Predictions: ${subgradePredictionText}`;  
   
       // Get feedback using GROQ model  
-      await getFeedback(essayInput, predictedGrade, subgradePredictions);  
+      await window.getFeedback(essayInput, predictedGrade, subgradePredictions);  
     }  
-  
+   </script>
+         <script>
     // Function to get feedback using GROQ model  
     async function getFeedback(essay, grade, subgrades) {  
+          // Import the Groq SDK using ESM  
+  import Groq from "https://cdn.jsdelivr.net/npm/groq-sdk@0.8.0/+esm";  
+      // Initialize the Groq client  
+    const client = new Groq({  
+      apiKey: "YOUR_API_KEY_HERE",  
+      dangerouslyAllowBrowser: true,  
+    });  
       const rows = document.querySelectorAll(  
        "#data_table tr:not(:first-child):not(:last-child)"  
       );  
@@ -322,6 +325,8 @@
        }  
       }  
     }  
+         </script>
+         <script>
   
     // Function for training the model  
     async function trainModel() {  
