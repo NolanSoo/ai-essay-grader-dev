@@ -256,76 +256,71 @@
       await window.getFeedback(essayInput, predictedGrade, subgradePredictions);  
     }  
    </script>
-         <script type="module">
-    // Function to get feedback using GROQ model  
-    async function getFeedback(essay, grade, subgrades) {  
-          // Import the Groq SDK using ESM  
-  import Groq from "https://cdn.jsdelivr.net/npm/groq-sdk@0.8.0/+esm";  
-      // Initialize the Groq client  
+        <script type="module">
+  // Import the Groq SDK at the top level
+  import Groq from "https://cdn.jsdelivr.net/npm/groq-sdk@0.8.0/+esm";
+
+  // Function to get feedback using GROQ model  
+  async function getFeedback(essay, grade, subgrades) {  
+    // Initialize the Groq client  
     const client = new Groq({  
       apiKey: "YOUR_API_KEY_HERE",  
       dangerouslyAllowBrowser: true,  
     });  
-      const rows = document.querySelectorAll(  
-       "#data_table tr:not(:first-child):not(:last-child)"  
-      );  
-      const essays = [];  
-      const mainGrades = [];  
-      const subgradeValues = {};  
-      rows.forEach((row) => {  
-       const essayValue = row.querySelector("td:nth-child(1) input").value.trim();  
-       const gradeValue = parseFloat(  
-        row.querySelector("td:nth-child(2) input").value.trim()  
-       );  
-       essays.push(essayValue);  
-       mainGrades.push(gradeValue);  
-  
-       const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
-       subgradeCells.forEach((cell, index) => {  
+
+    const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
+    const essays = [];  
+    const mainGrades = [];  
+    const subgradeValues = {};  
+
+    rows.forEach((row) => {  
+      const essayValue = row.querySelector("td:nth-child(1) input").value.trim();  
+      const gradeValue = parseFloat(row.querySelector("td:nth-child(2) input").value.trim());  
+      essays.push(essayValue);  
+      mainGrades.push(gradeValue);  
+
+      const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+      subgradeCells.forEach((cell, index) => {  
         const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
         if (!subgradeValues[subgradeName]) {  
           subgradeValues[subgradeName] = [];  
         }  
         subgradeValues[subgradeName].push(parseFloat(cell.querySelector("input").value.trim()));  
-       });  
       });  
-  
-      const params = {  
-       messages: [  
+    });  
+
+    const params = {  
+      messages: [  
         {  
           role: "system",  
-          content:  
-           `Hello. Please give professional feedback on essays (1-2 sentences for overall and for every subgrade) based on these essays, grades, and feedback given for the essays. Maximum points possible for each grade: Main Grade ${5}, ${Object.keys(subgradeValues).map(subgrade => `${subgrade} ${5}`).join(', ')} Here are the examples: ${essays.map((essay, index) => `${essay}, Main Grade: ${mainGrades[index]} / ${5}, ${Object.keys(subgradeValues).map(subgrade => `${subgrade}: ${subgradeValues[subgrade][index]} / ${5}`).join(', ')}`).join(' ')}. Also give generic feedback based on the overall grade out of the maximum (for how strict it would be) on the following categories: Depth, Intelligence, Grammar/Spelling, Following Correct Topic (if there is one consistent topic or type of topic used)`,  
+          content: `Hello. Please give professional feedback on essays...`, // Continue with your prompt  
         },  
         {  
           role: "user",  
           content: essay,  
         },  
-       ],  
-       model: "llama3-8b-8192",  
-      };  
-  
-      try {  
-       // Make the API call  
-       const chatCompletion = await client.chat.completions.create(params);  
-       console.log(chatCompletion);  
-  
-       // Display the response in the predicted grade output  
-       document.getElementById("predicted_grade_output").innerText += `\n\nFeedback: ${chatCompletion.choices[0].content}`;  
-      } catch (err) {  
-       if (err instanceof Groq.APIError) {  
+      ],  
+      model: "llama3-8b-8192",  
+    };  
+
+    try {  
+      // Make the API call  
+      const chatCompletion = await client.chat.completions.create(params);  
+      console.log(chatCompletion);  
+
+      // Display the response in the predicted grade output  
+      document.getElementById("predicted_grade_output").innerText += `\n\nFeedback: ${chatCompletion.choices[0].content}`;  
+    } catch (err) {  
+      if (err instanceof Groq.APIError) {  
         console.error("API Error:", err);  
-        document.getElementById(  
-          "predicted_grade_output"  
-        ).textContent = `Error: ${err.name} (${err.status})`;  
-       } else {  
+        document.getElementById("predicted_grade_output").textContent = `Error: ${err.name} (${err.status})`;  
+      } else {  
         console.error("Unexpected Error:", err);  
-        document.getElementById("predicted_grade_output").textContent =  
-          "An unexpected error occurred.";  
-       }  
+        document.getElementById("predicted_grade_output").textContent = "An unexpected error occurred.";  
       }  
     }  
-         </script>
+  }  
+</script>
          <script>
   
     // Function for training the model  
