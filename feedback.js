@@ -44,14 +44,14 @@
       const chatCompletion = await client.chat.completions.create(params);
       console.log(chatCompletion);
 
-      // Display the response in the output div
-      document.getElementById("output").textContent = JSON.stringify(messageContent);
+  
 
       // Extract the main fields
       const { id, model, created, choices, usage } = chatCompletion;
       const messageContent = choices[0].message.content;
       const { prompt_tokens, total_tokens } = usage;
-
+    // Display the response in the output div
+      document.getElementById("output").textContent = JSON.stringify(messageContent);
       console.log("ID:", id);
       console.log("Model:", model);
       console.log("Created Timestamp:", created);
