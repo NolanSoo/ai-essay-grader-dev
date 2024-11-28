@@ -21,7 +21,7 @@
     console.log("message", message);
    
    let message2 = `Here is the essay I would like you to give feedback for: ${essayInput}. Its grade is ${Math.round(predictedGrade)}`;
-   for (subgrade in subgradePredictions) {
+   for (const subgrade in subgradePredictions) {
     message2 += `Grade for ${subgrade}: ${Math.round(subgradePredictions[subgrade])}`
    }
    console.log("message2", message2);
