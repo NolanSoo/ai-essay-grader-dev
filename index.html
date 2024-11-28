@@ -440,7 +440,9 @@
         newCell.innerHTML = "<input type='text' />";  
         row.insertBefore(newCell, row.querySelector("td:last-child"));  
        });  
-      }  
+      }
+         const addSubgradeButton = document.querySelector(".add_subgrade");  
+   addSubgradeButton.addEventListener("click", add_subgrade); 
     }  
   
     // Function to save a row  
@@ -497,10 +499,18 @@
       const feedbackCell = document.createElement("td");  
       feedbackCell.innerHTML = "<input type='text' />";  
       newRow.appendChild(feedbackCell);  
+      // Add event listeners  
+  const saveButton = actionsCell.querySelector(".save");  
+  saveButton.addEventListener("click", () => save_row(table.rows.length - 1));  
+  
+  const deleteButton = actionsCell.querySelector(".delete");  
+  deleteButton.addEventListener("click", () => delete_row(table.rows.length - 1));  
     }  
      // Add event listeners  
 document.getElementById("train_model").addEventListener("click", trainModel);  
 document.getElementById("predict_grade").addEventListener("click", predictGrade);
+     document.getElementById("add_row_button").addEventListener("click", add_row);  
+document.getElementById("add_subgrade_button").addEventListener("click", add_subgrade);
    </script>
 
 
