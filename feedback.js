@@ -19,7 +19,8 @@
       }
     }
     console.log("message", message);
-   message2 += `Here is the essay I would like you to give feedback for: ${essayInput}. Its grade is ${predictedGrade}`;
+   
+   let message2 = `Here is the essay I would like you to give feedback for: ${essayInput}. Its grade is ${predictedGrade}`;
    for (subgrade in subgradePredictions) {
     message2 += `Grade for ${subgrade}: ${subgradePredictions[subgrade]}`
    }
