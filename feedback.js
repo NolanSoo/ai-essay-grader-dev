@@ -18,7 +18,7 @@
         message += `Subgrade ${subgrade}: ${inputEssaysSG[subgrade][i]} - Grade: ${inputGradesSG[subgrade][i]}`;
       }
     }
-    console.log(message);
+    console.log("message", message);
     const params = {
       messages: [
         {
