@@ -8,7 +8,7 @@
   });
 
   // Function to get feedback from the model
-  async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG) {
+  async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, essay, subgrades, finalgrade) {
     console.log("Getting feedback...");
 
     let message = "Hello. Please give professional feedback on essays (1-2 sentences for overall and for every subgrade)..."; // Truncated for clarity
