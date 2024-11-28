@@ -507,7 +507,13 @@ window.add_row = function add_row() {
   const feedbackCell = document.createElement("td");
   feedbackCell.innerHTML = "<input type='text' />";
   newRow.appendChild(feedbackCell);
+
+  // Remove extra cells if any (ensures no unintended cells are added)
+  while (newRow.cells.length > table.rows[0].cells.length) {
+    newRow.deleteCell(-1);
+  }
 };
+
 
 
 
