@@ -476,6 +476,7 @@ window.add_row = function add_row() {
   const newRow = table.insertRow(table.rows.length - 1);
   newRow.id = `row${table.rows.length - 1}`;
 
+  // Create cells for the new row
   const essayCell = document.createElement("td");
   essayCell.innerHTML = "<input type='text' />";
   newRow.appendChild(essayCell);
@@ -484,7 +485,13 @@ window.add_row = function add_row() {
   gradeCell.innerHTML = "<input type='text' />";
   newRow.appendChild(gradeCell);
 
-  // Add a cell for each subgrade
+  // Create the actions cell and insert it immediately after the grade cell
+  const actionsCell = document.createElement("td");
+  actionsCell.innerHTML = `<input type='button' value='Save' class='save' onclick='save_row("${table.rows.length - 1}")'>
+                           <input type='button' value='Remove Essay' class='delete' onclick='delete_row("${table.rows.length - 1}")'>`;
+  newRow.appendChild(actionsCell);
+
+  // Add a cell for each subgrade (if any)
   const subgradeHeaders = document.querySelectorAll("#header_row th:not(#actions_header):not(#feedback_header)");
   subgradeHeaders.forEach(() => {
     const newCell = document.createElement("td");
@@ -492,15 +499,12 @@ window.add_row = function add_row() {
     newRow.appendChild(newCell);
   });
 
-  const actionsCell = document.createElement("td");
-  actionsCell.innerHTML = `<input type='button' value='Save' class='save' onclick='save_row("${table.rows.length - 1}")'>
-                           <input type='button' value='Remove Essay' class='delete' onclick='delete_row("${table.rows.length - 1}")'>`;
-  newRow.appendChild(actionsCell);
-
+  // Add the feedback cell at the end
   const feedbackCell = document.createElement("td");
   feedbackCell.innerHTML = "<input type='text' />";
   newRow.appendChild(feedbackCell);
 };
+
 
      // Add event listeners  
 document.getElementById("train_model").addEventListener("click", trainModel);  
