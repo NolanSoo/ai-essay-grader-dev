@@ -256,8 +256,8 @@
       const subgradePredictionText = Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(', ');  
       document.getElementById("predicted_grade_output").innerText += `\nSubgrade Predictions: ${subgradePredictionText}`;  
        // Call the feedback function  
-      const feedbackResults = feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput);  
-      document.getElementById("predicted_grade_output").innerText += `\n${feedbackResults}`
+      feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput);  
+
     }  
   
   
