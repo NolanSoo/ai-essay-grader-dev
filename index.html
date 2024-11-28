@@ -423,27 +423,27 @@
     }  
   
     // Function to add a new subgrade  
-    window.add_subgrade = function add_subgrade() {  
-      console.log("Adding new subgrade...");  
-      const subgradeName = prompt("Enter the name of the new subgrade:");  
-      if (subgradeName) {  
-       // Add a new header cell for the subgrade  
-       const headerRow = document.getElementById("header_row");  
-       const newHeaderCell = document.createElement("th");  
-       newHeaderCell.innerText = subgradeName;  
-       headerRow.insertBefore(newHeaderCell, document.getElementById("actions_header"));  
-  
-       // Add a new cell for the subgrade in each row  
-       const rows = document.querySelectorAll("#data_table tr:not(:first-child)");  
-       rows.forEach((row) => {  
-        const newCell = document.createElement("td");  
-        newCell.innerHTML = "<input type='text' />";  
-        row.insertBefore(newCell, row.querySelector("td:last-child"));  
-       });  
-             const addSubgradeButton = document.querySelector(".add_subgrade");  
-   addSubgradeButton.addEventListener("click", add_subgrade); 
-      }
-    }  
+   window.add_subgrade = function add_subgrade() {
+  console.log("Adding new subgrade...");
+  const subgradeName = prompt("Enter the name of the new subgrade:");
+  if (subgradeName) {
+    // Add a new header cell for the subgrade
+    const headerRow = document.getElementById("header_row");
+    const newHeaderCell = document.createElement("th");
+    newHeaderCell.innerText = subgradeName;
+    const feedbackHeader = document.getElementById("feedback_header");
+    headerRow.insertBefore(newHeaderCell, feedbackHeader);
+
+    // Add a new cell for the subgrade in each row
+    const rows = document.querySelectorAll("#data_table tr:not(:first-child)");
+    rows.forEach((row) => {
+      const newCell = document.createElement("td");
+      newCell.innerHTML = "<input type='text' />";
+      const feedbackCell = row.querySelector("td:last-child");
+      row.insertBefore(newCell, feedbackCell);
+    });
+  }
+};
   
     // Function to save a row  
     window.save_row = function save_row(no) {  
@@ -469,36 +469,38 @@
       document.getElementById(`row${no}`).outerHTML = "";  
     }  
   
-window.add_row = function add_row() {  
-  console.log("Adding new row...");  
-  const table = document.getElementById("data_table");  
-  const newRow = table.insertRow(table.rows.length - 1);  
-  newRow.id = `row${table.rows.length - 1}`;  
-  
-  const essayCell = document.createElement("td");  
-  essayCell.innerHTML = "<input type='text' />";  
-  newRow.appendChild(essayCell);  
-  
-  const gradeCell = document.createElement("td");  
-  gradeCell.innerHTML = "<input type='text' />";  
-  newRow.appendChild(gradeCell);  
-  
-  const actionsCell = document.createElement("td");  
-  actionsCell.innerHTML = "<input type='button' value='Save' class='save' onclick='save_row(\"" + (table.rows.length - 1) + "\")'><input type='button' value='Remove Essay' class='delete' onclick='delete_row(\"" + (table.rows.length - 1) + "\")'>";  
-  newRow.appendChild(actionsCell);  
-  
-  // Add a cell for each subgrade  
-  const subgradeHeaders = document.querySelectorAll("#header_row th:nth-child(n+3):not(:last-child)");  
-  subgradeHeaders.forEach(() => {  
-   const newCell = document.createElement("td");  
-   newCell.innerHTML = "<input type='text' />";  
-   newRow.appendChild(newCell);  
-  });  
-  
-  const feedbackCell = document.createElement("td");  
-  feedbackCell.innerHTML = "<input type='text' />";  
-  newRow.appendChild(feedbackCell);  
-}   
+window.add_row = function add_row() {
+  console.log("Adding new row...");
+  const table = document.getElementById("data_table");
+  const newRow = table.insertRow(table.rows.length - 1);
+  newRow.id = `row${table.rows.length - 1}`;
+
+  const essayCell = document.createElement("td");
+  essayCell.innerHTML = "<input type='text' />";
+  newRow.appendChild(essayCell);
+
+  const gradeCell = document.createElement("td");
+  gradeCell.innerHTML = "<input type='text' />";
+  newRow.appendChild(gradeCell);
+
+  // Add a cell for each subgrade
+  const subgradeHeaders = document.querySelectorAll("#header_row th:not(#actions_header):not(#feedback_header)");
+  subgradeHeaders.forEach(() => {
+    const newCell = document.createElement("td");
+    newCell.innerHTML = "<input type='text' />";
+    newRow.appendChild(newCell);
+  });
+
+  const actionsCell = document.createElement("td");
+  actionsCell.innerHTML = `<input type='button' value='Save' class='save' onclick='save_row("${table.rows.length - 1}")'>
+                           <input type='button' value='Remove Essay' class='delete' onclick='delete_row("${table.rows.length - 1}")'>`;
+  newRow.appendChild(actionsCell);
+
+  const feedbackCell = document.createElement("td");
+  feedbackCell.innerHTML = "<input type='text' />";
+  newRow.appendChild(feedbackCell);
+};
+
      // Add event listeners  
 document.getElementById("train_model").addEventListener("click", trainModel);  
 document.getElementById("predict_grade").addEventListener("click", predictGrade);
