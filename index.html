@@ -142,7 +142,7 @@
     const inputGradesSG = {};  
     const inputFeedbackMG = [];  
     // Function to update progress bar  
-    function updateProgress(percentage, totalTimeTaken, trainingLabel) {  
+    window.updateProgress = function(percentage, totalTimeTaken, trainingLabel) {  
       console.log("Updating progress bar...");  
       console.log("Percentage: " + percentage);  
       console.log("Total time taken: " + totalTimeTaken);  
@@ -196,7 +196,7 @@
     }  
   
     // Function for predicting the grade  
-    async function predictGrade() {  
+    window.predictGrade = async function() {  
       console.log("Predicting grade...");  
   
       function preprocessText(essays) {  
@@ -261,7 +261,7 @@
   
   
     // Function for training the model  
-    async function trainModel() {  
+    window.trainModel = async function trainModel() {  
       console.log("Training model...");  
   
       const learningRate = 0.005;  
