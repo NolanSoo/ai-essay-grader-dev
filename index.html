@@ -491,19 +491,24 @@ window.add_row = function add_row() {
                            <input type='button' value='Remove Essay' class='delete' onclick='delete_row("${table.rows.length - 1}")'>`;
   newRow.appendChild(actionsCell);
 
-  // Add a cell for each subgrade (if any)
+  // Dynamically check for subgrade headers
   const subgradeHeaders = document.querySelectorAll("#header_row th:not(#actions_header):not(#feedback_header)");
-  subgradeHeaders.forEach(() => {
-    const newCell = document.createElement("td");
-    newCell.innerHTML = "<input type='text' />";
-    newRow.appendChild(newCell);
-  });
+
+  if (subgradeHeaders.length > 0) {
+    // Add a cell for each subgrade
+    subgradeHeaders.forEach(() => {
+      const newCell = document.createElement("td");
+      newCell.innerHTML = "<input type='text' />";
+      newRow.appendChild(newCell);
+    });
+  }
 
   // Add the feedback cell at the end
   const feedbackCell = document.createElement("td");
   feedbackCell.innerHTML = "<input type='text' />";
   newRow.appendChild(feedbackCell);
 };
+
 
 
      // Add event listeners  
