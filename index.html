@@ -136,7 +136,11 @@
      import { feedback } from './feedback.js';  
     var finalModel;  
     var subgradeModels = {};  
-  
+    const inputEssaysMG = [];  
+    const inputGradesMG = [];  
+    const inputEssaysSG = {};  
+    const inputGradesSG = {};  
+    const inputFeedbackMG = [];  
     // Function to update progress bar  
     function updateProgress(percentage, totalTimeTaken, trainingLabel) {  
       console.log("Updating progress bar...");  
@@ -251,13 +255,10 @@
       // Display subgrade predictions  
       const subgradePredictionText = Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(', ');  
       document.getElementById("predicted_grade_output").innerText += `\nSubgrade Predictions: ${subgradePredictionText}`;  
+       // Call the feedback function  
+      feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput);  
     }  
   
-    const inputEssaysMG = [];  
-    const inputGradesMG = [];  
-    const inputEssaysSG = {};  
-    const inputGradesSG = {};  
-    const inputFeedbackMG = [];  
   
     // Function for training the model  
     async function trainModel() {  
@@ -419,8 +420,6 @@
       // Show the prediction input section after training  
       document.getElementById("predict_section").style.display = "block";  
   
-      // Call the feedback function  
-      feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG);  
     }  
   
     // Function to add a new subgrade  
