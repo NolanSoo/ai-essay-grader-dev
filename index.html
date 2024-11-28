@@ -111,8 +111,7 @@
     <input  
       type="button"  
       id="train_model"  
-      value="Start Playground Model"  
-      onclick="trainModel()"  
+      value="Start Playground Model"   
     />  
     <div id="output"></div>  
    </div>  
@@ -129,12 +128,11 @@
       type="button"  
       id="predict_grade"  
       value="Predict Grade"  
-      onclick="predictGrade()"  
     />  
     <div id="predicted_grade_output"></div>  
    </div>  
   
-   <script type="module">  
+   <script type="module" defer>  
      import { feedback } from './feedback.js';  
     var finalModel;  
     var subgradeModels = {};  
@@ -501,6 +499,9 @@
       feedbackCell.innerHTML = "<input type='text' />";  
       newRow.appendChild(feedbackCell);  
     }  
+     // Add event listeners  
+document.getElementById("train_model").addEventListener("click", trainModel);  
+document.getElementById("predict_grade").addEventListener("click", predictGrade);
    </script>
 
 
