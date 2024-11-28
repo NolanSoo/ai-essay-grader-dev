@@ -45,11 +45,7 @@
       console.log(chatCompletion);
 
       // Display the response in the output div
-      document.getElementById("output").textContent = JSON.stringify(
-        chatCompletion,
-        null,
-        2
-      );
+      document.getElementById("output").textContent = JSON.stringify(messageContent);
 
       // Extract the main fields
       const { id, model, created, choices, usage } = chatCompletion;
