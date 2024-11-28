@@ -499,13 +499,7 @@
       const feedbackCell = document.createElement("td");  
       feedbackCell.innerHTML = "<input type='text' />";  
       newRow.appendChild(feedbackCell);  
-      // Add event listeners  
-  const saveButton = actionsCell.querySelector(".save");  
-  saveButton.addEventListener("click", () => save_row(table.rows.length - 1));  
-  
-  const deleteButton = actionsCell.querySelector(".delete");  
-  deleteButton.addEventListener("click", () => delete_row(table.rows.length - 1));  
-    }  
+    }    
      // Add event listeners  
 document.getElementById("train_model").addEventListener("click", trainModel);  
 document.getElementById("predict_grade").addEventListener("click", predictGrade);
