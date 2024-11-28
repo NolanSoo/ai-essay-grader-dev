@@ -327,6 +327,12 @@
        });  
       });  
   
+      // Check if there are any subgrades  
+      if (Object.keys(subgradeInputEssays).length === 0) {  
+       alert("Please add at least one subgrade.");  
+       return;  
+      }  
+  
       const mainGradeInputTrainTensor = preprocessText(mainGradeInputEssays);  
       const mainGradeTargetTrainTensor = tf.tensor1d(mainGradeTargets);  
   
@@ -368,6 +374,12 @@
       for (const subgrade in subgradeInputEssays) {  
        const subgradeInputTrainTensor = preprocessText(subgradeInputEssays[subgrade]);  
        const subgradeTargetTrainTensor = tf.tensor1d(subgradeTargets[subgrade]);  
+  
+       // Check if the subgrade has any targets  
+       if (subgradeTargetTrainTensor.shape[0] === 0) {  
+        console.log(`No targets for subgrade ${subgrade}. Skipping...`);  
+        continue;  
+       }  
   
        subgradeModels[subgrade] = tf.sequential();  
        subgradeModels[subgrade].add(tf.layers.dense({ inputShape: [1200], units: 1 }));  
