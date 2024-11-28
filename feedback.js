@@ -12,7 +12,7 @@
     console.log("Getting feedback...");
 
     let message = "Hello. Please give professional feedback on essays (1-2 sentences for overall and for every subgrade)..."; // Truncated for clarity
-
+    console.log(message);
     for (let i = 0; i < inputEssaysMG.length; i++) {
       message += `Essay ${i}: ${inputEssaysMG[i]} - Main Grade: ${inputGradesMG[i]} - Feedback: ${inputFeedbackMG[i]}`;
       for (const subgrade in inputEssaysSG) {
