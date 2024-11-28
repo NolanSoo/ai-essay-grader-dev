@@ -51,7 +51,12 @@
       const messageContent = choices[0].message.content;
       const { prompt_tokens, total_tokens } = usage;
     // Display the response in the output div
-      document.getElementById("output").textContent = JSON.stringify(messageContent);
+     // Replace \n\n with <br> (newlines)
+let formattedFeedback = messageContent.replace(/\n\n/g, '<br>');
+
+// Replace ** with <strong> for bold text
+formattedFeedback = formattedFeedback.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      document.getElementById("output").innerHTML = JSON.stringify(formattedFeedback);
       console.log("ID:", id);
       console.log("Model:", model);
       console.log("Created Timestamp:", created);
