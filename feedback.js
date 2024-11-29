@@ -8,7 +8,7 @@
   });
 
   // Function to get feedback from the model
-  async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput) {
+  async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput) {
     console.log("Getting feedback...");
 
     let message = "Hello. Please give professional feedback on essays (1-2 sentences for overall and for every subgrade)..."; // Truncated for clarity
@@ -18,9 +18,8 @@
         message += `Subgrade ${subgrade}: ${inputEssaysSG[subgrade][i]} - Grade: ${inputGradesSG[subgrade][i]}`;
       }
     } 
-    const prompt = document.getElementById("prompt").innerText;
-   console.log(prompt);
-   message += `Here is the prompt: ${prompt}`
+   console.log(promptInput);
+   message += `Here is the prompt: ${promptInput}`
     console.log("message", message);
    
    let message2 = `Here is the essay I would like you to give feedback for: ${essayInput}. Its grade is ${(predictedGrade).toFixed(1)}`; // it gives one decimal place for more specificity not usually possible with human grading 
