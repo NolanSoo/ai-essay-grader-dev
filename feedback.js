@@ -24,7 +24,8 @@
    for (const subgrade in subgradePredictions) {
     message2 += `Grade for ${subgrade}: ${(subgradePredictions[subgrade]).toFixed(1)}`
    }
-   message2 += `Make sure to list the final grade out of the maximum shown out of all essays for each grade (both main and sub) before giving feedback for each section. After all subgrades, also give score out of 100 (based on the strictness of the other criteria) for conciseness, conventions, grammar, detail, description, and "intelligence/talent" (for instance ability to make a convincing argument or a dramatic story)` 
+   message2 += `Make sure to list the final grade out of the maximum shown out of all essays for each grade (both main and sub) before giving feedback for each section. After all subgrades, also give score out of 100 (based on the strictness of the other criteria) for conciseness, conventions, grammar, detail, and descriptions (also only give feedback on the essay I just gave - all previous ones given by system were examples` 
+   message2 += `Lastly, make sure to use this format: overall grade // sub grade // sub grade 2 // ... continue for all sub grades // || sub grade feedback // sub grade 2 feedback // continue for all sub grades... -- overall feedback XX conciseness feedback // conventions feedback // grammar feedback // detail feedback // descriptions feedback. FOLLOW THE SEPERATIONS EXACTLY - THIS WILL BE INTERPRETED FOR THE USER INTERFACE`
    console.log("message2", message2);
     const params = {
       messages: [
