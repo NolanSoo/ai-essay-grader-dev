@@ -19,6 +19,7 @@
       }
     } 
     const prompt = document.getElementById("prompt").innerText;
+   console.log(prompt);
    message += `Here is the prompt: ${prompt}`
     console.log("message", message);
    
