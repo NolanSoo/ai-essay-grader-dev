@@ -98,7 +98,7 @@ export { feedback };
    message += `Here is the prompt (if there is one, along with any other important directions): ${promptInput}`
     console.log("message", message);
    
-   let message2 = `Here is the essay I would like you to grade: ${essayInput} 
+   let message2 = `Here is the essay I would like you to grade: ${essayInput}` 
 
    message2 += "ONLY give the grade - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9)"
    console.log("message2", message2);
