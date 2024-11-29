@@ -89,21 +89,28 @@ document.getElementById("output").innerHTML = formattedFeedbackfinal;
   }
 export { feedback };
 
-  // Function to get feedback from the model
-  async function predictGradealt(essayInput, promptInput, rubricInput) {
+// Helper function to pause execution for a given time (in milliseconds)
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function predictGradealt(essayInput, promptInput, rubricInput) {
     console.log("Getting feedback...");
 
     let message = `Here is the rubric given: ${rubricInput}`;
     console.log(promptInput);
-    message += `Here is the prompt (if there is one, along with any other important directions): ${promptInput}`;
+    message += ` Here is the prompt (if there is one, along with any other important directions): ${promptInput}`;
     console.log("message", message);
 
     let message2 = `Here is the essay I would like you to grade: ${essayInput}`;
 
-    message2 += " ONLY give the grade - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9) - just give one integer value and nothing else so it can be converted into a number in javascript :)";
+    message2 += " ONLY give the grade out of 100 - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9) - just give one integer value and nothing else so it can be converted into a number in javascript :)";
     console.log("message2", message2);
 
     let gradesofar = 0;
+    let minGrade = Infinity;
+    let maxGrade = -Infinity;
+
     const params = {
         messages: [
             {
@@ -125,9 +132,18 @@ export { feedback };
 
             const { id, model, created, choices, usage } = chatCompletion;
             const messageContent = choices[0].message.content;
-            gradesofar += Number(messageContent);
-            console.log(gradesofar);
-            console.log(`Grade: ${gradesofar / i}`);
+            const grade = Number(messageContent);
+
+            // Update gradesofar, minGrade, and maxGrade
+            gradesofar += grade;
+            if (grade < minGrade) minGrade = grade;
+            if (grade > maxGrade) maxGrade = grade;
+
+            // Log the current average, min, and max grades
+            console.log(`Epoch ${i + 1}:`);
+            console.log(`  Current Average Grade: ${(gradesofar / (i + 1)).toFixed(1)}`);
+            console.log(`  Minimum Grade: ${minGrade}`);
+            console.log(`  Maximum Grade: ${maxGrade}`);
             console.log("ID:", id);
             console.log("Model:", model);
             console.log("Created Timestamp:", created);
@@ -143,7 +159,11 @@ export { feedback };
                 document.getElementById("output").textContent = "An unexpected error occurred.";
             }
         }
+
+        // Wait for 2.1 seconds before the next iteration
+        await sleep(2100);
     }
 }
 
 export { predictGradealt };
+
