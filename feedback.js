@@ -99,13 +99,13 @@ async function predictGradealt(essayInput, promptInput, rubricInput) {
 
     let message = `Here is the rubric given: ${rubricInput}`;
     console.log(promptInput);
-    message += ` Here is the prompt (if there is one, along with any other important directions): ${promptInput}`;
-    console.log("message", message);
+    message += ` Here is the prompt (along with any other important directions): ${promptInput}`;
+    console.log("message for new function", message);
 
     let message2 = `Here is the essay I would like you to grade: ${essayInput}`;
 
     message2 += " ONLY give the grade out of 100 - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9) - just give one integer value and nothing else so it can be converted into a number in javascript :)";
-    console.log("message2", message2);
+    console.log("message2 for new function", message2);
 
     let gradesofar = 0;
     let minGrade = Infinity;
