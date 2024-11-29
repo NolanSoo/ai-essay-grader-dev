@@ -270,14 +270,14 @@
       // Display subgrade predictions  
       const subgradePredictionText = Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(', ');  
       document.getElementById("predicted_grade_output").innerText += `\nSubgrade Predictions: ${subgradePredictionText}`;  
-      const promptInput = document  
+      var promptInput = document  
        .getElementById("prompt")  
        .value.trim(); 
        // Check if the input is not empty  
       if (!promptInput) {  
        promptInput = "No specific prompt or directions"
       }  
-      const rubricInput = document  
+      var rubricInput = document  
        .getElementById("rubric")  
        .value.trim(); 
        // Call the feedback function  
