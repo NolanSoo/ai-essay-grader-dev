@@ -277,8 +277,11 @@
       if (!promptInput) {  
        promptInput = "No specific prompt or directions"
       }  
+      const rubricInput = document  
+       .getElementById("rubric")  
+       .value.trim(); 
        // Call the feedback function  
-      feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput);  
+      feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
 
     }  
   
