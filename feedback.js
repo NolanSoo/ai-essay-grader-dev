@@ -140,7 +140,7 @@ for (i < 100) {
      } catch (err) {
        if (err instanceof Groq.APIError) {
          console.error("API Error:", err);
-         document.getElementById("output").textContent = `Error: ${err.name} (${err.status})`;
+         document.getElementById("output").textContent = "Error";
        } else {
          console.error("Unexpected Error:", err);
          document.getElementById("output").textContent = "An unexpected error occurred.";
