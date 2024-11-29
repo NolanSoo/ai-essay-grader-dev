@@ -10,7 +10,12 @@
   
   <body>  
    <h1>AI Essay Grader</h1>  
-   <h2>Revised Solution Trials (Prompt 2)</h2>  
+   <h2>Training </h2>
+    <br>
+    <h3>Input essays you have graded in the past in the essay column - along with their corresponding overall grades and feedback</h3>
+    <h3>For specific rubric sections (such as "Conventions", use the "Add Subgrade" button, then input the essays' corresponding grades for those sections)</h3>
+    <h3>After training finishes, you can input students' essays to grade them. You can also generate detailed, professional feedback</h3>
+    <h3>A brand-new AI model is newly trained on only your essays so the grades returned exactly matches your standards of grading</h3>
    <div id="app"></div>  
    <div class="w3-black">  
     <div  
@@ -37,14 +42,14 @@
     >  
       <tr id="header_row">  
        <th>Essay</th>  
-       <th>Main Grade</th>  
+       <th>Overall Grade</th>  
        <!-- Subgrade headers will be added here dynamically -->  
        <th id="actions_header">Actions</th>  
        <th id="feedback_header">Feedback</th>  
       </tr>  
   
       <tr id="row1">  
-       <td id="essay_row1"><input type="text" value="This is a terrblie essay" /></td>  
+       <td id="essay_row1"><input type="text" value="This is a terrible essay" /></td>  
        <td id="grade_row1"><input type="text" value="1" /></td>  
        <!-- Subgrade cells will be added here dynamically -->  
        <td id="actions_row1">  
@@ -106,28 +111,27 @@
        <td id="add_feedback"><input type="text" value="" /></td>  
       </tr>  
     </table>  
-    <h3>Playground/Demo</h3>  
-    <h4>Please copy and paste your graded essays (straight from Docs, Word, etc) - no rubric is required!</h4>  
     <input  
       type="button"  
       id="train_model"  
-      value="Start Playground Model"   
+      value="Start"   
     />  
     <div id="output"></div>  
    </div>  
-   <div id="predict_section" style="display: none; margin-top: 20px">  
-    <h3>Enter a new essay to predict its grade:</h3>  
+   <div id="predict_section" style="display: none; margin-top: 20px; margin-left: auto; margin-right: auto">
+     <h2>Grading</h2>
+    <h3>Enter a new essay to grade it and generate feedback:</h3>  
     <textarea  
       id="new_essay_input"  
       rows="4"  
       cols="50"  
-      placeholder="Type your essay here..."  
+      placeholder="Paste/type in essay to be graded"  
     ></textarea>  
     <br />  
     <input  
       type="button"  
       id="predict_grade"  
-      value="Predict Grade"  
+      value="Grade Essay"  
     />  
     <div id="predicted_grade_output"></div>  
    </div>  
@@ -167,12 +171,12 @@
       // Update the training label text  
       trainingLabelElement.textContent = trainingLabel;  
   
-      // Calculate the estimated total time based on total time taken and percentage done  
-      if (percentage > 0) {  
+      // Calculate the estimated total time based on total time taken and  done  
+      if ( > 0) {  
        const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs  
   
        // Estimate the total time based on the current progress (linear approximation)  
-       const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time  
+       const expectedTotalTime = elapsedTime / ( / 100); // Estimate total time  
   
        // Calculate remaining time  
        const remainingTime = expectedTotalTime - elapsedTime;  
