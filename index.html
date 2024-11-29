@@ -368,7 +368,7 @@
         console.log(  
           `Main Grade Training Epoch ${mainGradeEpoch} completed.`  
         );  
-        percentageDone += 0.3333333333 / (Object.keys(subgradeInputEssays).length + 1);  
+        percentageDone += 0.3333333333 / (Object.keys(subgradeInputEssays).length);  
         currentTime = Date.now() / 1000;  
         totalTimeTaken = currentTime - startTime;  
         updateProgress(percentageDone, totalTimeTaken, "Training Main Grade");  
