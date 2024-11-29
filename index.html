@@ -231,7 +231,7 @@
        alert("Please enter an essay to predict the grade.");  
        return;  
       }  
-  
+
       // Preprocess the input essay into tensor format  
       const essayTensor = preprocessText([essayInput]); // Wrap in an array for single input  
   
@@ -264,8 +264,15 @@
       // Display subgrade predictions  
       const subgradePredictionText = Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(', ');  
       document.getElementById("predicted_grade_output").innerText += `\nSubgrade Predictions: ${subgradePredictionText}`;  
+      const promptInput = document  
+       .getElementById("prompt")  
+       .value.trim(); 
+       // Check if the input is not empty  
+      if (!promptInput) {  
+       promptInput = "No specific prompt or directions"
+      }  
        // Call the feedback function  
-      feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput);  
+      feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput);  
 
     }  
   
