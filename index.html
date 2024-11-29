@@ -158,7 +158,7 @@
    </div>  
    <script type="module" defer>  
      import { feedback } from './feedback.js';  
-    import { trainModelalt } from './training.js';  
+    import { predictGradealt } from './feedback.js';  
     var finalModel;  
     var subgradeModels = {};  
     const inputEssaysMG = [];  
@@ -222,6 +222,29 @@
   
     // Function for predicting the grade  
     async function predictGrade() {  
+       if (document.getElementById("option1").checked && document.getElementById("option2").checked {
+             const essayInput = document  
+       .getElementById("new_essay_input")  
+       .value.trim();  
+  
+      // Check if the input is not empty  
+      if (!essayInput) {  
+       alert("Please enter an essay to predict the grade.");  
+       return;  
+      }  
+               var promptInput = document  
+       .getElementById("prompt")  
+       .value.trim(); 
+       // Check if the input is not empty  
+      if (!promptInput) {  
+       promptInput = "No specific prompt or directions"
+      }  
+      var rubricInput = document  
+       .getElementById("rubric")  
+       .value.trim(); 
+         predictGradealt(essayInput, promptInput, rubricInput);
+       }
+  
       console.log("Predicting grade...");  
   
       function preprocessText(essays) {  
@@ -291,8 +314,8 @@
        .value.trim(); 
        // Call the feedback function  
       feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
-
-    }  
+      }
+    
   
   
     // Function for training the model  
@@ -462,18 +485,11 @@
         console.log("alternate training selected");
         if (document.getElementById("option1").checked && document.getElementById("option2").checked {
           console.log("training possible");
-            var promptInput = document  
-       .getElementById("prompt")  
-       .value.trim(); 
-       // Check if the input is not empty  
-      if (!promptInput) {  
-       promptInput = "No specific prompt or directions"
-      }  
-      var rubricInput = document  
-       .getElementById("rubric")  
-       .value.trim(); 
-          trainModelalt(promptInput, rubricInput);
-        }
+             console.log("Model training skipped");  
+      document.getElementById("output").innerText =  
+       "Model training skipped (using chatbot to grade instead)";  
+      // Show the prediction input section after training  
+      document.getElementById("predict_section").style.display = "block";  
         else {
         window.alert("Select at least 2 options if not using previously graded essays");
         }
