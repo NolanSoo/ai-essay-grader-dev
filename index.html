@@ -12,14 +12,14 @@
    <h1>AI Essay Grader</h1>  
    <h2>Training </h2>
     <br>
-    <h3>Input essays you have graded in the past in the essay column - along with their corresponding overall grades and feedback</h3>
-    <h3>For specific rubric sections (such as "Conventions", use the "Add Subgrade" button, then input the essays' corresponding grades for those sections)</h3>
-    <h3>After training finishes, you can input students' essays to grade them. You can also generate detailed, professional feedback</h3>
-    <h3>A brand-new AI model is newly trained on only your essays so the grades returned exactly matches your standards of grading</h3>
+    <h5>Input essays you have graded in the past in the essay column - along with their corresponding overall grades and feedback</h5>
+    <h5>For specific rubric sections (such as "Conventions", use the "Add Subgrade" button, then input the essays' corresponding grades for those sections)</h5>
+    <h5>After training finishes, you can input students' essays to grade them. You can also generate detailed, professional feedback</h5>
+    <h5>A brand-new AI model is newly trained on only your essays so the grades returned exactly matches your standards of grading</h5>
    <div id="app"></div>  
-      <div id="wrapper" align="center">
-   <div class="w3-black"> 
-      <div class="w3-container w3-green w3-center"  
+   <div class="w3-black">  
+    <div  
+      class="w3-container w3-green w3-center"  
       id="loading_bar"  
       style="width: 0%"  
     >  
@@ -30,7 +30,8 @@
         <p id="training_label"></p>  
     </div>  
    </div>  
-   <h1></h1>   
+   <h1></h1>  
+   <div id="wrapper" align="center">  
     <break>  
     <table  
       align="center"  
@@ -171,11 +172,11 @@
       trainingLabelElement.textContent = trainingLabel;  
   
       // Calculate the estimated total time based on total time taken and  done  
-      if (percentage > 0) {  
+      if ( > 0) {  
        const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs  
   
        // Estimate the total time based on the current progress (linear approximation)  
-       const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time  
+       const expectedTotalTime = elapsedTime / ( / 100); // Estimate total time  
   
        // Calculate remaining time  
        const remainingTime = expectedTotalTime - elapsedTime;  
