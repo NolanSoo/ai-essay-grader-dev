@@ -158,6 +158,7 @@
    </div>  
    <script type="module" defer>  
      import { feedback } from './feedback.js';  
+    import { trainModelalt } from './training.js';  
     var finalModel;  
     var subgradeModels = {};  
     const inputEssaysMG = [];  
@@ -263,7 +264,6 @@
       // Round the predicted grade and display it  
       const predictedGrade = prediction[0];  
       console.log("Predicted grade: " + predictedGrade);  
-  
       document.getElementById(  
        "predicted_grade_output"  
       ).innerText = `Predicted Grade: ${Math.round(predictedGrade)}`;  
@@ -297,6 +297,8 @@
   
     // Function for training the model  
     async function trainModel() {  
+      if (document.getElementById("option3").checked) {  
+
       console.log("Training model...");  
   
       const learningRate = 0.005;  
@@ -455,7 +457,28 @@
       // Show the prediction input section after training  
       document.getElementById("predict_section").style.display = "block";  
   
-    }  
+    }
+      else {
+        console.log("alternate training selected");
+        if (document.getElementById("option1").checked && document.getElementById("option2").checked {
+          console.log("training possible");
+            var promptInput = document  
+       .getElementById("prompt")  
+       .value.trim(); 
+       // Check if the input is not empty  
+      if (!promptInput) {  
+       promptInput = "No specific prompt or directions"
+      }  
+      var rubricInput = document  
+       .getElementById("rubric")  
+       .value.trim(); 
+          trainModelalt(promptInput, rubricInput);
+        }
+        else {
+        window.alert("Select at least 2 options if not using previously graded essays");
+        }
+      }
+    }
   
     // Function to add a new subgrade  
    window.add_subgrade = function add_subgrade() {
