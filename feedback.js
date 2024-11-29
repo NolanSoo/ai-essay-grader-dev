@@ -125,7 +125,7 @@ async function predictGradealt(essayInput, promptInput, rubricInput) {
         model: "llama3-8b-8192",
     };
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 10; i++) {
         try {
             const chatCompletion = await client.chat.completions.create(params);
             console.log(chatCompletion);
