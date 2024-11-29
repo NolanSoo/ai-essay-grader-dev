@@ -88,3 +88,64 @@ document.getElementById("output").innerHTML = formattedFeedbackfinal;
     }
   }
 export { feedback };
+
+  // Function to get feedback from the model
+  async function predictGradealt(essayInput, promptInput, rubricInput) {
+    console.log("Getting feedback...");
+
+    message += `Here is the rubric given: ${rubricInput}`;
+   console.log(promptInput);
+   message += `Here is the prompt (if there is one, along with any other important directions): ${promptInput}`
+    console.log("message", message);
+   
+   let message2 = `Here is the essay I would like you to grade: ${essayInput} 
+
+   message2 += `ONLY give the grade - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9)`
+   console.log("message2", message2);
+   let gradesofar = 0;
+    const params = {
+      messages: [
+        {
+          role: "system",
+          content: message,
+        },
+        {
+          role: "user",
+          content: message2,
+        },
+      ],
+      model: "llama3-8b-8192",
+    };
+for (i < 100) {
+ i++;
+     try {
+       // Make the API call
+       const chatCompletion = await client.chat.completions.create(params);
+       console.log(chatCompletion);
+ 
+   
+ 
+       // Extract the main fields
+       const { id, model, created, choices, usage } = chatCompletion;
+       const messageContent = choices[0].message.content;
+       const { prompt_tokens, total_tokens } = usage;
+       gradesofar += Number(messageContent);
+       console.log(gradesofar);
+       console.log("ID:", id);
+       console.log("Model:", model);
+       console.log("Created Timestamp:", created);
+       console.log("Message Content:", messageContent);
+       console.log("Prompt Tokens Used:", prompt_tokens);
+       console.log("Total Tokens Used:", total_tokens);
+     } catch (err) {
+       if (err instanceof Groq.APIError) {
+         console.error("API Error:", err);
+         document.getElementById("output").textContent = `Error: ${err.name} (${err.status})`;
+       } else {
+         console.error("Unexpected Error:", err);
+         document.getElementById("output").textContent = "An unexpected error occurred.";
+       }
+     }
+     }
+}
+export { predictGradealt };
