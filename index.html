@@ -176,7 +176,7 @@
        const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs  
   
        // Estimate the total time based on the current progress (linear approximation)  
-       const expectedTotalTime = elapsedTime / ( / 100); // Estimate total time  
+       const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time  
   
        // Calculate remaining time  
        const remainingTime = expectedTotalTime - elapsedTime;  
