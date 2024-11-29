@@ -20,10 +20,11 @@
     }
     console.log("message", message);
    
-   let message2 = `Here is the essay I would like you to give feedback for: ${essayInput}. Its grade is ${Math.round(predictedGrade)}`;
+   let message2 = `Here is the essay I would like you to give feedback for: ${essayInput}. Its grade is ${(predictedGrade).toFixed(1)}`; // it gives one decimal place for more specificity not usually possible with human grading 
    for (const subgrade in subgradePredictions) {
-    message2 += `Grade for ${subgrade}: ${Math.round(subgradePredictions[subgrade])}`
+    message2 += `Grade for ${subgrade}: ${(subgradePredictions[subgrade]).toFixed(1)}`
    }
+   message2 += `Make sure to list the final grade out of the maximum shown out of all essays for each grade (both main and sub) before giving feedback for each section. After all subgrades, also give score out of 100 (based on the strictness of the other criteria) for conciseness, conventions, grammar, detail, description, and "intelligence/talent" (for instance ability to make a convincing argument or a dramatic story)` 
    console.log("message2", message2);
     const params = {
       messages: [
