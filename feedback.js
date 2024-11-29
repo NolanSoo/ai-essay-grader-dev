@@ -100,7 +100,7 @@ export { feedback };
 
     let message2 = `Here is the essay I would like you to grade: ${essayInput}`;
 
-    message2 += " ONLY give the grade - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9)";
+    message2 += " ONLY give the grade - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9) - just give one integer value and nothing else so it can be converted into a number in javascript :)";
     console.log("message2", message2);
 
     let gradesofar = 0;
