@@ -58,7 +58,11 @@ let formattedFeedback = messageContent.replace(/\n\n/g, '<br>');
 
 // Replace ** with <strong> for bold text
 formattedFeedback = formattedFeedback.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      document.getElementById("output").innerHTML = JSON.stringify(formattedFeedback);
+     const lines = formattedFeedback.trim().split("\n");
+const formattedFeedbackfinal = lines.map(line => line.trim() + "<br>").join("");
+
+document.getElementById("feedback").innerHTML = formattedFeedback;
+      document.getElementById("output").innerHTML = JSON.stringify(formattedFeedbackfinal);
       console.log("ID:", id);
       console.log("Model:", model);
       console.log("Created Timestamp:", created);
