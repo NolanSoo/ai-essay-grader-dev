@@ -160,7 +160,7 @@ async function predictGradealt(essayInput, promptInput, rubricInput) {
             }
         }
 
-        // Wait for 2.1 seconds before the next iteration
+        // Wait for 2.1 seconds before the next iteration - this overall code is just to test LLaMA augmented grades and compare using table only vs LLaMA only vs both (I predict both will be better)
         await sleep(2100);
     }
 }
