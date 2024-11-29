@@ -17,7 +17,9 @@
       for (const subgrade in inputEssaysSG) {
         message += `Subgrade ${subgrade}: ${inputEssaysSG[subgrade][i]} - Grade: ${inputGradesSG[subgrade][i]}`;
       }
-    }
+    } 
+    const prompt = document.getElementById("prompt").innerText;
+   message += `Here is the prompt: ${prompt}`
     console.log("message", message);
    
    let message2 = `Here is the essay I would like you to give feedback for: ${essayInput}. Its grade is ${(predictedGrade).toFixed(1)}`; // it gives one decimal place for more specificity not usually possible with human grading 
