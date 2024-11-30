@@ -267,7 +267,6 @@
         const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
           inputEssaysSG[subgradeName] = [];  
           inputGradesSG[subgradeName] = [];  
-        subgradeInputEssays[subgradeName].push(essay);  
         const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
         if (!isNaN(subgradeValue)) {  
           inputEssaysSG[subgradeName].push(essay);  
