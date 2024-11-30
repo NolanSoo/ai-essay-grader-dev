@@ -93,7 +93,60 @@ export { feedback };
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-
+ // Function to update progress bar  
+    function updateProgress(percentage, totalTimeTaken) {  
+      console.log("Updating progress bar...");  
+      console.log("Percentage: " + percentage);  
+      console.log("Total time taken: " + totalTimeTaken);  
+      console.log("Training label: " + trainingLabel);  
+  
+      // Ensure the percentage is between 0 and 100  
+      percentage = Math.max(0, Math.min(100, percentage));  
+      percentage = percentage.toFixed(2);  
+  
+      // Get the loading bar and percentage label elements  
+      const loadingBar = document.getElementById("loading_bar");  
+      const percentageLabel = document.getElementById("percentage_label");  
+      const timeLabel = document.getElementById("time_label");  
+      const trainingLabelElement = document.getElementById("training_label");  
+  
+      // Update the width of the loading bar  
+      loadingBar.style.width = percentage + "%";  
+  
+      // Update the percentage label text  
+      percentageLabel.textContent = percentage + "%";  
+  
+      // Update the training label text  
+      trainingLabelElement.textContent = trainingLabel;  
+  
+      // Calculate the estimated total time based on total time taken and  done  
+      if (percentage > 0) {  
+       const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs  
+  
+       // Estimate the total time based on the current progress (linear approximation)  
+       const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time  
+  
+       // Calculate remaining time  
+       const remainingTime = expectedTotalTime - elapsedTime;  
+  
+       // Format time (minutes:seconds)  
+       const formatTime = (timeInSeconds) => {  
+        const minutes = Math.floor(timeInSeconds / 60);  
+        const seconds = Math.floor(timeInSeconds % 60);  
+        return `${minutes} minutes - ${seconds  
+          .toString()  
+          .padStart(2, "0")} seconds`;  
+       };  
+  
+       // Display the time taken and expected total time in a human-readable format  
+       const timeTaken = formatTime(elapsedTime);  
+       const totalTime = formatTime(expectedTotalTime);  
+  
+       // Update the label with time information  
+       timeLabel.textContent = `${timeTaken} / ${totalTime}`;  
+      }  
+    }  
+percentage = 0;
 async function predictGradealt(essayInput, promptInput, rubricInput, inputEssaysMG, inputGradesMG) {
      console.log("Getting feedback...");  
   
