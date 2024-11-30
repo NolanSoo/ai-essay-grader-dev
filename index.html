@@ -222,14 +222,14 @@
   
     // Function for predicting the grade  
     async function predictGrade() {  
+      const inputEssaysMG = [];  
+      const inputGradesMG = [];  
+      const inputEssaysSG = {};  
+      const inputGradesSG = {};  
        if (document.getElementById("option1").checked && document.getElementById("option2").checked) {
              const essayInput = document  
        .getElementById("new_essay_input")  
-       .value.trim();  
-        const inputEssaysMG = [];  
-      const inputGradesMG = [];  
-      const inputEssaysSG = {};  
-      const inputGradesSG = {};   
+       .value.trim();   
       // Check if the input is not empty  
       if (!essayInput) {  
        alert("Please enter an essay to predict the grade.");  
@@ -344,7 +344,35 @@
       var rubricInput = document  
        .getElementById("rubric")  
        .value.trim(); 
-       // Call the feedback function  
+       // Call the feedback function
+        // Collect data from table rows  
+      const rows = document.querySelectorAll(  
+       "#data_table tr:not(:first-child):not(:last-child)"  
+      ); // Excluding header row and add row  
+      rows.forEach((row) => {  
+       const essay = row.querySelector("td:nth-child(1) input").value.trim();  
+       const grade = parseFloat(  
+        row.querySelector("td:nth-child(2) input").value.trim()  
+       );  
+       const feedback = row.querySelector("td:nth-child(4) input").value.trim();  
+       if (essay && !isNaN(grade)) {  
+        inputEssaysMG.push(essay);  
+        inputGradesMG.push(grade);  
+       }  
+      // Collect subgrade data  
+       const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+       subgradeCells.forEach((cell, index) => {  
+        const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
+          inputEssaysSG[subgradeName] = [];  
+          inputGradesSG[subgradeName] = [];  
+        const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
+        if (!isNaN(subgradeValue)) {  
+          inputEssaysSG[subgradeName].push(essay);  
+          inputGradesSG[subgradeName].push(subgradeValue);  
+        }  
+       });  
+      });
+      console.log("IGSG", inputGradesSG);
       feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
       }
     
