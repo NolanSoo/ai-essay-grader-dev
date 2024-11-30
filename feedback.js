@@ -167,7 +167,59 @@ async function predictGradealt(essayInput, promptInput, rubricInput, inputEssays
         // Wait for 2.1 seconds before the next iteration - this overall code is just to test LLaMA augmented grades and compare using table only vs LLaMA only vs both (I predict both will be better)
         await sleep(2100);
     }
-  // feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
+ // Call the feedback function  
+  const feedbackInput = {  
+   essays: [],  
+   grades: [],  
+   subgrades: {},  
+   feedback: [],  
+  };  
+  
+  for (let i = 0; i < inputEssaysMG.length; i++) {  
+   feedbackInput.essays.push(inputEssaysMG[i]);  
+   feedbackInput.grades.push(inputGradesMG[i]);  
+   feedbackInput.feedback.push(inputFeedbackMG[i]);  
+  
+   for (const subgrade in inputEssaysSG) {  
+    if (!feedbackInput.subgrades[subgrade]) {  
+      feedbackInput.subgrades[subgrade] = [];  
+    }  
+    feedbackInput.subgrades[subgrade].push(inputGradesSG[subgrade][i]);  
+   }  
+  }  
+  
+  const output = await feedback(  
+   feedbackInput.essays,  
+   feedbackInput.grades,  
+   feedbackInput.subgrades,  
+   feedbackInput.feedback,  
+   subgradePredictions,  
+   predictedGrade,  
+   essayInput,  
+   promptInput,  
+   rubricInput  
+  );  
+  
+  // Display the output in the desired format  
+  const formattedOutput = formatOutput(output);  
+  console.log(formattedOutput);  
+}  
+  
+// Function to format the output  
+function formatOutput(output) {  
+  let formattedOutput = "";  
+  
+  formattedOutput += `Overall Grade: ${output.grade} + ${output.feedback}\n\n`;  
+  
+  for (const subgrade in output.subgrades) {  
+   formattedOutput += `Subgrade ${subgrade}: ${subgrade} + ${output.subgrades[subgrade].grade} + ${output.subgrades[subgrade].feedback}\n\n`;  
+  }  
+  
+  formattedOutput += `Conciseness: ${output.conciseness.grade} + ${output.conciseness.feedback}\n\n`;  
+  formattedOutput += `Conventions: ${output.conventions.grade} + ${output.conventions.feedback}\n\n`;  
+  formattedOutput += `Detail: ${output.detail.grade} + ${output.detail.feedback}\n\n`;  
+  formattedOutput += `Descriptions: ${output.descriptions.grade} + ${output.descriptions.feedback}\n\n`;  
+ document.getElementById("output").textContent = formattedOutput;
 }
 
 export { predictGradealt };
