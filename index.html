@@ -265,16 +265,11 @@
        const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
        subgradeCells.forEach((cell, index) => {  
         const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
-        if (!subgradeInputEssays[subgradeName]) {  
-          subgradeInputEssays[subgradeName] = [];  
-          subgradeTargets[subgradeName] = [];  
           inputEssaysSG[subgradeName] = [];  
           inputGradesSG[subgradeName] = [];  
-        }  
         subgradeInputEssays[subgradeName].push(essay);  
         const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
         if (!isNaN(subgradeValue)) {  
-          subgradeTargets[subgradeName].push(subgradeValue);  
           inputEssaysSG[subgradeName].push(essay);  
           inputGradesSG[subgradeName].push(subgradeValue);  
         }  
