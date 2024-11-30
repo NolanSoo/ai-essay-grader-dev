@@ -226,7 +226,10 @@
              const essayInput = document  
        .getElementById("new_essay_input")  
        .value.trim();  
-  
+        const inputEssaysMG = [];  
+      const inputGradesMG = [];  
+      const inputEssaysSG = {};  
+      const inputGradesSG = {};   
       // Check if the input is not empty  
       if (!essayInput) {  
        alert("Please enter an essay to predict the grade.");  
@@ -258,7 +261,24 @@
         inputEssaysMG.push(essay);  
         inputGradesMG.push(grade);  
        }  
-   
+      // Collect subgrade data  
+       const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+       subgradeCells.forEach((cell, index) => {  
+        const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
+        if (!subgradeInputEssays[subgradeName]) {  
+          subgradeInputEssays[subgradeName] = [];  
+          subgradeTargets[subgradeName] = [];  
+          inputEssaysSG[subgradeName] = [];  
+          inputGradesSG[subgradeName] = [];  
+        }  
+        subgradeInputEssays[subgradeName].push(essay);  
+        const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
+        if (!isNaN(subgradeValue)) {  
+          subgradeTargets[subgradeName].push(subgradeValue);  
+          inputEssaysSG[subgradeName].push(essay);  
+          inputGradesSG[subgradeName].push(subgradeValue);  
+        }  
+       });  
       });  
          predictGradealt(inputEssaysMG, inputGradesMG, essayInput, promptInput, rubricInput);
        }
@@ -392,15 +412,15 @@
         if (!subgradeInputEssays[subgradeName]) {  
           subgradeInputEssays[subgradeName] = [];  
           subgradeTargets[subgradeName] = [];  
-          inputEssays[subgradeName] = [];  
-          inputGrades[subgradeName] = [];  
+          inputEssaysSG[subgradeName] = [];  
+          inputGradesSG[subgradeName] = [];  
         }  
         subgradeInputEssays[subgradeName].push(essay);  
         const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
         if (!isNaN(subgradeValue)) {  
           subgradeTargets[subgradeName].push(subgradeValue);  
-          inputEssays[subgradeName].push(essay);  
-          inputGrades[subgradeName].push(subgradeValue);  
+          inputEssaysSG[subgradeName].push(essay);  
+          inputGradesSG[subgradeName].push(subgradeValue);  
         }  
        });  
       });  
