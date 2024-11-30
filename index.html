@@ -242,7 +242,25 @@
       var rubricInput = document  
        .getElementById("rubric")  
        .value.trim(); 
-         predictGradealt(essayInput, promptInput, rubricInput);
+           
+  
+      // Collect data from table rows  
+      const rows = document.querySelectorAll(  
+       "#data_table tr:not(:first-child):not(:last-child)"  
+      ); // Excluding header row and add row  
+      rows.forEach((row) => {  
+       const essay = row.querySelector("td:nth-child(1) input").value.trim();  
+       const grade = parseFloat(  
+        row.querySelector("td:nth-child(2) input").value.trim()  
+       );  
+       const feedback = row.querySelector("td:nth-child(4) input").value.trim();  
+       if (essay && !isNaN(grade)) {  
+        inputEssaysMG.push(essay);  
+        inputGradesMG.push(grade);  
+       }  
+   
+      });  
+         predictGradealt(inputEssaysMG, inputGradesMG, essayInput, promptInput, rubricInput);
        }
   
       console.log("Predicting grade...");  
@@ -374,15 +392,15 @@
         if (!subgradeInputEssays[subgradeName]) {  
           subgradeInputEssays[subgradeName] = [];  
           subgradeTargets[subgradeName] = [];  
-          inputEssaysSG[subgradeName] = [];  
-          inputGradesSG[subgradeName] = [];  
+          inputEssays[subgradeName] = [];  
+          inputGrades[subgradeName] = [];  
         }  
         subgradeInputEssays[subgradeName].push(essay);  
         const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
         if (!isNaN(subgradeValue)) {  
           subgradeTargets[subgradeName].push(subgradeValue);  
-          inputEssaysSG[subgradeName].push(essay);  
-          inputGradesSG[subgradeName].push(subgradeValue);  
+          inputEssays[subgradeName].push(essay);  
+          inputGrades[subgradeName].push(subgradeValue);  
         }  
        });  
       });  
