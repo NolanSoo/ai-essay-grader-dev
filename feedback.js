@@ -120,7 +120,7 @@ async function predictGradealt(essayInput, promptInput, rubricInput, inputEssays
   
   // Format the message2  
   let message2 = `Here is the essay I would like you to grade: ${essayInput}`;  
-  message2 += ` ONLY give the grade out of ${maxGrade2} (grades from 1 to ${maxGrade}) - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9) - just give one integer value and nothing else so it can be converted into a number in javascript :)`;  
+  message2 += ` ONLY give the grade out of ${maxGrade2} - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9) - just give one integer value and nothing else so it can be converted into a number in javascript :)`;  
   console.log("message2 for new function", message2); 
 
     let gradesofar = 0;
@@ -176,8 +176,8 @@ async function predictGradealt(essayInput, promptInput, rubricInput, inputEssays
             }
         }
 
-        // Wait for 2.1 seconds before the next iteration - this overall code is just to test LLaMA augmented grades and compare using table only vs LLaMA only vs both (I predict both will be better)
-        await sleep(2100);
+        // Wait for 2.4 seconds before the next iteration - this overall code is just to test LLaMA augmented grades and compare using table only vs LLaMA only vs both (I predict both will be better)
+        await sleep(2400);
     }
  // Call the feedback function  
   const feedbackInput = {  
