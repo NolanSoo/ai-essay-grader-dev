@@ -13,7 +13,7 @@
 
     let message = "Hello. Please give professional feedback on essays (1-2 sentences for overall and for every subgrade)..."; // Truncated for clarity
     for (let i = 0; i < inputEssaysMG.length; i++) {
-      message += `Essay ${i}: ${inputEssaysMG[i]} - Main Grade: ${inputGradesMG[i]} - Feedback: ${inputFeedbackMG[i]}`;
+      message += `Essay ${(i + 1)}: ${inputEssaysMG[i]} - Main Grade: ${inputGradesMG[i]} - Feedback: ${inputFeedbackMG[i]}`;
       for (const subgrade in inputEssaysSG) {
         message += `Subgrade ${subgrade}: ${inputEssaysSG[subgrade][i]} - Grade: ${inputGradesSG[subgrade][i]}`;
       }
@@ -94,10 +94,14 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function predictGradealt(essayInput, promptInput, rubricInput, inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG) {
+async function predictGradealt(essayInput, promptInput, rubricInput, inputEssaysMG, inputGradesMG) {
     console.log("Getting feedback...");
 
     let message = `Here is the rubric given: ${rubricInput}`;
+    message += ` Here are example essays for grading reference (if given): `
+    for (let i = 0; i < inputEssaysMG.length; i++) {
+      message += `Essay ${(i + 1)}: ${inputEssaysMG[i]} - Overall Grade: ${inputGradesMG[i]} `;
+    }
     console.log(promptInput);
     message += ` Here is the prompt (along with any other important directions): ${promptInput}`;
     console.log("message for new function", message);
