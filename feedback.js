@@ -95,21 +95,33 @@ function sleep(ms) {
 }
 
 async function predictGradealt(essayInput, promptInput, rubricInput, inputEssaysMG, inputGradesMG) {
-    console.log("Getting feedback...");
-
-    let message = `Here is the rubric given: ${rubricInput}`;
-    message += ` Here are example essays for grading reference (if given): `
-    for (let i = 0; i < inputEssaysMG.length; i++) {
-      message += `Essay ${(i + 1)}: ${inputEssaysMG[i]} - Overall Grade: ${inputGradesMG[i]} `;
-    }
-    console.log(promptInput);
-    message += ` Here is the prompt (along with any other important directions): ${promptInput}`;
-    console.log("message for new function", message);
-
-    let message2 = `Here is the essay I would like you to grade: ${essayInput}`;
-
-    message2 += " ONLY give the grade out of 3 (grades from 1 to 3) - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9) - just give one integer value and nothing else so it can be converted into a number in javascript :)";
-    console.log("message2 for new function", message2);
+     console.log("Getting feedback...");  
+  
+  // Calculate the maximum grade  
+  let maxGrade2 = Math.max(...inputGradesMG);  
+  
+  // Format the message  
+  let message = `Here is the rubric given: ${rubricInput}`;  
+  message += ` Here is the prompt (along with any other important directions): ${promptInput}`;  
+  message += ` Here are example essays for grading reference (if given): `  
+  
+  // Loop through each essay and add it to the message  
+  for (let i = 0; i < inputEssaysMG.length; i++) {  
+   message += `Essay ${(i + 1)}: ${inputEssaysMG[i]} - Overall Grade: ${inputGradesMG[i]} `;  
+   // Loop through each subgrade and add it to the message  
+   for (const subgrade in inputEssaysSG) {  
+    if (inputEssaysSG[subgrade][i] && inputGradesSG[subgrade][i]) {  
+      message += ` - ${subgrade}: ${inputGradesSG[subgrade][i]} `;  
+    }  
+   }  
+  }  
+  
+  console.log("message for new function", message);  
+  
+  // Format the message2  
+  let message2 = `Here is the essay I would like you to grade: ${essayInput}`;  
+  message2 += ` ONLY give the grade out of ${maxGrade2} (grades from 1 to ${maxGrade}) - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9) - just give one integer value and nothing else so it can be converted into a number in javascript :)`;  
+  console.log("message2 for new function", message2); 
 
     let gradesofar = 0;
     let minGrade = Infinity;
