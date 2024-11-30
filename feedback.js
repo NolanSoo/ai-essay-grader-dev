@@ -94,7 +94,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function predictGradealt(essayInput, promptInput, rubricInput) {
+async function predictGradealt(essayInput, promptInput, rubricInput, inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG) {
     console.log("Getting feedback...");
 
     let message = `Here is the rubric given: ${rubricInput}`;
