@@ -91,187 +91,183 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));  
 }  
   
-// Function to update progress bar   
-function updateProgress(percentage, totalTimeTaken, trainingLabel) {   
-  console.log("Updating progress bar...");   
-  console.log("Percentage: " + percentage);   
-  console.log("Total time taken: " + totalTimeTaken);   
-  console.log("Training label: " + trainingLabel);   
+// // Function to update progress bar   
+// function updateProgress(percentage, totalTimeTaken, trainingLabel) {   
+//   console.log("Updating progress bar...");   
+//   console.log("Percentage: " + percentage);   
+//   console.log("Total time taken: " + totalTimeTaken);   
+//   console.log("Training label: " + trainingLabel);   
   
-  // Ensure the percentage is between 0 and 100   
-  percentage = Math.max(0, Math.min(100, percentage));   
-  percentage = percentage.toFixed(2);   
+//   // Ensure the percentage is between 0 and 100   
+//   percentage = Math.max(0, Math.min(100, percentage));   
+//   percentage = percentage.toFixed(2);   
   
-  // Get the loading bar and percentage label elements   
-  const loadingBar = document.getElementById("loading_bar");   
-  const percentageLabel = document.getElementById("percentage_label");   
-  const timeLabel = document.getElementById("time_label");   
-  const trainingLabelElement = document.getElementById("training_label");   
+//   // Get the loading bar and percentage label elements   
+//   const loadingBar = document.getElementById("loading_bar");   
+//   const percentageLabel = document.getElementById("percentage_label");   
+//   const timeLabel = document.getElementById("time_label");   
+//   const trainingLabelElement = document.getElementById("training_label");   
   
-  // Update the width of the loading bar   
-  loadingBar.style.width = percentage + "%";   
+//   // Update the width of the loading bar   
+//   loadingBar.style.width = percentage + "%";   
   
-  // Update the percentage label text   
-  percentageLabel.textContent = percentage + "%";   
+//   // Update the percentage label text   
+//   percentageLabel.textContent = percentage + "%";   
   
-  // Update the training label text   
-  trainingLabelElement.textContent = trainingLabel;   
+//   // Update the training label text   
+//   trainingLabelElement.textContent = trainingLabel;   
   
-  // Calculate the estimated total time based on total time taken and  done   
-  if (percentage > 0) {   
-   const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs   
+//   // Calculate the estimated total time based on total time taken and  done   
+//   if (percentage > 0) {   
+//    const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs   
   
-   // Estimate the total time based on the current progress (linear approximation)   
-   const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time   
+//    // Estimate the total time based on the current progress (linear approximation)   
+//    const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time   
   
-   // Calculate remaining time   
-   const remainingTime = expectedTotalTime - elapsedTime;   
+//    // Calculate remaining time   
+//    const remainingTime = expectedTotalTime - elapsedTime;   
   
-   // Format time (minutes:seconds)   
-   const formatTime = (timeInSeconds) => {   
-    const minutes = Math.floor(timeInSeconds / 60);   
-    const seconds = Math.floor(timeInSeconds % 60);   
-    return `${minutes} minutes - ${seconds   
-      .toString()   
-      .padStart(2, "0")} seconds`;   
-   };   
+//    // Format time (minutes:seconds)   
+//    const formatTime = (timeInSeconds) => {   
+//     const minutes = Math.floor(timeInSeconds / 60);   
+//     const seconds = Math.floor(timeInSeconds % 60);   
+//     return `${minutes} minutes - ${seconds   
+//       .toString()   
+//       .padStart(2, "0")} seconds`;   
+//    };   
   
-   // Display the time taken and expected total time in a human-readable format   
-   const timeTaken = formatTime(elapsedTime);   
-   const totalTime = formatTime(expectedTotalTime);   
+//    // Display the time taken and expected total time in a human-readable format   
+//    const timeTaken = formatTime(elapsedTime);   
+//    const totalTime = formatTime(expectedTotalTime);   
   
-   // Update the label with time information   
-   timeLabel.textContent = `${timeTaken} / ${totalTime}`;   
-  }   
-}   
+//    // Update the label with time information   
+//    timeLabel.textContent = `${timeTaken} / ${totalTime}`;   
+//   }   
+// }   
   
-let percentage = 0;  
-async function predictGradealt(inputEssaysMG, inputGradesMG, essayInput, promptInput, rubricInput, inputEssaysSG, inputGradesSG) {  
-  console.log("Getting feedback...");  
+// let percentage = 0;  
+// async function predictGradealt(inputEssaysMG, inputGradesMG, essayInput, promptInput, rubricInput, inputEssaysSG, inputGradesSG) {  
+//   console.log("Getting feedback...");  
   
-  // Calculate the maximum grade  
-  let maxGrade2 = Math.max(...inputGradesMG);  
+//   // Calculate the maximum grade  
+//   let maxGrade2 = Math.max(...inputGradesMG);  
   
-  // Format the message  
-  let message = `Here is the rubric given: ${rubricInput}`;  
-  message += ` Here is the prompt (along with any other important directions): ${promptInput}`;  
-  message += ` Here are example essays for grading reference (if given): `  
+//   // Format the message  
+//   let message = `Here is the rubric given: ${rubricInput}`;  
+//   message += ` Here is the prompt (along with any other important directions): ${promptInput}`;  
+//   message += ` Here are example essays for grading reference (if given): `  
   
-  // Loop through each essay and add it to the message  
-  for (let i = 0; i < inputEssaysMG.length; i++) {  
-   message += `Essay ${(i + 1)}: ${inputEssaysMG[i]} - Overall Grade: ${inputGradesMG[i]} `;  
-   // Loop through each subgrade and add it to the message  
-   for (const subgrade in inputEssaysSG) {  
-    if (inputEssaysSG[subgrade][i] && inputGradesSG[subgrade][i]) {  
-      message += ` - ${subgrade}: ${inputGradesSG[subgrade][i]} `;  
-    }  
-   }  
-  }  
+//   // Loop through each essay and add it to the message  
+//   for (let i = 0; i < inputEssaysMG.length; i++) {  
+//    message += `Essay ${(i + 1)}: ${inputEssaysMG[i]} - Overall Grade: ${inputGradesMG[i]} `;  
+//    // Loop through each subgrade and add it to the message  
+//    for (const subgrade in inputEssaysSG) {  
+//     if (inputEssaysSG[subgrade][i] && inputGradesSG[subgrade][i]) {  
+//       message += ` - ${subgrade}: ${inputGradesSG[subgrade][i]} `;  
+//     }  
+//    }  
+//   }  
   
-  console.log("message for new function", message);  
+//   console.log("message for new function", message);  
   
-  // Format the message2  
-  let message2 = `Here is the essay I would like you to grade: ${essayInput}`;  
-  message2 += ` ONLY give the grade out of ${maxGrade2} - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point) - just give one integer value and nothing else so it can be converted into a number in javascript :)`;  
-  console.log("message2 for new function", message2);  
+//   // Format the message2  
+//   let message2 = `Here is the essay I would like you to grade: ${essayInput}`;  
+//   message2 += ` ONLY give the grade out of ${maxGrade2} - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point) - just give one integer value and nothing else so it can be converted into a number in javascript :)`;  
+//   console.log("message2 for new function", message2);  
   
-  let gradesofar = 0;  
-  let minGrade = Infinity;  
-  let maxGrade = -Infinity;  
+//   let gradesofar = 0;  
+//   let minGrade = Infinity;  
+//   let maxGrade = -Infinity;  
   
-  const params = {  
-   messages: [  
-    {  
-      role: "system",  
-      content: message,  
-    },  
-    {  
-      role: "user",  
-      content: message2,  
-    },  
-   ],  
-   model: "llama3-8b-8192",  
-  };  
+//   const params = {  
+//    messages: [  
+//     {  
+//       role: "system",  
+//       content: message,  
+//     },  
+//     {  
+//       role: "user",  
+//       content: message2,  
+//     },  
+//    ],  
+//    model: "llama3-8b-8192",  
+//   };  
   
-  for (let i = 0; i < 10; i++) {  
-   try {  
-    const chatCompletion = await client.chat.completions.create(params);  
-    console.log(chatCompletion);  
+//   for (let i = 0; i < 10; i++) {  
+//    try {  
+//     const chatCompletion = await client.chat.completions.create(params);  
+//     console.log(chatCompletion);  
   
-    const { id, model, created, choices, usage } = chatCompletion;  
-    const messageContent = choices[0].message.content;  
-    const grade = Number(messageContent);  
+//     const { id, model, created, choices, usage } = chatCompletion;  
+//     const messageContent = choices[0].message.content;  
+//     const grade = Number(messageContent);  
   
-    // Update gradesofar, minGrade, and maxGrade  
-    gradesofar += grade;  
-    if (grade < minGrade) minGrade = grade;  
-    if (grade > maxGrade) maxGrade = grade;  
+//     // Update gradesofar, minGrade, and maxGrade  
+//     gradesofar += grade;  
+//     if (grade < minGrade) minGrade = grade;  
+//     if (grade > maxGrade) maxGrade = grade;  
   
-    // Log the current average, min, and max grades  
-    console.log(`Epoch ${i + 1}:`);  
-    console.log(`  Current Average Grade: ${(gradesofar / (i + 1)).toFixed(1)}`);  
-    console.log(`  Minimum Grade: ${minGrade}`);  
-    console.log(`  Maximum Grade: ${maxGrade}`);  
-    console.log("ID:", id);  
-    console.log("Model:", model);  
-    console.log("Created Timestamp:", created);  
-    console.log("Message Content:", messageContent);  
-    console.log("Prompt Tokens Used:", usage.prompt_tokens);  
-    console.log("Total Tokens Used:", usage.total_tokens);  
-   } catch (err) {  
-    if (err instanceof Groq.APIError) {  
-      console.error("API Error:", err);  
-      document.getElementById("output").textContent = "Error";  
-    } else {  
-      console.error("Unexpected Error:", err);  
-      document.getElementById("output").textContent = "An unexpected error occurred.";  
-    }  
-   }  
+//     // Log the current average, min, and max grades  
+//     console.log(`Epoch ${i + 1}:`);  
+//     console.log(`  Current Average Grade: ${(gradesofar / (i + 1)).toFixed(1)}`);  
+//     console.log(`  Minimum Grade: ${minGrade}`);  
+//     console.log(`  Maximum Grade: ${maxGrade}`);  
+//     console.log("ID:", id);  
+//     console.log("Model:", model);  
+//     console.log("Created Timestamp:", created);  
+//     console.log("Message Content:", messageContent);  
+//     console.log("Prompt Tokens Used:", usage.prompt_tokens);  
+//     console.log("Total Tokens Used:", usage.total_tokens);  
+//    } catch (err) {  
+//     if (err instanceof Groq.APIError) {  
+//       console.error("API Error:", err);  
+//       document.getElementById("output").textContent = "Error";  
+//     } else {  
+//       console.error("Unexpected Error:", err);  
+//       document.getElementById("output").textContent = "An unexpected error occurred.";  
+//     }  
+//    }  
   
-   // Wait for 2.4 seconds before the next iteration  
-   await sleep(2400);  
-  }  
+//    // Wait for 2.4 seconds before the next iteration  
+//    await sleep(2400);  
+//   }  
   
-  // Call the feedback function  
-  const feedbackInput = {  
-   essays: [],  
-   grades: [],  
-   subgrades: {},  
-   feedback: [],  
-  };  
+//   // Call the feedback function  
+//   const feedbackInput = {  
+//    essays: [],  
+//    grades: [],  
+//    subgrades: {},  
+//    feedback: [],  
+//   };  
   
-  for (let i = 0; i < inputEssaysMG.length; i++) {  
-   feedbackInput.essays.push(inputEssaysMG[i]);  
-   feedbackInput.grades.push(inputGradesMG[i]);  
-   feedbackInput.feedback.push('');  
+//   for (let i = 0; i < inputEssaysMG.length; i++) {  
+//    feedbackInput.essays.push(inputEssaysMG[i]);  
+//    feedbackInput.grades.push(inputGradesMG[i]);  
+//    feedbackInput.feedback.push('');  
   
-   for (const subgrade in inputEssaysSG) {  
-    if (!feedbackInput.subgrades[subgrade]) {  
-      feedbackInput.subgrades[subgrade] = [];  
-    }  
-    feedbackInput.subgrades[subgrade].push(inputGradesSG[subgrade][i]);  
-   }  
-  }  
+//    for (const subgrade in inputEssaysSG) {  
+//     if (!feedbackInput.subgrades[subgrade]) {  
+//       feedbackInput.subgrades[subgrade] = [];  
+//     }  
+//     feedbackInput.subgrades[subgrade].push(inputGradesSG[subgrade][i]);  
+//    }  
+//   }  
   
-  const output = await feedback(  
-   feedbackInput.essays,  
-   feedbackInput.grades,  
-   inputEssaysSG,  
-   inputGradesSG,  
-   feedbackInput.feedback,  
-   {},  
-   0,  
-   essayInput,  
-   promptInput,  
-   rubricInput  
-  );  
-  // second attempt feedback loop is useless and wastes tokens (at least the outputs other than the grade values)
-  // Display the output in the desired format  
-  const predictedGrade = (gradesofar / 10).toFixed(1);  
-  document.getElementById("predicted_grade_output").textContent = `/nPredicted Grade with GROQ: ${predictedGrade}`;  
-  document.getElementById("output").textContent += output;  
+//   const output = await feedback(  
+//    feedbackInput.essays,  
+//    feedbackInput.grades,  
+//    inputEssaysSG,  
+//    inputGradesSG,  
+//    feedbackInput.feedback,  
+//    {},  
+//    0,  
+//    essayInput,  
+//    promptInput,  
+//    rubricInput  
+//   );  
+//   // second attempt feedback loop is useless and wastes tokens (at least the outputs other than the grade values)
 } 
-  
-export { feedback, predictGradealt };
+  // using GROQ chat bot for predictions failed horribly 💀
+export { feedback };
 
 
