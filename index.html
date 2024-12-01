@@ -75,14 +75,6 @@
    </table>  
    <input type="button" id="train_model" value="Start" />  
    <h5>Select at least two options (except using essays entered in the table - that can be used on its own)</h5>  
-   <input type="checkbox" id="option1" name="options" value="yes">  
-   <label for="option1">Use prompt for grading</label>  
-   <br>  
-   <input type="checkbox" id="option2" name="options" value="yes">  
-   <label for="option2">Use rubric to grade</label>  
-   <br>  
-   <input type="checkbox" id="option3" name="options" value="yes">  
-   <label for="option3">Use essays given to grade (recommended)</label>  
    <div id="predict_section" style="display:none;margin-top:20px;margin-left:auto;margin-right:auto">  
     <h2>Grading</h2>  
     <h3>Enter a new essay to grade it and generate feedback:</h3>  
@@ -99,8 +91,7 @@
 <!-- Add a file input to upload the table data -->  
 <input type="file" id="upload_data" accept=".autograde" />
   <script type="module" defer>  
-   import { feedback } from './feedback.js';  
-   import { predictGradealt } from './feedback.js';  
+   import { feedback } from './feedback.js';   
    var finalModel;  
    var subgradeModels = {};  
    const inputEssaysMG = [];  
@@ -171,41 +162,8 @@
     const inputGradesSG = {};  
     const inputFeedbackMG = [];  
   
-    if (document.getElementById("option1").checked && document.getElementById("option2").checked) {  
-      const essayInput = document.getElementById("new_essay_input").value.trim();  
-      var promptInput = document.getElementById("prompt").value.trim();  
-      var rubricInput = document.getElementById("rubric").value.trim();  
-  
-      // Collect data from table rows  
-      const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
-      rows.forEach((row) => {  
-       const essay = row.querySelector("td:nth-child(1) input").value.trim();  
-       const grade = parseFloat(row.querySelector("td:nth-child(2) input").value.trim());  
-       const feedback = row.querySelector("td:nth-child(4) input").value.trim();  
-       if (essay && !isNaN(grade)) {  
-        inputEssaysMG.push(essay);  
-        inputGradesMG.push(grade);  
-        inputFeedbackMG.push(feedback);  
-       }  
-       // Collect subgrade data  
-       const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
-       subgradeCells.forEach((cell, index) => {  
-        const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
-        if (subgradeName !== "Actions" && subgradeName !== "Feedback") {  
-          if (!inputEssaysSG[subgradeName]) {  
-           inputEssaysSG[subgradeName] = [];  
-           inputGradesSG[subgradeName] = [];  
-          }  
-          inputEssaysSG[subgradeName].push(essay);  
-          const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
-          if (!isNaN(subgradeValue)) {  
-           inputGradesSG[subgradeName].push(subgradeValue);  
-          }  
-        }  
-       });  
-      });  
-      predictGradealt(inputEssaysMG, inputGradesMG, essayInput, promptInput, rubricInput, inputEssaysSG, inputGradesSG);  
-    }  
+
+
   
     console.log("Predicting grade...");  
   
@@ -301,10 +259,13 @@
         inputGradesSG[subgradeName].push(subgradeValue);  
        }  
       });  
-    });  
-    console.log("IGSG", inputGradesSG);  
+    }); 
+       console.log("IGSG", inputGradesSG);  
     feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
-   }  
+   }
+  
+   
+  
   
    // Function for training the model  
    async function trainModel() {  
