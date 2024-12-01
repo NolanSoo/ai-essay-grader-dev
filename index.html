@@ -652,7 +652,7 @@ globalThis.uploadData = function uploadData(event) {
   const data = JSON.parse(jsonData);   
    
   // Clear the existing table rows   
-  const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");   
+  var rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");   
   rows.forEach((row) => {   
    row.outerHTML = "";   
   });   
