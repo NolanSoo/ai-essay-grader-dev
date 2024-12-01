@@ -147,32 +147,32 @@ function updateProgress(percentage, totalTimeTaken, trainingLabel) {
   
 let percentage = 0;  
 async function predictGradealt(inputEssaysMG, inputGradesMG, essayInput, promptInput, rubricInput, inputEssaysSG, inputGradesSG) {  
-  console.log("Getting feedback...");   
+  console.log("Getting feedback...");  
   
-  // Calculate the maximum grade   
-  let maxGrade2 = Math.max(...inputGradesMG);   
+  // Calculate the maximum grade  
+  let maxGrade2 = Math.max(...inputGradesMG);  
   
-  // Format the message   
-  let message = `Here is the rubric given: ${rubricInput}`;   
-  message += ` Here is the prompt (along with any other important directions): ${promptInput}`;   
-  message += ` Here are example essays for grading reference (if given): `   
+  // Format the message  
+  let message = `Here is the rubric given: ${rubricInput}`;  
+  message += ` Here is the prompt (along with any other important directions): ${promptInput}`;  
+  message += ` Here are example essays for grading reference (if given): `  
   
-  // Loop through each essay and add it to the message   
-  for (let i = 0; i < inputEssaysMG.length; i++) {   
-   message += `Essay ${(i + 1)}: ${inputEssaysMG[i]} - Overall Grade: ${inputGradesMG[i]} `;   
-   // Loop through each subgrade and add it to the message   
-   for (const subgrade in inputEssaysSG) {   
-    if (inputEssaysSG[subgrade][i] && inputGradesSG[subgrade][i]) {   
-      message += ` - ${subgrade}: ${inputGradesSG[subgrade][i]} `;   
-    }   
-   }   
-  }   
+  // Loop through each essay and add it to the message  
+  for (let i = 0; i < inputEssaysMG.length; i++) {  
+   message += `Essay ${(i + 1)}: ${inputEssaysMG[i]} - Overall Grade: ${inputGradesMG[i]} `;  
+   // Loop through each subgrade and add it to the message  
+   for (const subgrade in inputEssaysSG) {  
+    if (inputEssaysSG[subgrade][i] && inputGradesSG[subgrade][i]) {  
+      message += ` - ${subgrade}: ${inputGradesSG[subgrade][i]} `;  
+    }  
+   }  
+  }  
   
-  console.log("message for new function", message);   
+  console.log("message for new function", message);  
   
-  // Format the message2   
-  let message2 = `Here is the essay I would like you to grade: ${essayInput}`;   
-  message2 += ` ONLY give the grade out of ${maxGrade2} - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9) - just give one integer value and nothing else so it can be converted into a number in javascript :)`;   
+  // Format the message2  
+  let message2 = `Here is the essay I would like you to grade: ${essayInput}`;  
+  message2 += ` ONLY give the grade out of ${maxGrade2} - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9) - just give one integer value and nothing else so it can be converted into a number in javascript :)`;  
   console.log("message2 for new function", message2);  
   
   let gradesofar = 0;  
@@ -231,45 +231,46 @@ async function predictGradealt(inputEssaysMG, inputGradesMG, essayInput, promptI
    // Wait for 2.4 seconds before the next iteration  
    await sleep(2400);  
   }  
-  // Call the feedback function   
-  const feedbackInput = {   
-   essays: [],   
-   grades: [],   
-   subgrades: {},   
-   feedback: [],   
-  };   
   
-  for (let i = 0; i < inputEssaysMG.length; i++) {   
-   feedbackInput.essays.push(inputEssaysMG[i]);   
-   feedbackInput.grades.push(inputGradesMG[i]);   
-   feedbackInput.feedback.push('');   
+  // Call the feedback function  
+  const feedbackInput = {  
+   essays: [],  
+   grades: [],  
+   subgrades: {},  
+   feedback: [],  
+  };  
   
-   for (const subgrade in inputEssaysSG) {   
-    if (!feedbackInput.subgrades[subgrade]) {   
-      feedbackInput.subgrades[subgrade] = [];   
-    }   
-    feedbackInput.subgrades[subgrade].push(inputGradesSG[subgrade][i]);   
-   }   
-  }   
+  for (let i = 0; i < inputEssaysMG.length; i++) {  
+   feedbackInput.essays.push(inputEssaysMG[i]);  
+   feedbackInput.grades.push(inputGradesMG[i]);  
+   feedbackInput.feedback.push('');  
   
-  const output = await feedback(   
-   feedbackInput.essays,   
-   feedbackInput.grades,   
-   inputEssaysSG,   
-   inputGradesSG,   
-   feedbackInput.feedback,   
-   {},   
-   0,   
-   essayInput,   
-   promptInput,   
-   rubricInput   
-  );   
+   for (const subgrade in inputEssaysSG) {  
+    if (!feedbackInput.subgrades[subgrade]) {  
+      feedbackInput.subgrades[subgrade] = [];  
+    }  
+    feedbackInput.subgrades[subgrade].push(inputGradesSG[subgrade][i]);  
+   }  
+  }  
   
-  // Display the output in the desired format   
-  const formattedOutput = `Overall Grade: ${output}`;   
-  console.log(formattedOutput);   
-  document.getElementById("output").textContent = formattedOutput;  
-}  
+  const output = await feedback(  
+   feedbackInput.essays,  
+   feedbackInput.grades,  
+   inputEssaysSG,  
+   inputGradesSG,  
+   feedbackInput.feedback,  
+   {},  
+   0,  
+   essayInput,  
+   promptInput,  
+   rubricInput  
+  );  
+  
+  // Display the output in the desired format  
+  const predictedGrade = (gradesofar / 10).toFixed(1);  
+  document.getElementById("predicted_grade_output").textContent = `Predicted Grade: ${predictedGrade}`;  
+  document.getElementById("output").textContent = output;  
+} 
   
 export { feedback, predictGradealt };
 
