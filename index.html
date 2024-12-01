@@ -642,7 +642,6 @@ globalThis.downloadData = function downloadData() {
 
 
 
-// Function to upload the table data  
 globalThis.uploadData = function uploadData(event) {  
   console.log("Uploading table data...");  
   const file = event.target.files[0];  
@@ -690,15 +689,22 @@ globalThis.uploadData = function uploadData(event) {
       newRow.appendChild(newCell);  
     });  
   
-    // Add the feedback cell at the end  
+    // Remove the last two cells (actions and add subgrade) from the header row  
+    const headerRow = document.getElementById("header_row");  
+    const headerCells = headerRow.children;  
+    const actionsHeaderIndex = Array.prototype.indexOf.call(headerCells, document.querySelector("#actions_header"));  
+    const feedbackHeaderIndex = Array.prototype.indexOf.call(headerCells, document.querySelector("#feedback_header"));  
+  
+    // Add the feedback cell at the correct position  
     const feedbackCell = document.createElement("td");  
     feedbackCell.innerHTML = `<input type='text' value='${row.feedback}'/>`;  
-    newRow.appendChild(feedbackCell);  
+    newRow.insertBefore(feedbackCell, newRow.children[feedbackHeaderIndex]);  
    });  
   };  
   
   reader.readAsText(file);  
 };
+  
 
 
 
