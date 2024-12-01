@@ -273,5 +273,4 @@ async function predictGradealt(inputEssaysMG, inputGradesMG, essayInput, promptI
   
 export { feedback, predictGradealt };
 
-export { predictGradealt };
 
