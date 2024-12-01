@@ -30,7 +30,7 @@
   <div id="wrapper" align="center">  
    <break>  
    <textarea id="rubric" rows="1" cols="150" placeholder="Paste/enter rubric (Optional)"></textarea>  
-   <textarea id="prompt" rows="1" cols="150" placeholder="Paste/type prompt or any important directions (Optional)"></textarea>  
+   <textarea id="prompt" rows="1" cols="150" placeholder="Paste/type prompt or any important directions (Optional)"></textarea> 
    <table align="center" cellspacing="2" cellpadding="5" id="data_table" border="1">  
     <tr id="header_row">  
       <th>Essay</th>  
@@ -73,6 +73,8 @@
       <td id="add_feedback"><input type="text" value="" /></td>  
     </tr>  
    </table>  
+    <input type="number" id="epochs" value="10000">
+     <label for="epochs">Iterations of training (100 per second on a decent computer and usable internet)</label>
    <input type="button" id="train_model" value="Start" />  
    <h5>Select at least two options (except using essays entered in the table - that can be used on its own)</h5>  
    <div id="predict_section" style="display:none;margin-top:20px;margin-left:auto;margin-right:auto">  
@@ -161,8 +163,6 @@
     const inputEssaysSG = {};  
     const inputGradesSG = {};  
     const inputFeedbackMG = [];  
-  
-
 
   
     console.log("Predicting grade...");  
@@ -272,7 +272,12 @@
     if (document.getElementById("option3").checked) {  
   
       console.log("Training model...");  
-  
+        // Get the input element by its ID
+      const epochsInput = document.getElementById('epochs');
+        
+      // Retrieve the value of the input
+      let epochs = epochsInput.value;
+      console.log('epochs', epochs) // Debug
       const learningRate = 0.005;  
       var percentageDone = 0;  
       var totalTimeTaken = 0;  
@@ -356,7 +361,7 @@
   
       // Train the model  
       let mainGradeEpoch = 0;  
-      while (mainGradeEpoch < 3000) {  
+      while (mainGradeEpoch < epochs) {  
        mainGradeEpoch += 1;  
        await finalModel.fit(  
         mainGradeInputTrainTensor,  
@@ -372,7 +377,7 @@
         console.log(  
           `Main Grade Training Epoch ${mainGradeEpoch} completed.`  
         );  
-        percentageDone += 0.3333333333 / (Object.keys(subgradeInputEssays).length);  
+        percentageDone += (100 / epochs) / (Object.keys(subgradeInputEssays).length);  
         currentTime = Date.now() / 1000;  
         totalTimeTaken = currentTime - startTime;  
         updateProgress(percentageDone, totalTimeTaken, "Training Main Grade");  
@@ -399,7 +404,7 @@
        });  
   
        let subgradeEpoch = 0;  
-       while (subgradeEpoch < 3000) {  
+       while (subgradeEpoch < epochs) {  
         subgradeEpoch += 1;  
         await subgradeModels[subgrade].fit(  
           subgradeInputTrainTensor,  
@@ -415,10 +420,10 @@
           console.log(  
            `${subgrade} (Playground) Training Epoch ${subgradeEpoch} completed.`  
           );  
-          percentageDone += 0.3333333333 / Object.keys(subgradeInputEssays).length;  
+          percentageDone += (100 / epochs) / Object.keys(subgradeInputEssays).length;  
           currentTime = Date.now() / 1000;  
           totalTimeTaken = currentTime - startTime;  
-          updateProgress(percentageDone, totalTimeTaken);  
+          updateProgress(percentageDone, totalTimeTaken, `Training ${subgrade}`);  
         }  
        }  
       }  
