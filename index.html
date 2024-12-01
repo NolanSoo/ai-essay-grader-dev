@@ -642,68 +642,83 @@ globalThis.downloadData = function downloadData() {
 
 
 
-globalThis.uploadData = function uploadData(event) {  
-  console.log("Uploading table data...");  
-  const file = event.target.files[0];  
-  const reader = new FileReader();  
-  
-  reader.onload = (event) => {  
-   const jsonData = event.target.result;  
-   const data = JSON.parse(jsonData);  
-  
-   // Clear the existing table rows  
-   const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
-   rows.forEach((row) => {  
-    row.outerHTML = "";  
-   });  
-  
-   // Add new table rows with the uploaded data  
-   data.forEach((row, index) => {  
-    const table = document.getElementById("data_table");  
-    const newRow = table.insertRow(table.rows.length - 1);  
-    newRow.id = `row${table.rows.length - 1}`;  
-  
-    // Create cells for the new row  
-    const essayCell = document.createElement("td");  
-    essayCell.innerHTML = `<input type='text' value='${row.essay}'/>`;  
-    newRow.appendChild(essayCell);  
-  
-    const gradeCell = document.createElement("td");  
-    gradeCell.innerHTML = `<input type='text' value='${row.grade}'/>`;  
-    newRow.appendChild(gradeCell);  
-  
-    // Create the actions cell and insert it immediately after the grade cell  
-    const actionsCell = document.createElement("td");  
-    actionsCell.innerHTML = `<input type='button' value='Save' class='save'>  
-<input type='button' value='Remove Essay' class='delete'>`;  
-    newRow.appendChild(actionsCell);  
-  
-    // Dynamically check for subgrade headers  
-    const subgradeHeaders = document.getElementById("header_row").querySelectorAll("th:not(.actions_header):not(.feedback_header):not(:first-child):not(:nth-child(2))");  
-  
-    // Add a cell for each subgrade  
-    subgradeHeaders.forEach((header, headerIndex) => {  
-      const subgradeName = header.innerText;  
-      const newCell = document.createElement("td");  
-      newCell.innerHTML = `<input type='text' value='${row.subgrades[subgradeName]}'/>`;  
-      newRow.appendChild(newCell);  
-    });  
-  
-    // Remove the last two cells (actions and add subgrade) from the header row  
-    const headerRow = document.getElementById("header_row");  
-    const headerCells = headerRow.children;  
-    const actionsHeaderIndex = Array.prototype.indexOf.call(headerCells, document.querySelector("#actions_header"));  
-    const feedbackHeaderIndex = Array.prototype.indexOf.call(headerCells, document.querySelector("#feedback_header"));  
-  
-    // Add the feedback cell at the correct position  
-    const feedbackCell = document.createElement("td");  
-    feedbackCell.innerHTML = `<input type='text' value='${row.feedback}'/>`;  
-    newRow.insertBefore(feedbackCell, newRow.children[feedbackHeaderIndex]);  
-   });  
-  };  
-  
-  reader.readAsText(file);  
+globalThis.uploadData = function uploadData(event) {   
+  console.log("Uploading table data...");   
+  const file = event.target.files[0];   
+  const reader = new FileReader();   
+   
+  reader.onload = (event) => {   
+  const jsonData = event.target.result;   
+  const data = JSON.parse(jsonData);   
+   
+  // Clear the existing table rows   
+  const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");   
+  rows.forEach((row) => {   
+   row.outerHTML = "";   
+  });   
+   
+  // Add new table rows with the uploaded data   
+  data.forEach((row, index) => {   
+   const table = document.getElementById("data_table");   
+   const newRow = table.insertRow(table.rows.length - 1);   
+   newRow.id = `row${table.rows.length - 1}`;   
+   
+   // Create cells for the new row   
+   const essayCell = document.createElement("td");   
+   essayCell.innerHTML = `<input type='text' value='${row.essay}'/>`;   
+   newRow.appendChild(essayCell);   
+   
+   const gradeCell = document.createElement("td");   
+   gradeCell.innerHTML = `<input type='text' value='${row.grade}'/>`;   
+   newRow.appendChild(gradeCell);   
+   
+   // Create the actions cell and insert it immediately after the grade cell   
+   const actionsCell = document.createElement("td");   
+   actionsCell.innerHTML = `<input type='button' value='Save' class='save'>   
+<input type='button' value='Remove Essay' class='delete'>`;   
+   newRow.appendChild(actionsCell);   
+   
+   // Dynamically check for subgrade headers   
+   const subgradeHeaders = document.getElementById("header_row").querySelectorAll("th:not(.actions_header):not(.feedback_header):not(:first-child):not(:nth-child(2))");   
+   
+   // Add a cell for each subgrade   
+   subgradeHeaders.forEach((header, headerIndex) => {   
+    const subgradeName = header.innerText;   
+    const newCell = document.createElement("td");   
+    newCell.innerHTML = `<input type='text' value='${row.subgrades[subgradeName]}'/>`;   
+    newRow.appendChild(newCell);   
+   });   
+   
+   // Remove the last two cells (actions and add subgrade) from the header row   
+   const headerRow = document.getElementById("header_row");   
+   const headerCells = headerRow.children;   
+   const actionsHeaderIndex = Array.prototype.indexOf.call(headerCells, document.querySelector("#actions_header"));   
+   const feedbackHeaderIndex = Array.prototype.indexOf.call(headerCells, document.querySelector("#feedback_header"));   
+   
+   // Add the feedback cell at the correct position   
+   const feedbackCell = document.createElement("td");   
+   feedbackCell.innerHTML = `<input type='text' value='${row.feedback}'/>`;   
+   newRow.insertBefore(feedbackCell, newRow.children[feedbackHeaderIndex]);   
+  });   
+   
+  // Remove the last two empty columns  
+  const rows = document.querySelectorAll("#data_table tr");  
+  rows.forEach((row) => {  
+    const cells = row.children;  
+    for (let i = cells.length - 1; i >= 0; i--) {  
+     const cell = cells[i];  
+     if (cell.querySelector("input") && cell.querySelector("input").value === "") {  
+      cell.outerHTML = "";  
+     } else {  
+      break;  
+     }  
+    }  
+  });  
+  };   
+   
+  reader.readAsText(file);   
 };
+
   
 
 
