@@ -93,6 +93,11 @@
    </div>  
    <div id="output"></div>  
   </div>  
+      <!-- Add a button to download the table data -->  
+<input type="button" id="download_data" value="Download Data" />  
+  
+<!-- Add a file input to upload the table data -->  
+<input type="file" id="upload_data" accept=".autograde" />
   <script type="module" defer>  
    import { feedback } from './feedback.js';  
    import { predictGradealt } from './feedback.js';  
@@ -590,7 +595,109 @@
    addRowButton.addEventListener("click", add_row);  
   
    const addSubgradeButton = document.querySelector(".add_subgrade");  
-   addSubgradeButton.addEventListener("click", add_subgrade);  
+   addSubgradeButton.addEventListener("click", add_subgrade); 
+    // Function to download the table data
+globalThis.downloadData = function downloadData() {
+console.log("Downloading table data...");
+const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");
+const data = [];
+
+// Collect data from table rows
+rows.forEach((row) => {
+const essay = row.querySelector("td:nth-child(1) input").value.trim();
+const grade = row.querySelector("td:nth-child(2) input").value.trim();
+const feedback = row.querySelector("td:nth-child(4) input").value.trim();
+const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");
+const subgrades = {};
+
+  subgradeCells.forEach((cell, index) => {
+const subgradeName = document.querySelector(#header_row th:nth-child(${index + 3})).innerText;
+subgrades[subgradeName] = cell.querySelector("input").value.trim();
+});
+
+  data.push({
+essay,
+grade,
+feedback,
+subgrades,
+});
+});
+
+// Convert the data to a JSON string
+const jsonData = JSON.stringify(data, null, 2);
+
+// Create a blob with the JSON data
+const blob = new Blob([jsonData], { type: "text/plain" });
+
+// Create a link to download the blob
+const link = document.createElement("a");
+link.href = URL.createObjectURL(blob);
+link.download = "table_data.autograde";
+link.click();
+};
+
+// Function to upload the table data
+globalThis.uploadData = function uploadData(event) {
+console.log("Uploading table data...");
+const file = event.target.files[0];
+const reader = new FileReader();
+
+reader.onload = (event) => {
+const jsonData = event.target.result;
+const data = JSON.parse(jsonData);
+
+  // Clear the existing table rows
+const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");
+rows.forEach((row) => {
+row.outerHTML = "";
+});
+
+  // Add new table rows with the uploaded data
+data.forEach((row, index) => {
+const table = document.getElementById("data_table");
+const newRow = table.insertRow(table.rows.length - 1);
+newRow.id = row${table.rows.length - 1};
+
+   // Create cells for the new row
+const essayCell = document.createElement("td");
+essayCell.innerHTML = <input type='text' value='${row.essay}'/>;
+newRow.appendChild(essayCell);
+
+   const gradeCell = document.createElement("td");
+gradeCell.innerHTML = <input type='text' value='${row.grade}'/>;
+newRow.appendChild(gradeCell);
+
+   // Create the actions cell and insert it immediately after the grade cell
+const actionsCell = document.createElement("td");
+actionsCell.innerHTML = <input type='button' value='Save' class='save'> <input type='button' value='Remove Essay' class='delete'>;
+newRow.appendChild(actionsCell);
+
+   // Dynamically check for subgrade headers
+const subgradeHeaders = document.querySelectorAll("#header_row th:not(#actions_header):not(#feedback_header)");
+
+   if (subgradeHeaders.length > 0) {
+// Add a cell for each subgrade
+subgradeHeaders.forEach((header, headerIndex) => {
+const subgradeName = header.innerText;
+const newCell = document.createElement("td");
+newCell.innerHTML = <input type='text' value='${row.subgrades[subgradeName]}'/>;
+newRow.appendChild(newCell);
+});
+}
+
+   // Add the feedback cell at the end
+const feedbackCell = document.createElement("td");
+feedbackCell.innerHTML = <input type='text' value='${row.feedback}'/>;
+newRow.appendChild(feedbackCell);
+});
+};
+
+reader.readAsText(file);
+};
+
+// Add event listeners
+document.getElementById("download_data").addEventListener("click", downloadData);
+document.getElementById("upload_data").addEventListener("change", uploadData);
   </script>  
 </body>  
 </html>
