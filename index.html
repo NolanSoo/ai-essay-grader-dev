@@ -270,7 +270,7 @@
   
    // Function for training the model  
    async function trainModel() {  
-    if (document.getElementById("option3").checked) {  
+
   
       console.log("Training model...");  
         // Get the input element by its ID
@@ -435,18 +435,7 @@
       // Show the prediction input section after training  
       document.getElementById("predict_section").style.display = "block";  
   
-    } else {  
-      console.log("alternative training selected");  
-      if (document.getElementById("option1").checked && document.getElementById("option2").checked) {  
-       console.log("training possible");  
-       console.log("Model training skipped");  
-       document.getElementById("output").innerText = "Model training skipped (using chatbot to grade instead)";  
-       // Show the prediction input section after training  
-       document.getElementById("predict_section").style.display = "block";  
-      } else {  
-       window.alert("Select at least 2 options if not using previously graded essays");  
-      }  
-    }  
+      
    }  
   
    // Function to add a new subgrade  
