@@ -378,7 +378,7 @@
         console.log(  
           `Main Grade Training Epoch ${mainGradeEpoch} completed.`  
         );  
-        percentageDone += (100 / epochs) / (Object.keys(subgradeInputEssays).length);  
+        percentageDone += (1000 / epochs) / (Object.keys(subgradeInputEssays).length);  
         currentTime = Date.now() / 1000;  
         totalTimeTaken = currentTime - startTime;  
         updateProgress(percentageDone, totalTimeTaken, "Training Main Grade");  
@@ -421,7 +421,7 @@
           console.log(  
            `${subgrade} (Playground) Training Epoch ${subgradeEpoch} completed.`  
           );  
-          percentageDone += (100 / epochs) / Object.keys(subgradeInputEssays).length;  
+          percentageDone += (1000 / epochs) / Object.keys(subgradeInputEssays).length;  
           currentTime = Date.now() / 1000;  
           totalTimeTaken = currentTime - startTime;  
           updateProgress(percentageDone, totalTimeTaken, `Training ${subgrade}`);  
