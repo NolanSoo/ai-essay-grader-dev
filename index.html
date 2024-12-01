@@ -606,8 +606,7 @@ globalThis.downloadData = function downloadData() {
   rows.forEach((row) => {  
    const essay = row.querySelector("td:nth-child(1) input").value.trim();  
    const grade = row.querySelector("td:nth-child(2) input").value.trim();  
-   const actionsCell = row.querySelector("td:nth-child(3)");  
-   const subgradeCells = row.querySelectorAll("td:nth-child(n+4):not(:last-child)");  
+   const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child):not(:nth-child(3))");  
    const feedback = row.querySelector("td:last-child input").value.trim();  
    const subgrades = {};  
   
@@ -639,6 +638,7 @@ globalThis.downloadData = function downloadData() {
   link.download = "table_data.autograde";  
   link.click();  
 };
+
 
 
 
@@ -680,17 +680,15 @@ globalThis.uploadData = function uploadData(event) {
     newRow.appendChild(actionsCell);  
   
     // Dynamically check for subgrade headers  
-    const subgradeHeaders = document.getElementById("header_row").querySelectorAll("th:not(.actions_header):not(.feedback_header)");  
+    const subgradeHeaders = document.getElementById("header_row").querySelectorAll("th:not(.actions_header):not(.feedback_header):not(:first-child):not(:nth-child(2))");  
   
-    if (subgradeHeaders.length > 0) {  
-      // Add a cell for each subgrade  
-      subgradeHeaders.forEach((header, headerIndex) => {  
-       const subgradeName = header.innerText;  
-       const newCell = document.createElement("td");  
-       newCell.innerHTML = `<input type='text' value='${row.subgrades[subgradeName]}'/>`;  
-       newRow.appendChild(newCell);  
-      });  
-    }  
+    // Add a cell for each subgrade  
+    subgradeHeaders.forEach((header, headerIndex) => {  
+      const subgradeName = header.innerText;  
+      const newCell = document.createElement("td");  
+      newCell.innerHTML = `<input type='text' value='${row.subgrades[subgradeName]}'/>`;  
+      newRow.appendChild(newCell);  
+    });  
   
     // Add the feedback cell at the end  
     const feedbackCell = document.createElement("td");  
@@ -701,6 +699,7 @@ globalThis.uploadData = function uploadData(event) {
   
   reader.readAsText(file);  
 };
+
 
 
 // Add event listeners
