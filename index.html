@@ -606,12 +606,13 @@ globalThis.downloadData = function downloadData() {
   rows.forEach((row) => {  
    const essay = row.querySelector("td:nth-child(1) input").value.trim();  
    const grade = row.querySelector("td:nth-child(2) input").value.trim();  
+   const actionsCell = row.querySelector("td:nth-child(3)");  
+   const subgradeCells = row.querySelectorAll("td:nth-child(n+4):not(:last-child)");  
    const feedback = row.querySelector("td:last-child input").value.trim();  
-   const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
    const subgrades = {};  
   
    // Dynamically check for subgrade headers  
-   const subgradeHeaders = document.getElementById("header_row").querySelectorAll("th:not(.actions_header):not(.feedback_header)");  
+   const subgradeHeaders = document.getElementById("header_row").querySelectorAll("th:not(.actions_header):not(.feedback_header):not(:first-child):not(:nth-child(2))");  
   
    subgradeCells.forEach((cell, index) => {  
     const subgradeName = subgradeHeaders[index].innerText;  
@@ -638,6 +639,7 @@ globalThis.downloadData = function downloadData() {
   link.download = "table_data.autograde";  
   link.click();  
 };
+
 
 
 // Function to upload the table data  
