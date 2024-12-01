@@ -172,7 +172,7 @@ async function predictGradealt(inputEssaysMG, inputGradesMG, essayInput, promptI
   
   // Format the message2  
   let message2 = `Here is the essay I would like you to grade: ${essayInput}`;  
-  message2 += ` ONLY give the grade out of ${maxGrade2} - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point - like 3.9) - just give one integer value and nothing else so it can be converted into a number in javascript :)`;  
+  message2 += ` ONLY give the grade out of ${maxGrade2} - NO TEXT (NO feedback, just one number and nothing else (specific to one decimal point) - just give one integer value and nothing else so it can be converted into a number in javascript :)`;  
   console.log("message2 for new function", message2);  
   
   let gradesofar = 0;  
@@ -265,11 +265,11 @@ async function predictGradealt(inputEssaysMG, inputGradesMG, essayInput, promptI
    promptInput,  
    rubricInput  
   );  
-  
+  // second attempt feedback loop is useless and wastes tokens (at least the outputs other than the grade values)
   // Display the output in the desired format  
   const predictedGrade = (gradesofar / 10).toFixed(1);  
-  document.getElementById("predicted_grade_output").textContent = `Predicted Grade: ${predictedGrade}`;  
-  document.getElementById("output").textContent = output;  
+  document.getElementById("predicted_grade_output").textContent = `/nPredicted Grade with GROQ: ${predictedGrade}`;  
+  document.getElementById("output").textContent += output;  
 } 
   
 export { feedback, predictGradealt };
