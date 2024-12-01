@@ -1,374 +1,310 @@
 <!DOCTYPE html>  
 <html>  
-  <head>  
-   <title>AI Essay Grader Demo</title>  
-   <meta charset="UTF-8" />  
-   <link rel="stylesheet" href="styles.css" />  
-   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />  
-   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.4.0"></script>  
-  </head>  
+<head>  
+  <title>AI Essay Grader Demo</title>  
+  <meta charset="UTF-8" />  
+  <link rel="stylesheet" href="styles.css" />  
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />  
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.4.0"></script>  
+</head>  
   
-  <body>  
-   <h1>AI Essay Grader</h1>  
-   <h2>Training </h2>
-    <br>
-    <h5>Input essays you have graded in the past in the essay column - along with their corresponding overall grades and feedback</h5>
-    <h5>For specific rubric sections (such as "Conventions", use the "Add Subgrade" button, then input the essays' corresponding grades for those sections)</h5>
-    <h5>After training finishes, you can input students' essays to grade them. You can also generate detailed, professional feedback</h5>
-    <h5>A brand-new AI model is newly trained on only your essays so the grades returned exactly matches your standards of grading</h5>
-   <div id="app"></div>  
-   <div class="w3-black">  
-    <div  
-      class="w3-container w3-green w3-center"  
-      id="loading_bar"  
-      style="width: 0%"  
-    >  
-      <p id="percentage_label">0%</p>  
-      <break>  
-       <p id="time_label"></p>  
-       <break>  
-        <p id="training_label"></p>  
-    </div>  
+<body>  
+  <h1>AI Essay Grader</h1>  
+  <h2>Training</h2>  
+  <br>  
+  <h5>Input essays you have graded in the past in the essay column - along with their corresponding overall grades and feedback</h5>  
+  <h5>For specific rubric sections (such as "Conventions", use the "Add Subgrade" button, then input the essays' corresponding grades for those sections)</h5>  
+  <h5>After training finishes, you can input students' essays to grade them. You can also generate detailed, professional feedback</h5>  
+  <h5>A brand-new AI model is newly trained on only your essays so the grades returned exactly matches your standards of grading</h5>  
+  <div id="app"></div>  
+  <div class="w3-black">  
+   <div class="w3-container w3-green w3-center" id="loading_bar" style="width:0%">  
+    <p id="percentage_label">0%</p>  
+    <break>  
+    <p id="time_label"></p>  
+    <break>  
+    <p id="training_label"></p>  
    </div>  
-   <h1></h1>  
-   <div id="wrapper" align="center">  
-    <break>
-          <textarea  
-      id="rubric"  
-      rows="1"  
-      cols="150"  
-      placeholder="Paste/enter rubric (Optional)"  
-    ></textarea>  
-       <textarea  
-      id="prompt"  
-      rows="1"  
-      cols="150"  
-      placeholder="Paste/type prompt or any important directions (Optional)"  
-    ></textarea>  
-    <table  
-      align="center"  
-      cellspacing="2"  
-      cellpadding="5"  
-      id="data_table"  
-      border="1"  
-    >  
-      <tr id="header_row">  
-       <th>Essay</th>  
-       <th>Overall Grade</th>  
-       <!-- Subgrade headers will be added here dynamically -->  
-       <th id="actions_header">Actions</th>  
-       <th id="feedback_header">Feedback</th>  
-      </tr>  
+  </div>  
+  <h1></h1>  
+  <div id="wrapper" align="center">  
+   <break>  
+   <textarea id="rubric" rows="1" cols="150" placeholder="Paste/enter rubric (Optional)"></textarea>  
+   <textarea id="prompt" rows="1" cols="150" placeholder="Paste/type prompt or any important directions (Optional)"></textarea>  
+   <table align="center" cellspacing="2" cellpadding="5" id="data_table" border="1">  
+    <tr id="header_row">  
+      <th>Essay</th>  
+      <th>Overall Grade</th>  
+      <!-- Subgrade headers will be added here dynamically -->  
+      <th id="actions_header">Actions</th>  
+      <th id="feedback_header">Feedback</th>  
+    </tr>  
   
-      <tr id="row1">  
-       <td id="essay_row1"><input type="text" value="This is a terrible essay" /></td>  
-       <td id="grade_row1"><input type="text" value="1" /></td>  
-       <!-- Subgrade cells will be added here dynamically -->  
-       <td id="actions_row1">  
-        <input  
-          type="button"  
-          value="Save"  
-          class="save"  
-          onclick="save_row('1')"  
-        />  
-        <input  
-          type="button"  
-          value="Remove Essay"  
-          class="delete"  
-          onclick="delete_row('1')"  
-        />  
-       </td>  
-       <td id="feedback_row1"><input type="text" value="" /></td>  
-      </tr>  
+    <tr id="row1">  
+      <td id="essay_row1"><input type="text" value="This is a terrible essay" /></td>  
+      <td id="grade_row1"><input type="text" value="1" /></td>  
+      <!-- Subgrade cells will be added here dynamically -->  
+      <td id="actions_row1">  
+       <input type="button" value="Save" class="save" />  
+       <input type="button" value="Remove Essay" class="delete" />  
+      </td>  
+      <td id="feedback_row1"><input type="text" value="" /></td>  
+    </tr>  
   
-      <tr id="row2">  
-       <td id="essay_row2"><input type="text" value="This is an excellent essay." /></td>  
-       <td id="grade_row2"><input type="text" value="4" /></td>  
-       <!-- Subgrade cells will be added here dynamically -->  
-       <td id="actions_row2">  
-        <input  
-          type="button"  
-          value="Save"  
-          class="save"  
-          onclick="save_row('2')"  
-        />  
-        <input  
-          type="button"  
-          value="Remove Essay"  
-          class="delete"  
-          onclick="delete_row('2')"  
-        />  
-       </td>  
-       <td id="feedback_row2"><input type="text" value="" /></td>  
-      </tr>  
+    <tr id="row2">  
+      <td id="essay_row2"><input type="text" value="This is an excellent essay." /></td>  
+      <td id="grade_row2"><input type="text" value="4" /></td>  
+      <!-- Subgrade cells will be added here dynamically -->  
+      <td id="actions_row2">  
+       <input type="button" value="Save" class="save" />  
+       <input type="button" value="Remove Essay" class="delete" />  
+      </td>  
+      <td id="feedback_row2"><input type="text" value="" /></td>  
+    </tr>  
   
-      <tr id="add_row">  
-       <td><input type="text" id="new_name" /></td>  
-       <td><input type="text" id="new_country" /></td>  
-       <!-- Subgrade input cells will be added here dynamically -->  
-       <td id="add_actions">  
-        <input  
-          type="button"  
-          class="add"  
-          onclick="add_row();"  
-          value="Add Essay"  
-        />  
-        <input  
-          type="button"  
-          class="add_subgrade"  
-          onclick="add_subgrade();"  
-          value="Add Subgrade"  
-        />  
-       </td>  
-       <td id="add_feedback"><input type="text" value="" /></td>  
-      </tr>  
-    </table>  
-    <input  
-      type="button"  
-      id="train_model"  
-      value="Start"   
-    />  
-      <h5>Select at least two options (except using essays entered in the table - that can be used on its own)</h5>
-       <input type="checkbox" id="option1" name="options" value="yes">  
-  <label for="option1">Use prompt for grading</label>  
-  <br>  
-  <input type="checkbox" id="option2" name="options" value="yes">  
-  <label for="option2">Use rubric to grade</label>  
-  <br>  
-  <input type="checkbox" id="option3" name="options" value="yes">  
-  <label for="option3">Use essays given to grade (recommended)</label>  
-   <div id="predict_section" style="display: none; margin-top: 20px; margin-left: auto; margin-right: auto">
-     <h2>Grading</h2>
+    <tr id="add_row">  
+      <td><input type="text" id="new_name" /></td>  
+      <td><input type="text" id="new_country" /></td>  
+      <!-- Subgrade input cells will be added here dynamically -->  
+      <td id="add_actions">  
+       <input type="button" class="add" value="Add Essay" />  
+       <input type="button" class="add_subgrade" value="Add Subgrade" />  
+      </td>  
+      <td id="add_feedback"><input type="text" value="" /></td>  
+    </tr>  
+   </table>  
+   <input type="button" id="train_model" value="Start" />  
+   <h5>Select at least two options (except using essays entered in the table - that can be used on its own)</h5>  
+   <input type="checkbox" id="option1" name="options" value="yes">  
+   <label for="option1">Use prompt for grading</label>  
+   <br>  
+   <input type="checkbox" id="option2" name="options" value="yes">  
+   <label for="option2">Use rubric to grade</label>  
+   <br>  
+   <input type="checkbox" id="option3" name="options" value="yes">  
+   <label for="option3">Use essays given to grade (recommended)</label>  
+   <div id="predict_section" style="display:none;margin-top:20px;margin-left:auto;margin-right:auto">  
+    <h2>Grading</h2>  
     <h3>Enter a new essay to grade it and generate feedback:</h3>  
-    <textarea  
-      id="new_essay_input"  
-      rows="4"  
-      cols="50"  
-      placeholder="Paste/type in essay to be graded"  
-    ></textarea>  
+    <textarea id="new_essay_input" rows="4" cols="50" placeholder="Paste/type in essay to be graded"></textarea>  
     <br />  
-    <input  
-      type="button"  
-      id="predict_grade"  
-      value="Grade Essay"  
-    />  
+    <input type="button" id="predict_grade" value="Grade Essay" />  
     <div id="predicted_grade_output"></div>  
    </div>  
-    <div id="output"></div>  
-   </div>  
-   <script type="module" defer>  
-     import { feedback } from './feedback.js';  
-    import { predictGradealt } from './feedback.js';  
-    var finalModel;  
-    var subgradeModels = {};  
+   <div id="output"></div>  
+  </div>  
+  <script type="module" defer>  
+   import { feedback } from './feedback.js';  
+   import { predictGradealt } from './feedback.js';  
+   var finalModel;  
+   var subgradeModels = {};  
+   const inputEssaysMG = [];  
+   const inputGradesMG = [];  
+   const inputEssaysSG = {};  
+   const inputGradesSG = {};  
+   const inputFeedbackMG = [];  
+  
+   // Function to update progress bar  
+   function updateProgress(percentage, totalTimeTaken, trainingLabel) {  
+    console.log("Updating progress bar...");  
+    console.log("Percentage: " + percentage);  
+    console.log("Total time taken: " + totalTimeTaken);  
+    console.log("Training label: " + trainingLabel);  
+  
+    // Ensure the percentage is between 0 and 100  
+    percentage = Math.max(0, Math.min(100, percentage));  
+    percentage = percentage.toFixed(2);  
+  
+    // Get the loading bar and percentage label elements  
+    const loadingBar = document.getElementById("loading_bar");  
+    const percentageLabel = document.getElementById("percentage_label");  
+    const timeLabel = document.getElementById("time_label");  
+    const trainingLabelElement = document.getElementById("training_label");  
+  
+    // Update the width of the loading bar  
+    loadingBar.style.width = percentage + "%";  
+  
+    // Update the percentage label text  
+    percentageLabel.textContent = percentage + "%";  
+  
+    // Update the training label text  
+    trainingLabelElement.textContent = trainingLabel;  
+  
+    // Calculate the estimated total time based on total time taken and done  
+    if (percentage > 0) {  
+      const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs  
+  
+      // Estimate the total time based on the current progress (linear approximation)  
+      const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time  
+  
+      // Calculate remaining time  
+      const remainingTime = expectedTotalTime - elapsedTime;  
+  
+      // Format time (minutes:seconds)  
+      const formatTime = (timeInSeconds) => {  
+       const minutes = Math.floor(timeInSeconds / 60);  
+       const seconds = Math.floor(timeInSeconds % 60);  
+       return `${minutes} minutes - ${seconds  
+        .toString()  
+        .padStart(2, "0")} seconds`;  
+      };  
+  
+      // Display the time taken and expected total time in a human-readable format  
+      const timeTaken = formatTime(elapsedTime);  
+      const totalTime = formatTime(expectedTotalTime);  
+  
+      // Update the label with time information  
+      timeLabel.textContent = `${timeTaken}/${totalTime}`;  
+    }  
+   }  
+  
+   // Function for predicting the grade  
+   async function predictGrade() {  
     const inputEssaysMG = [];  
     const inputGradesMG = [];  
     const inputEssaysSG = {};  
     const inputGradesSG = {};  
     const inputFeedbackMG = [];  
-    // Function to update progress bar  
-    function updateProgress(percentage, totalTimeTaken, trainingLabel) {  
-      console.log("Updating progress bar...");  
-      console.log("Percentage: " + percentage);  
-      console.log("Total time taken: " + totalTimeTaken);  
-      console.log("Training label: " + trainingLabel);  
   
-      // Ensure the percentage is between 0 and 100  
-      percentage = Math.max(0, Math.min(100, percentage));  
-      percentage = percentage.toFixed(2);  
+    if (document.getElementById("option1").checked && document.getElementById("option2").checked) {  
+      const essayInput = document.getElementById("new_essay_input").value.trim();  
+      var promptInput = document.getElementById("prompt").value.trim();  
+      var rubricInput = document.getElementById("rubric").value.trim();  
   
-      // Get the loading bar and percentage label elements  
-      const loadingBar = document.getElementById("loading_bar");  
-      const percentageLabel = document.getElementById("percentage_label");  
-      const timeLabel = document.getElementById("time_label");  
-      const trainingLabelElement = document.getElementById("training_label");  
-  
-      // Update the width of the loading bar  
-      loadingBar.style.width = percentage + "%";  
-  
-      // Update the percentage label text  
-      percentageLabel.textContent = percentage + "%";  
-  
-      // Update the training label text  
-      trainingLabelElement.textContent = trainingLabel;  
-  
-      // Calculate the estimated total time based on total time taken and  done  
-      if (percentage > 0) {  
-       const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs  
-  
-       // Estimate the total time based on the current progress (linear approximation)  
-       const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time  
-  
-       // Calculate remaining time  
-       const remainingTime = expectedTotalTime - elapsedTime;  
-  
-       // Format time (minutes:seconds)  
-       const formatTime = (timeInSeconds) => {  
-        const minutes = Math.floor(timeInSeconds / 60);  
-        const seconds = Math.floor(timeInSeconds % 60);  
-        return `${minutes} minutes - ${seconds  
-          .toString()  
-          .padStart(2, "0")} seconds`;  
-       };  
-  
-       // Display the time taken and expected total time in a human-readable format  
-       const timeTaken = formatTime(elapsedTime);  
-       const totalTime = formatTime(expectedTotalTime);  
-  
-       // Update the label with time information  
-       timeLabel.textContent = `${timeTaken} / ${totalTime}`;  
-      }  
-    }  
-  
-    // Function for predicting the grade  
-    async function predictGrade() {  
-       const inputEssaysMG = [];  
-  const inputGradesMG = [];  
-  const inputEssaysSG = {};  
-  const inputGradesSG = {};  
-  const inputFeedbackMG = [];  
-  
-  if (document.getElementById("option1").checked && document.getElementById("option2").checked) {  
-   const essayInput = document.getElementById("new_essay_input").value.trim();  
-   var promptInput = document.getElementById("prompt").value.trim();  
-   var rubricInput = document.getElementById("rubric").value.trim();  
-  
-   // Collect data from table rows  
-   const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
-   rows.forEach((row) => {  
-    const essay = row.querySelector("td:nth-child(1) input").value.trim();  
-    const grade = parseFloat(row.querySelector("td:nth-child(2) input").value.trim());  
-    const feedback = row.querySelector("td:nth-child(4) input").value.trim();  
-    if (essay && !isNaN(grade)) {  
-      inputEssaysMG.push(essay);  
-      inputGradesMG.push(grade);  
-      inputFeedbackMG.push(feedback);  
-    }  
-    // Collect subgrade data  
-    const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
-    subgradeCells.forEach((cell, index) => {  
-      const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
-      if (subgradeName !== "Actions" && subgradeName !== "Feedback") {  
-       if (!inputEssaysSG[subgradeName]) {  
-        inputEssaysSG[subgradeName] = [];  
-        inputGradesSG[subgradeName] = [];  
-       }  
-       inputEssaysSG[subgradeName].push(essay);  
-       const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
-       if (!isNaN(subgradeValue)) {  
-        inputGradesSG[subgradeName].push(subgradeValue);  
-       }  
-      }  
-    });  
-   });  
-   predictGradealt(inputEssaysMG, inputGradesMG, essayInput, promptInput, rubricInput, inputEssaysSG, inputGradesSG);  
-  }
-      
-      console.log("Predicting grade...");  
-  
-      function preprocessText(essays) {  
-       console.log("Preprocessing text...");  
-       const tokenizedInputs = essays.map((essay) => {  
-        const words = essay.trim().split(/\s+/);  
-        const vector = new Array(1200).fill(0);  
-        for (let word of words) {  
-          const index = Math.min(word.length, 1199);  
-          vector[index] += 1;  
-        }  
-        return vector;  
-       });  
-       return tf.tensor2d(tokenizedInputs);  
-      }  
-  
-      const essayInput = document  
-       .getElementById("new_essay_input")  
-       .value.trim();  
-  
-      // Check if the input is not empty  
-      if (!essayInput) {  
-       alert("Please enter an essay to predict the grade.");  
-       return;  
-      }  
-
-      // Preprocess the input essay into tensor format  
-      const essayTensor = preprocessText([essayInput]); // Wrap in an array for single input  
-  
-      if (!finalModel) {  
-       alert(  
-        "The model is not trained yet. Please train the model before predicting."  
-       );  
-       return;  
-      }  
-  
-      // Use the trained model to predict  
-      const prediction = await finalModel.predict(essayTensor).data();  
-  
-      // Round the predicted grade and display it  
-      const predictedGrade = prediction[0];  
-      console.log("Predicted grade: " + predictedGrade);  
-      document.getElementById(  
-       "predicted_grade_output"  
-      ).innerText = `Predicted Grade: ${Math.round(predictedGrade)}`;  
-  
-      // Predict subgrades  
-      const subgradePredictions = {};  
-      for (const subgrade in subgradeModels) {  
-       const subgradePrediction = await subgradeModels[subgrade].predict(essayTensor).data();  
-       subgradePredictions[subgrade] = subgradePrediction[0];  
-       console.log("Subgrade prediction for " + subgrade + ": " + subgradePrediction[0]);  
-      }  
-  
-      // Display subgrade predictions  
-      const subgradePredictionText = Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(', ');  
-      document.getElementById("predicted_grade_output").innerText += `\nSubgrade Predictions: ${subgradePredictionText}`;  
-      var promptInput = document  
-       .getElementById("prompt")  
-       .value.trim(); 
-       // Check if the input is not empty  
-      if (!promptInput) {  
-       promptInput = "No specific prompt or directions"
-      }  
-      var rubricInput = document  
-       .getElementById("rubric")  
-       .value.trim(); 
-       // Call the feedback function
-        // Collect data from table rows  
-      const rows = document.querySelectorAll(  
-       "#data_table tr:not(:first-child):not(:last-child)"  
-      ); // Excluding header row and add row  
+      // Collect data from table rows  
+      const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
       rows.forEach((row) => {  
        const essay = row.querySelector("td:nth-child(1) input").value.trim();  
-       const grade = parseFloat(  
-        row.querySelector("td:nth-child(2) input").value.trim()  
-       );  
+       const grade = parseFloat(row.querySelector("td:nth-child(2) input").value.trim());  
        const feedback = row.querySelector("td:nth-child(4) input").value.trim();  
        if (essay && !isNaN(grade)) {  
         inputEssaysMG.push(essay);  
         inputGradesMG.push(grade);  
+        inputFeedbackMG.push(feedback);  
        }  
-      // Collect subgrade data  
+       // Collect subgrade data  
        const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
        subgradeCells.forEach((cell, index) => {  
         const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
-          inputEssaysSG[subgradeName] = [];  
-          inputGradesSG[subgradeName] = [];  
-        const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
-        if (!isNaN(subgradeValue)) {  
+        if (subgradeName !== "Actions" && subgradeName !== "Feedback") {  
+          if (!inputEssaysSG[subgradeName]) {  
+           inputEssaysSG[subgradeName] = [];  
+           inputGradesSG[subgradeName] = [];  
+          }  
           inputEssaysSG[subgradeName].push(essay);  
-          inputGradesSG[subgradeName].push(subgradeValue);  
+          const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
+          if (!isNaN(subgradeValue)) {  
+           inputGradesSG[subgradeName].push(subgradeValue);  
+          }  
         }  
        });  
-      });
-      console.log("IGSG", inputGradesSG);
-      feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
-      }
-    
+      });  
+      predictGradealt(inputEssaysMG, inputGradesMG, essayInput, promptInput, rubricInput, inputEssaysSG, inputGradesSG);  
+    }  
   
+    console.log("Predicting grade...");  
   
-    // Function for training the model  
-    async function trainModel() {  
-      if (document.getElementById("option3").checked) {  
-
+    function preprocessText(essays) {  
+      console.log("Preprocessing text...");  
+      const tokenizedInputs = essays.map((essay) => {  
+       const words = essay.trim().split(/\s+/);  
+       const vector = new Array(1200).fill(0);  
+       for (let word of words) {  
+        const index = Math.min(word.length, 1199);  
+        vector[index] += 1;  
+       }  
+       return vector;  
+      });  
+      return tf.tensor2d(tokenizedInputs);  
+    }  
+  
+    const essayInput = document  
+      .getElementById("new_essay_input")  
+      .value.trim();  
+  
+    // Check if the input is not empty  
+    if (!essayInput) {  
+      alert("Please enter an essay to predict the grade.");  
+      return;  
+    }  
+  
+    // Preprocess the input essay into tensor format  
+    const essayTensor = preprocessText([essayInput]); // Wrap in an array for single input  
+  
+    if (!finalModel) {  
+      alert(  
+       "The model is not trained yet. Please train the model before predicting."  
+      );  
+      return;  
+    }  
+  
+    // Use the trained model to predict  
+    const prediction = await finalModel.predict(essayTensor).data();  
+  
+    // Round the predicted grade and display it  
+    const predictedGrade = prediction[0];  
+    console.log("Predicted grade: " + predictedGrade);  
+    document.getElementById(  
+      "predicted_grade_output"  
+    ).innerText = `Predicted Grade: ${Math.round(predictedGrade)}`;  
+  
+    // Predict subgrades  
+    const subgradePredictions = {};  
+    for (const subgrade in subgradeModels) {  
+      const subgradePrediction = await subgradeModels[subgrade].predict(essayTensor).data();  
+      subgradePredictions[subgrade] = subgradePrediction[0];  
+      console.log("Subgrade prediction for " + subgrade + ": " + subgradePrediction[0]);  
+    }  
+  
+    // Display subgrade predictions  
+    const subgradePredictionText = Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(',');  
+    document.getElementById("predicted_grade_output").innerText += `\nSubgrade Predictions: ${subgradePredictionText}`;  
+    var promptInput = document  
+      .getElementById("prompt")  
+      .value.trim();  
+    // Check if the input is not empty  
+    if (!promptInput) {  
+      promptInput = "No specific prompt or directions"  
+    }  
+    var rubricInput = document  
+      .getElementById("rubric")  
+      .value.trim();  
+    // Call the feedback function  
+    // Collect data from table rows  
+    const rows = document.querySelectorAll(  
+      "#data_table tr:not(:first-child):not(:last-child)"  
+    ); // Excluding header row and add row  
+    rows.forEach((row) => {  
+      const essay = row.querySelector("td:nth-child(1) input").value.trim();  
+      const grade = parseFloat(  
+       row.querySelector("td:nth-child(2) input").value.trim()  
+      );  
+      const feedback = row.querySelector("td:nth-child(4) input").value.trim();  
+      if (essay && !isNaN(grade)) {  
+       inputEssaysMG.push(essay);  
+       inputGradesMG.push(grade);  
+      }  
+      // Collect subgrade data  
+      const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+      subgradeCells.forEach((cell, index) => {  
+       const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
+       inputEssaysSG[subgradeName] = [];  
+       inputGradesSG[subgradeName] = [];  
+       const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
+       if (!isNaN(subgradeValue)) {  
+        inputEssaysSG[subgradeName].push(essay);  
+        inputGradesSG[subgradeName].push(subgradeValue);  
+       }  
+      });  
+    });  
+    console.log("IGSG", inputGradesSG);  
+    feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
+   }  
+  
+   // Function for training the model  
+   async function trainModel() {  
+    if (document.getElementById("option3").checked) {  
+  
       console.log("Training model...");  
   
       const learningRate = 0.005;  
@@ -527,120 +463,134 @@
       // Show the prediction input section after training  
       document.getElementById("predict_section").style.display = "block";  
   
-    }
-       else {  
-   console.log("alternative training selected");  
-   if (document.getElementById("option1").checked && document.getElementById("option2").checked) {  
-    console.log("training possible");  
-    console.log("Model training skipped");  
-    document.getElementById("output").innerText = "Model training skipped (using chatbot to grade instead)";  
-    // Show the prediction input section after training  
-    document.getElementById("predict_section").style.display = "block";  
-   } else {  
-    window.alert("Select at least 2 options if not using previously graded essays");  
-   } 
-      }
-    }
+    } else {  
+      console.log("alternative training selected");  
+      if (document.getElementById("option1").checked && document.getElementById("option2").checked) {  
+       console.log("training possible");  
+       console.log("Model training skipped");  
+       document.getElementById("output").innerText = "Model training skipped (using chatbot to grade instead)";  
+       // Show the prediction input section after training  
+       document.getElementById("predict_section").style.display = "block";  
+      } else {  
+       window.alert("Select at least 2 options if not using previously graded essays");  
+      }  
+    }  
+   }  
   
-    // Function to add a new subgrade  
-   globalThis.add_subgrade = function add_subgrade() {
-  console.log("Adding new subgrade...");
-  const subgradeName = prompt("Enter the name of the new subgrade:");
-  if (subgradeName) {
-    // Add a new header cell for the subgrade
-    const headerRow = document.getElementById("header_row");
-    const newHeaderCell = document.createElement("th");
-    newHeaderCell.innerText = subgradeName;
-    const feedbackHeader = document.getElementById("feedback_header");
-    headerRow.insertBefore(newHeaderCell, feedbackHeader);
-
-    // Add a new cell for the subgrade in each row
-    const rows = document.querySelectorAll("#data_table tr:not(:first-child)");
-    rows.forEach((row) => {
-      const newCell = document.createElement("td");
-      newCell.innerHTML = "<input type='text' />";
-      const feedbackCell = row.querySelector("td:last-child");
-      row.insertBefore(newCell, feedbackCell);
-    });
-  }
-};
+   // Function to add a new subgrade  
+   globalThis.add_subgrade = function add_subgrade() {  
+    console.log("Adding new subgrade...");  
+    const subgradeName = prompt("Enter the name of the new subgrade:");  
+    if (subgradeName) {  
+      // Add a new header cell for the subgrade  
+      const headerRow = document.getElementById("header_row");  
+      const newHeaderCell = document.createElement("th");  
+      newHeaderCell.innerText = subgradeName;  
+      const feedbackHeader = document.getElementById("feedback_header");  
+      headerRow.insertBefore(newHeaderCell, feedbackHeader);  
   
-    // Function to save a row  
-    globalThis.save_row = function save_row(no) {  
-      console.log("Saving row...");  
-      const row = document.getElementById(`row${no}`);  
-      const essay = row.querySelector("td:nth-child(1) input").value.trim();  
-      const grade = row.querySelector("td:nth-child(2) input").value.trim();  
-      const feedback = row.querySelector("td:nth-child(4) input").value.trim();  
-      const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+      // Add a new cell for the subgrade in each row  
+      const rows = document.querySelectorAll("#data_table tr:not(:first-child)");  
+      rows.forEach((row) => {  
+       const newCell = document.createElement("td");  
+       newCell.innerHTML = "<input type='text'/>";  
+       const feedbackCell = row.querySelector("td:last-child");  
+       row.insertBefore(newCell, feedbackCell);  
+      });  
+    }  
+   };  
   
-      // Update the row with the saved values  
-      row.querySelector("td:nth-child(1) input").value = essay;  
-      row.querySelector("td:nth-child(2) input").value = grade;  
-      row.querySelector("td:nth-child(4) input").value = feedback;  
-      subgradeCells.forEach((cell) => {  
-       cell.querySelector("input").value = cell.querySelector("input").value.trim();  
+   // Function to save a row  
+   globalThis.save_row = function save_row(no) {  
+    console.log("Saving row...");  
+    const row = document.getElementById(`row${no}`);  
+    const essay = row.querySelector("td:nth-child(1) input").value.trim();  
+    const grade = row.querySelector("td:nth-child(2) input").value.trim();  
+    const feedback = row.querySelector("td:nth-child(4) input").value.trim();  
+    const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+  
+    // Update the row with the saved values  
+    row.querySelector("td:nth-child(1) input").value = essay;  
+    row.querySelector("td:nth-child(2) input").value = grade;  
+    row.querySelector("td:nth-child(4) input").value = feedback;  
+    subgradeCells.forEach((cell) => {  
+      cell.querySelector("input").value = cell.querySelector("input").value.trim();  
+    });  
+   }  
+  
+   // Function to delete a row  
+   globalThis.delete_row = function delete_row(no) {  
+    console.log("Deleting row...");  
+    document.getElementById(`row${no}`).outerHTML = "";  
+   }  
+  
+   globalThis.add_row = function add_row() {  
+    console.log("Adding new row...");  
+    const table = document.getElementById("data_table");  
+    const newRow = table.insertRow(table.rows.length - 1);  
+    newRow.id = `row${table.rows.length - 1}`;  
+  
+    // Create cells for the new row  
+    const essayCell = document.createElement("td");  
+    essayCell.innerHTML = "<input type='text'/>";  
+    newRow.appendChild(essayCell);  
+  
+    const gradeCell = document.createElement("td");  
+    gradeCell.innerHTML = "<input type='text'/>";  
+    newRow.appendChild(gradeCell);  
+  
+    // Create the actions cell and insert it immediately after the grade cell  
+    const actionsCell = document.createElement("td");  
+    actionsCell.innerHTML = `<input type='button' value='Save' class='save'>  
+<input type='button' value='Remove Essay' class='delete'>`;  
+    newRow.appendChild(actionsCell);  
+  
+    // Dynamically check for subgrade headers  
+    const subgradeHeaders = document.querySelectorAll("#header_row th:not(#actions_header):not(#feedback_header)");  
+  
+    if (subgradeHeaders.length > 0) {  
+      // Add a cell for each subgrade  
+      subgradeHeaders.forEach(() => {  
+       const newCell = document.createElement("td");  
+       newCell.innerHTML = "<input type='text'/>";  
+       newRow.appendChild(newCell);  
       });  
     }  
   
-    // Function to delete a row  
-    globalThis.delete_row = function delete_row(no) {  
-      console.log("Deleting row...");  
-      document.getElementById(`row${no}`).outerHTML = "";  
-    }  
+    // Add the feedback cell at the end  
+    const feedbackCell = document.createElement("td");  
+    feedbackCell.innerHTML = "<input type='text'/>";  
+    newRow.appendChild(feedbackCell);  
   
-globalThis.add_row = function add_row() {
-  console.log("Adding new row...");
-  const table = document.getElementById("data_table");
-  const newRow = table.insertRow(table.rows.length - 1);
-  newRow.id = `row${table.rows.length - 1}`;
-
-  // Create cells for the new row
-  const essayCell = document.createElement("td");
-  essayCell.innerHTML = "<input type='text' />";
-  newRow.appendChild(essayCell);
-
-  const gradeCell = document.createElement("td");
-  gradeCell.innerHTML = "<input type='text' />";
-  newRow.appendChild(gradeCell);
-
-  // Create the actions cell and insert it immediately after the grade cell
-  const actionsCell = document.createElement("td");
-  actionsCell.innerHTML = `<input type='button' value='Save' class='save' onclick='save_row("${table.rows.length - 1}")'>
-                           <input type='button' value='Remove Essay' class='delete' onclick='delete_row("${table.rows.length - 1}")'>`;
-  newRow.appendChild(actionsCell);
-
-  // Dynamically check for subgrade headers
-  const subgradeHeaders = document.querySelectorAll("#header_row th:not(#actions_header):not(#feedback_header)");
-
-  if (subgradeHeaders.length > 0) {
-    // Add a cell for each subgrade
-    subgradeHeaders.forEach(() => {
-      const newCell = document.createElement("td");
-      newCell.innerHTML = "<input type='text' />";
-      newRow.appendChild(newCell);
-    });
-  }
-
-  // Add the feedback cell at the end
-  const feedbackCell = document.createElement("td");
-  feedbackCell.innerHTML = "<input type='text' />";
-  newRow.appendChild(feedbackCell);
-
-  // Remove extra cells if any (ensures no unintended cells are added)
-  while (newRow.cells.length > table.rows[0].cells.length) {
-    newRow.deleteCell(-1);
-  }
-};
-
-
-
-
-     // Add event listeners  
-document.getElementById("train_model").addEventListener("click", trainModel);  
-document.getElementById("predict_grade").addEventListener("click", predictGrade);
-   </script>
-
-
-  </body>  
+    // Remove extra cells if any (ensures no unintended cells are added)  
+    while (newRow.cells.length > table.rows[0].cells.length) {  
+      newRow.deleteCell(-1);  
+    }  
+   };  
+  
+   // Add event listeners  
+   document.getElementById("train_model").addEventListener("click", trainModel);  
+   document.getElementById("predict_grade").addEventListener("click", predictGrade);  
+  
+   const saveButtons = document.querySelectorAll(".save");  
+   saveButtons.forEach((button, index) => {  
+    button.addEventListener("click", function () {  
+      save_row(index + 1);  
+    });  
+   });  
+  
+   const deleteButtons = document.querySelectorAll(".delete");  
+   deleteButtons.forEach((button, index) => {  
+    button.addEventListener("click", function () {  
+      delete_row(index + 1);  
+    });  
+   });  
+  
+   const addRowButton = document.querySelector(".add");  
+   addRowButton.addEventListener("click", add_row);  
+  
+   const addSubgradeButton = document.querySelector(".add_subgrade");  
+   addSubgradeButton.addEventListener("click", add_subgrade);  
+  </script>  
+</body>  
 </html>
