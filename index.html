@@ -603,7 +603,7 @@ globalThis.downloadData = function downloadData() {
   link.click();  
 };
 
-        globalThis.handleFolderUpload = function handleFolderUpload(event) {
+        globalThis.handleFolderUpload = async function handleFolderUpload(event) {
             const files = event.target.files;
             const table = document.getElementById("data_table");
 
