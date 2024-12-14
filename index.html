@@ -674,7 +674,37 @@ globalThis.downloadData = function downloadData() {
             }
         }
     };
+ globalThis.uploadData = function uploadData(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
 
+            reader.onload = (event) => {
+                const data = JSON.parse(event.target.result);
+                const table = document.getElementById("data_table");
+
+                data.forEach((row) => {
+                    // Use existing add_row logic
+                    const newRow = table.insertRow(table.rows.length - 1);
+                    newRow.id = `row${table.rows.length - 1}`;
+
+                    const essayCell = newRow.insertCell(0);
+                    essayCell.innerHTML = `<input type="text" value="${row.essay}" />`;
+
+                    const gradeCell = newRow.insertCell(1);
+                    gradeCell.innerHTML = `<input type="text" value="${row.grade}" />`;
+
+                    const actionsCell = newRow.insertCell(2);
+                    actionsCell.innerHTML = `
+                        <input type='button' value='Save' class='save'>
+                        <input type='button' value='Remove Essay' class='delete'>`;
+
+                    const feedbackCell = newRow.insertCell(3);
+                    feedbackCell.innerHTML = `<input type="text" value="${row.feedback}" />`;
+                });
+            };
+
+            reader.readAsText(file);
+        }
         document.getElementById("upload_folder").addEventListener("change", handleFolderUpload);
         document.getElementById("upload_data").addEventListener("change", uploadData);
         document.getElementById("download_data").addEventListener("click", downloadData);
