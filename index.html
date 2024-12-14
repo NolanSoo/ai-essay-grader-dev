@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="styles.css" />  
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />  
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.4.0"></script>  
+  <script src="https://cdn.jsdelivr.net/npm/docx-parser@0.2.1/index.min.js"></script>
 </head>  
   
 <body>  
@@ -634,37 +635,45 @@ globalThis.downloadData = function downloadData() {
             }
         }
 
-        globalThis.uploadData = function uploadData(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
+        globalThis.handleFolderUpload = async function handleFolderUpload(event) {
+        const files = event.target.files;
+        const table = document.getElementById("data_table");
 
-            reader.onload = (event) => {
-                const data = JSON.parse(event.target.result);
-                const table = document.getElementById("data_table");
+        for (const file of files) {
+            if (file.name.endsWith(".docx")) {
+                const reader = new FileReader();
 
-                data.forEach((row) => {
-                    // Use existing add_row logic
+                // Read the file as ArrayBuffer
+                reader.onload = async function (event) {
+                    const arrayBuffer = event.target.result;
+
+                    // Parse the .docx content using docx-parser
+                    const textContent = await docxParser.parse(arrayBuffer);
+
+                    // Add the parsed text to a new row in the table
                     const newRow = table.insertRow(table.rows.length - 1);
                     newRow.id = `row${table.rows.length - 1}`;
 
                     const essayCell = newRow.insertCell(0);
-                    essayCell.innerHTML = `<input type="text" value="${row.essay}" />`;
+                    essayCell.innerHTML = `<input type="text" value="${textContent.trim()}" />`;
 
                     const gradeCell = newRow.insertCell(1);
-                    gradeCell.innerHTML = `<input type="text" value="${row.grade}" />`;
+                    gradeCell.innerHTML = `<input type="text" />`;
 
                     const actionsCell = newRow.insertCell(2);
                     actionsCell.innerHTML = `
-                        <input type='button' value='Save' class='save'>
-                        <input type='button' value='Remove Essay' class='delete'>`;
+                        <input type="button" value="Save" class="save">
+                        <input type="button" value="Remove Essay" class="delete">`;
 
                     const feedbackCell = newRow.insertCell(3);
-                    feedbackCell.innerHTML = `<input type="text" value="${row.feedback}" />`;
-                });
-            };
+                    feedbackCell.innerHTML = `<input type="text" />`;
+                };
 
-            reader.readAsText(file);
+                // Trigger file reading
+                reader.readAsArrayBuffer(file);
+            }
         }
+    };
 
         document.getElementById("upload_folder").addEventListener("change", handleFolderUpload);
         document.getElementById("upload_data").addEventListener("change", uploadData);
