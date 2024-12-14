@@ -93,7 +93,15 @@
   
 <!-- Add a file input to upload the table data -->  
 <input type="file" id="upload_data" accept=".autograde" />
-  <script type="module" defer>  
+    <!-- Add a folder input to upload multiple .docx files -->
+    <input type="file" id="upload_folder" webkitdirectory mozdirectory directory multiple accept=".docx" />
+    <label for="upload_folder">Upload Essays from Folder</label>
+
+    <script type="module" defer>
+      // DOCX 
+        import docx from 'https://cdn.jsdelivr.net/npm/docx@9.1.0/+esm';
+
+
    import { feedback } from './feedback.js';   
    var finalModel;  
    var subgradeModels = {};  
@@ -595,93 +603,72 @@ globalThis.downloadData = function downloadData() {
   link.click();  
 };
 
+        globalThis.handleFolderUpload = function handleFolderUpload(event) {
+            const files = event.target.files;
+            const table = document.getElementById("data_table");
 
+            for (const file of files) {
+                if (file.name.endsWith(".docx")) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const doc = await docx.Packer.load(arrayBuffer);
+                    const content = doc.body.map((p) => p.text).join("\n").trim();
 
+                    // Add a new row using existing add_row logic
+                    const newRow = table.insertRow(table.rows.length - 1);
+                    newRow.id = `row${table.rows.length - 1}`;
 
-globalThis.uploadData = function uploadData(event) {   
-  console.log("Uploading table data...");   
-  const file = event.target.files[0];   
-  const reader = new FileReader();   
-   
-  reader.onload = (event) => {   
-  const jsonData = event.target.result;   
-  const data = JSON.parse(jsonData);   
-   
-  // Clear the existing table rows   
-  var rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");   
-  rows.forEach((row) => {   
-   row.outerHTML = "";   
-  });   
-   
-  // Add new table rows with the uploaded data   
-  data.forEach((row, index) => {   
-   const table = document.getElementById("data_table");   
-   const newRow = table.insertRow(table.rows.length - 1);   
-   newRow.id = `row${table.rows.length - 1}`;   
-   
-   // Create cells for the new row   
-   const essayCell = document.createElement("td");   
-   essayCell.innerHTML = `<input type='text' value='${row.essay}'/>`;   
-   newRow.appendChild(essayCell);   
-   
-   const gradeCell = document.createElement("td");   
-   gradeCell.innerHTML = `<input type='text' value='${row.grade}'/>`;   
-   newRow.appendChild(gradeCell);   
-   
-   // Create the actions cell and insert it immediately after the grade cell   
-   const actionsCell = document.createElement("td");   
-   actionsCell.innerHTML = `<input type='button' value='Save' class='save'>   
-<input type='button' value='Remove Essay' class='delete'>`;   
-   newRow.appendChild(actionsCell);   
-   
-   // Dynamically check for subgrade headers   
-   const subgradeHeaders = document.getElementById("header_row").querySelectorAll("th:not(.actions_header):not(.feedback_header):not(:first-child):not(:nth-child(2))");   
-   
-   // Add a cell for each subgrade   
-   subgradeHeaders.forEach((header, headerIndex) => {   
-    const subgradeName = header.innerText;   
-    const newCell = document.createElement("td");   
-    newCell.innerHTML = `<input type='text' value='${row.subgrades[subgradeName]}'/>`;   
-    newRow.appendChild(newCell);   
-   });   
-   
-   // Remove the last two cells (actions and add subgrade) from the header row   
-   const headerRow = document.getElementById("header_row");   
-   const headerCells = headerRow.children;   
-   const actionsHeaderIndex = Array.prototype.indexOf.call(headerCells, document.querySelector("#actions_header"));   
-   const feedbackHeaderIndex = Array.prototype.indexOf.call(headerCells, document.querySelector("#feedback_header"));   
-   
-   // Add the feedback cell at the correct position   
-   const feedbackCell = document.createElement("td");   
-   feedbackCell.innerHTML = `<input type='text' value='${row.feedback}'/>`;   
-   newRow.insertBefore(feedbackCell, newRow.children[feedbackHeaderIndex]);   
-  });   
-   
-  // Remove the last two empty columns  
-  rows = document.querySelectorAll("#data_table tr");  
-  rows.forEach((row) => {  
-    const cells = row.children;  
-    for (let i = cells.length - 1; i >= 0; i--) {  
-     const cell = cells[i];  
-     if (cell.querySelector("input") && cell.querySelector("input").value === "") {  
-      cell.outerHTML = "";  
-     } else {  
-      break;  
-     }  
-    }  
-  });  
-  };   
-   
-  reader.readAsText(file);   
-};
+                    const essayCell = newRow.insertCell(0);
+                    essayCell.innerHTML = `<input type="text" value="${content}" />`;
 
-  
+                    const gradeCell = newRow.insertCell(1);
+                    gradeCell.innerHTML = `<input type="text" />`;
 
+                    const actionsCell = newRow.insertCell(2);
+                    actionsCell.innerHTML = `
+                        <input type='button' value='Save' class='save'>
+                        <input type='button' value='Remove Essay' class='delete'>`;
 
+                    const feedbackCell = newRow.insertCell(3);
+                    feedbackCell.innerHTML = `<input type="text" />`;
+                }
+            }
+        }
 
-// Add event listeners
-document.getElementById("download_data").addEventListener("click", downloadData);
-document.getElementById("upload_data").addEventListener("change", uploadData);
+        globalThis.uploadData = function uploadData(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = (event) => {
+                const data = JSON.parse(event.target.result);
+                const table = document.getElementById("data_table");
+
+                data.forEach((row) => {
+                    // Use existing add_row logic
+                    const newRow = table.insertRow(table.rows.length - 1);
+                    newRow.id = `row${table.rows.length - 1}`;
+
+                    const essayCell = newRow.insertCell(0);
+                    essayCell.innerHTML = `<input type="text" value="${row.essay}" />`;
+
+                    const gradeCell = newRow.insertCell(1);
+                    gradeCell.innerHTML = `<input type="text" value="${row.grade}" />`;
+
+                    const actionsCell = newRow.insertCell(2);
+                    actionsCell.innerHTML = `
+                        <input type='button' value='Save' class='save'>
+                        <input type='button' value='Remove Essay' class='delete'>`;
+
+                    const feedbackCell = newRow.insertCell(3);
+                    feedbackCell.innerHTML = `<input type="text" value="${row.feedback}" />`;
+                });
+            };
+
+            reader.readAsText(file);
+        }
+
+        document.getElementById("upload_folder").addEventListener("change", handleFolderUpload);
+        document.getElementById("upload_data").addEventListener("change", uploadData);
+        document.getElementById("download_data").addEventListener("click", downloadData);
   </script>  
 </body>  
 </html>
