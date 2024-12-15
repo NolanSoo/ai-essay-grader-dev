@@ -625,7 +625,9 @@ globalThis.downloadData = function downloadData() {
             reader.readAsText(file);
         }
 
-    globalThis.handleFolderUpload = async function handleFolderUpload(event) {  
+  import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";  
+  
+globalThis.handleFolderUpload = async function handleFolderUpload(event) {  
   const files = event.target.files;  
   const table = document.getElementById("data_table");  
   
@@ -636,54 +638,35 @@ globalThis.downloadData = function downloadData() {
   
   for (const file of files) {  
    if (file.name.endsWith(".docx")) {  
-    await new Promise((resolve, reject) => {  
-      const formData = new FormData();  
-      formData.append('file', file);  
+    const reader = new FileReader();  
+    reader.onload = async (e) => {  
+      const result = await mammoth.convertToHtml({ arrayBuffer: e.target.result });  
+      const content = result.value.trim();  
   
-      const xhr = new XMLHttpRequest();  
-      xhr.withCredentials = true;  
+      // Add a new row using existing add_row logic  
+      const newRow = table.insertRow(table.rows.length - 1);  
+      newRow.id = `row${table.rows.length - 1}`;  
   
-      xhr.addEventListener('readystatechange', function () {  
-       if (this.readyState === this.DONE) {  
-        if (this.status === 200) {  
-          const response = JSON.parse(this.responseText);  
-          const content = response.extracted_text.trim();  
+      const essayCell = newRow.insertCell(0);  
+      essayCell.innerHTML = `<input type="text" value="${content}"/>`;  
   
-          // Add a new row using existing add_row logic  
-          const newRow = table.insertRow(table.rows.length - 1);  
-          newRow.id = `row${table.rows.length - 1}`;  
+      const gradeCell = newRow.insertCell(1);  
+      gradeCell.innerHTML = `<input type="text"/>`;  
   
-          const essayCell = newRow.insertCell(0);  
-          essayCell.innerHTML = `<input type="text" value="${content}"/>`;  
+      const actionsCell = newRow.insertCell(2);  
+      actionsCell.innerHTML = `  
+       <input type='button' value='Save' class='save'>  
+       <input type='button' value='Remove Essay' class='delete'>  
+      `;  
   
-          const gradeCell = newRow.insertCell(1);  
-          gradeCell.innerHTML = `<input type="text"/>`;  
-  
-          const actionsCell = newRow.insertCell(2);  
-          actionsCell.innerHTML = `  
-           <input type='button' value='Save' class='save'>  
-           <input type='button' value='Remove Essay' class='delete'>  
-          `;  
-  
-          const feedbackCell = newRow.insertCell(3);  
-          feedbackCell.innerHTML = `<input type="text"/>`;  
-  
-          resolve();  
-        } else {  
-          reject(this.statusText);  
-        }  
-       }  
-      });  
-  
-      xhr.open('POST', 'https://docxtract1.p.rapidapi.com/extract');  
-      xhr.setRequestHeader('x-rapidapi-key', 'a29cfe4fa6mshb63da984e4b3f7dp12efdajsneda384ed8b83');  
-      xhr.setRequestHeader('x-rapidapi-host', 'docxtract1.p.rapidapi.com');  
-  
-      xhr.send(formData);  
-    });  
+      const feedbackCell = newRow.insertCell(3);  
+      feedbackCell.innerHTML = `<input type="text"/>`;  
+    };  
+    reader.readAsArrayBuffer(file);  
    }  
   }  
 }
+
 
 
 
