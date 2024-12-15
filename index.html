@@ -98,7 +98,21 @@
     <!-- Add a folder input to upload multiple .docx files -->
     <input type="file" id="upload_folder" webkitdirectory mozdirectory directory multiple accept=".docx" />
     <label for="upload_folder">Upload Essays from Folder</label>
-
+<!-- Add this to the HTML body -->  
+<div id="quick-input-modal" style="display: none;">  
+  <h2>Quick Input</h2>  
+  <label for="quick-input-grade">Grade:</label>  
+  <input type="text" id="quick-input-grade" />  
+  <br />  
+  <label for="quick-input-subgrades">Subgrades:</label>  
+  <div id="quick-input-subgrades"></div>  
+  <br />  
+  <label for="quick-input-feedback">Feedback:</label>  
+  <textarea id="quick-input-feedback"></textarea>  
+  <br />  
+  <input type="button" value="Save" id="quick-input-save" />  
+  <input type="button" value="Cancel" id="quick-input-cancel" />  
+</div>
     <script type="module" defer>
 
 
@@ -678,7 +692,55 @@ globalThis.handleFolderUpload = async function handleFolderUpload(event) {
   }  
 }
 
-
+// Add event listener to the quick input button  
+document.querySelectorAll(".quick-input").forEach((button) => {  
+  button.addEventListener("click", () => {  
+   const modal = document.getElementById("quick-input-modal");  
+   modal.style.display = "block";  
+  
+   // Get the current row and its data  
+   const row = button.parentNode.parentNode;  
+   const essayInput = row.querySelector("td:nth-child(1) input");  
+   const gradeInput = row.querySelector("td:nth-child(2) input");  
+   const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+   const feedbackInput = row.querySelector("td:last-child input");  
+  
+   // Populate the modal with the current data  
+   document.getElementById("quick-input-grade").value = gradeInput.value;  
+   const subgradesDiv = document.getElementById("quick-input-subgrades");  
+   subgradesDiv.innerHTML = "";  
+   subgradeCells.forEach((cell) => {  
+    const subgradeInput = cell.querySelector("input");  
+    const subgradeLabel = document.createElement("label");  
+    subgradeLabel.textContent = subgradeInput.name;  
+    const subgradeValue = document.createElement("input");  
+    subgradeValue.type = "text";  
+    subgradeValue.value = subgradeInput.value;  
+    subgradesDiv.appendChild(subgradeLabel);  
+    subgradesDiv.appendChild(subgradeValue);  
+   });  
+   document.getElementById("quick-input-feedback").value = feedbackInput.value;  
+  
+   // Add event listeners to the save and cancel buttons  
+   document.getElementById("quick-input-save").addEventListener("click", () => {  
+    // Update the row data with the modal input values  
+    gradeInput.value = document.getElementById("quick-input-grade").value;  
+    subgradeCells.forEach((cell, index) => {  
+      const subgradeInput = cell.querySelector("input");  
+      subgradeInput.value = subgradesDiv.children[index * 2 + 1].value;  
+    });  
+    feedbackInput.value = document.getElementById("quick-input-feedback").value;  
+  
+    // Hide the modal  
+    modal.style.display = "none";  
+   });  
+  
+   document.getElementById("quick-input-cancel").addEventListener("click", () => {  
+    // Hide the modal  
+    modal.style.display = "none";  
+   });  
+  });  
+});
 
 
 
