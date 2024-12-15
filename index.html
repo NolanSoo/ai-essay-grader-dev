@@ -641,6 +641,13 @@ globalThis.downloadData = function downloadData() {
                     const feedbackCell = newRow.insertCell(3);
                     feedbackCell.innerHTML = `<input type="text" value="${row.feedback}" />`;
                 });
+                 const deleteButtons = document.querySelectorAll(".delete");  
+   deleteButtons.forEach((button, index) => {  
+    button.addEventListener("click", function () {  
+      delete_row(index + 1);  
+    });  
+   });  
+  
             };
             reader.readAsText(file);
         }
@@ -676,6 +683,7 @@ globalThis.handleFolderUpload = async function handleFolderUpload(event) {
         actionsCell.innerHTML = `
           <input type="button" value="Save" class="save">
           <input type="button" value="Remove Essay" class="delete">
+          <input type='button' value='Quick Input' class='quick-input'>  
         `;
 
         const feedbackCell = newRow.insertCell(3);
