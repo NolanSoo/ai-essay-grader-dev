@@ -723,11 +723,13 @@ document.querySelectorAll(".quick-input").forEach((button) => {
     const subgradeInput = cell.querySelector("input");  
     const subgradeLabel = document.createElement("label");  
     subgradeLabel.textContent = subgradeHeaders[index].textContent;  
-    const subgradeValue = document.createElement("input");  
-    subgradeValue.type = "text";  
-    subgradeValue.value = subgradeInput.value;  
-    subgradesDiv.appendChild(subgradeLabel);  
-    subgradesDiv.appendChild(subgradeValue);  
+    if (subgradeLabel.textContent !== "Actions") {  
+      const subgradeValue = document.createElement("input");  
+      subgradeValue.type = "text";  
+      subgradeValue.value = subgradeInput.value;  
+      subgradesDiv.appendChild(subgradeLabel);  
+      subgradesDiv.appendChild(subgradeValue);  
+    }  
    });  
    document.getElementById("quick-input-feedback").value = feedbackInput.value;  
   
@@ -737,7 +739,9 @@ document.querySelectorAll(".quick-input").forEach((button) => {
     gradeInput.value = document.getElementById("quick-input-grade").value;  
     subgradeCells.forEach((cell, index) => {  
       const subgradeInput = cell.querySelector("input");  
-      subgradeInput.value = subgradesDiv.children[index * 2 + 1].value;  
+      if (subgradeHeaders[index].textContent !== "Actions") {  
+       subgradeInput.value = subgradesDiv.children[index * 2 + 1].value;  
+      }  
     });  
     feedbackInput.value = document.getElementById("quick-input-feedback").value;  
   
@@ -753,6 +757,7 @@ document.querySelectorAll(".quick-input").forEach((button) => {
    });  
   });  
 });
+
 
 
 
