@@ -631,11 +631,6 @@ globalThis.handleFolderUpload = async function handleFolderUpload(event) {
   const files = event.target.files;  
   const table = document.getElementById("data_table");  
   
-  // Remove all existing rows except the header and add row  
-  while (table.rows.length > 2) {  
-   table.deleteRow(1);  
-  }  
-  
   for (const file of files) {  
    if (file.name.endsWith(".docx")) {  
     const reader = new FileReader();  
@@ -643,29 +638,20 @@ globalThis.handleFolderUpload = async function handleFolderUpload(event) {
       const result = await mammoth.convertToHtml({ arrayBuffer: e.target.result });  
       const content = result.value.trim();  
   
-      // Add a new row using existing add_row logic  
-      const newRow = table.insertRow(table.rows.length - 1);  
-      newRow.id = `row${table.rows.length - 1}`;  
+      // Get the first row (excluding header and add row)  
+      const row = table.rows[1];  
   
-      const essayCell = newRow.insertCell(0);  
-      essayCell.innerHTML = `<input type="text" value="${content}"/>`;  
+      // Get the essay input field  
+      const essayInput = row.querySelector("td:nth-child(1) input");  
   
-      const gradeCell = newRow.insertCell(1);  
-      gradeCell.innerHTML = `<input type="text"/>`;  
-  
-      const actionsCell = newRow.insertCell(2);  
-      actionsCell.innerHTML = `  
-       <input type='button' value='Save' class='save'>  
-       <input type='button' value='Remove Essay' class='delete'>  
-      `;  
-  
-      const feedbackCell = newRow.insertCell(3);  
-      feedbackCell.innerHTML = `<input type="text"/>`;  
+      // Set the essay content as the value of the input field  
+      essayInput.value = content;  
     };  
     reader.readAsArrayBuffer(file);  
    }  
   }  
 }
+
 
 
 
