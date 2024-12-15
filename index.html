@@ -636,46 +636,55 @@ globalThis.downloadData = function downloadData() {
   
   for (const file of files) {  
    if (file.name.endsWith(".docx")) {  
-    const formData = new FormData();  
-    formData.append('file', file);  
+    await new Promise((resolve, reject) => {  
+      const formData = new FormData();  
+      formData.append('file', file);  
   
-    const xhr = new XMLHttpRequest();  
-    xhr.withCredentials = true;  
+      const xhr = new XMLHttpRequest();  
+      xhr.withCredentials = true;  
   
-    xhr.addEventListener('readystatechange', function () {  
-      if (this.readyState === this.DONE) {  
-       const response = JSON.parse(this.responseText);  
-       const content = response.extracted_text.trim();  
+      xhr.addEventListener('readystatechange', function () {  
+       if (this.readyState === this.DONE) {  
+        if (this.status === 200) {  
+          const response = JSON.parse(this.responseText);  
+          const content = response.extracted_text.trim();  
   
-       // Add a new row using existing add_row logic  
-       const newRow = table.insertRow(table.rows.length - 1);  
-       newRow.id = `row${table.rows.length - 1}`;  
+          // Add a new row using existing add_row logic  
+          const newRow = table.insertRow(table.rows.length - 1);  
+          newRow.id = `row${table.rows.length - 1}`;  
   
-       const essayCell = newRow.insertCell(0);  
-       essayCell.innerHTML = `<input type="text" value="${content}"/>`;  
+          const essayCell = newRow.insertCell(0);  
+          essayCell.innerHTML = `<input type="text" value="${content}"/>`;  
   
-       const gradeCell = newRow.insertCell(1);  
-       gradeCell.innerHTML = `<input type="text"/>`;  
+          const gradeCell = newRow.insertCell(1);  
+          gradeCell.innerHTML = `<input type="text"/>`;  
   
-       const actionsCell = newRow.insertCell(2);  
-       actionsCell.innerHTML = `  
-        <input type='button' value='Save' class='save'>  
-        <input type='button' value='Remove Essay' class='delete'>  
-       `;  
+          const actionsCell = newRow.insertCell(2);  
+          actionsCell.innerHTML = `  
+           <input type='button' value='Save' class='save'>  
+           <input type='button' value='Remove Essay' class='delete'>  
+          `;  
   
-       const feedbackCell = newRow.insertCell(3);  
-       feedbackCell.innerHTML = `<input type="text"/>`;  
-      }  
+          const feedbackCell = newRow.insertCell(3);  
+          feedbackCell.innerHTML = `<input type="text"/>`;  
+  
+          resolve();  
+        } else {  
+          reject(this.statusText);  
+        }  
+       }  
+      });  
+  
+      xhr.open('POST', 'https://docxtract1.p.rapidapi.com/extract');  
+      xhr.setRequestHeader('x-rapidapi-key', 'a29cfe4fa6mshb63da984e4b3f7dp12efdajsneda384ed8b83');  
+      xhr.setRequestHeader('x-rapidapi-host', 'docxtract1.p.rapidapi.com');  
+  
+      xhr.send(formData);  
     });  
-  
-    xhr.open('POST', 'https://docxtract1.p.rapidapi.com/extract');  
-    xhr.setRequestHeader('x-rapidapi-key', 'a29cfe4fa6mshb63da984e4b3f7dp12efdajsneda384ed8b83');  
-    xhr.setRequestHeader('x-rapidapi-host', 'docxtract1.p.rapidapi.com');  
-  
-    xhr.send(formData);  
    }  
   }  
 }
+
 
 
 
