@@ -645,48 +645,48 @@ globalThis.downloadData = function downloadData() {
             reader.readAsText(file);
         }
 
-  import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";  
-  
-globalThis.handleFolderUpload = async function handleFolderUpload(event) {  
-  const files = event.target.files;  
-  const table = document.getElementById("data_table");  
-  
-  for (const file of files) {  
-   if (file.name.endsWith(".docx")) {  
-    const reader = new FileReader();  
-  
-    // Read the file as ArrayBuffer  
-    reader.onload = async function(event) {  
-      const arrayBuffer = event.target.result;  
-  
-      // Parse the .docx content using docx-parser  
-      const textContent = await docxParser.parse(arrayBuffer);  
-  
-      // Add the parsed text to a new row in the table  
-      const newRow = table.insertRow(table.rows.length - 1);  
-      newRow.id = `row${table.rows.length - 1}`;  
-  
-      const essayCell = newRow.insertCell(0);  
-      essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;  
-  
-      const gradeCell = newRow.insertCell(1);  
-      gradeCell.innerHTML = `<input type="text"/>`;  
-  
-      const actionsCell = newRow.insertCell(2);  
-      actionsCell.innerHTML = `  
-       <input type="button" value="Save" class="save">  
-       <input type="button" value="Remove Essay" class="delete">  
-      `;  
-  
-      const feedbackCell = newRow.insertCell(3);  
-      feedbackCell.innerHTML = `<input type="text"/>`;  
-    };  
-  
-    // Trigger file reading  
-    reader.readAsArrayBuffer(file);  
-   }  
-  }  
-};  
+import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";
+
+globalThis.handleFolderUpload = async function handleFolderUpload(event) {
+  const files = event.target.files;
+  const table = document.getElementById("data_table");
+
+  for (const file of files) {
+    if (file.name.endsWith(".docx")) {
+      const reader = new FileReader();
+
+      // Read the file as ArrayBuffer
+      reader.onload = async function (event) {
+        const arrayBuffer = event.target.result;
+
+        // Parse the .docx content using mammoth.js
+        const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });
+
+        // Add the parsed text to a new row in the table
+        const newRow = table.insertRow(table.rows.length - 1);
+        newRow.id = `row${table.rows.length - 1}`;
+
+        const essayCell = newRow.insertCell(0);
+        essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;
+
+        const gradeCell = newRow.insertCell(1);
+        gradeCell.innerHTML = `<input type="text"/>`;
+
+        const actionsCell = newRow.insertCell(2);
+        actionsCell.innerHTML = `
+          <input type="button" value="Save" class="save">
+          <input type="button" value="Remove Essay" class="delete">
+        `;
+
+        const feedbackCell = newRow.insertCell(3);
+        feedbackCell.innerHTML = `<input type="text"/>`;
+      };
+
+      // Trigger file reading
+      reader.readAsArrayBuffer(file);
+    }
+  }
+};
 
 // Add event listener to the quick input button  
 document.querySelectorAll(".quick-input").forEach((button) => {  
