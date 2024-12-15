@@ -728,7 +728,7 @@ document.querySelectorAll(".quick-input").forEach((button, index) => {
    essayDiv.innerHTML = essayInput.value;  
    modal.insertBefore(essayDiv, modal.firstChild);  
   
-   document.getElementById("quick-input-grade").value = gradeInput.value;  
+   document.getElementById("quick-input-grade").textContent = gradeInput.value;  
    const subgradesDiv = document.getElementById("quick-input-subgrades");  
    subgradesDiv.innerHTML = "";  
    const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
