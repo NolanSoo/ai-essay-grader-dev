@@ -47,6 +47,7 @@
       <td id="actions_row1">  
        <input type="button" value="Save" class="save" />  
        <input type="button" value="Remove Essay" class="delete" />  
+       <input type='button' value='Quick Input' class='quick-input'>  
       </td>  
       <td id="feedback_row1"><input type="text" value="" /></td>  
     </tr>  
@@ -58,6 +59,7 @@
       <td id="actions_row2">  
        <input type="button" value="Save" class="save" />  
        <input type="button" value="Remove Essay" class="delete" />  
+      <input type='button' value='Quick Input' class='quick-input'>  
       </td>  
       <td id="feedback_row2"><input type="text" value="" /></td>  
     </tr>  
@@ -508,9 +510,11 @@
   
     // Create the actions cell and insert it immediately after the grade cell  
     const actionsCell = document.createElement("td");  
-    actionsCell.innerHTML = `<input type='button' value='Save' class='save'>  
-<input type='button' value='Remove Essay' class='delete'>`;  
-    newRow.appendChild(actionsCell);  
+    actionsCell.innerHTML = `  
+  <input type='button' value='Save' class='save'>  
+  <input type='button' value='Remove Essay' class='delete'>  
+  <input type='button' value='Quick Input' class='quick-input'>  
+`;
   
     // Dynamically check for subgrade headers  
     const subgradeHeaders = document.querySelectorAll("#header_row th:not(#actions_header):not(#feedback_header)");  
@@ -615,9 +619,11 @@ globalThis.downloadData = function downloadData() {
                     const gradeCell = newRow.insertCell(1);
                     gradeCell.innerHTML = `<input type="text" value="${row.grade}" />`;
                     const actionsCell = newRow.insertCell(2);
-                    actionsCell.innerHTML = `
-                        <input type='button' value='Save' class='save'>
-                        <input type='button' value='Remove Essay' class='delete'>`;
+                    actionsCell.innerHTML = `  
+  <input type='button' value='Save' class='save'>  
+  <input type='button' value='Remove Essay' class='delete'>  
+  <input type='button' value='Quick Input' class='quick-input'>  
+`;
                     const feedbackCell = newRow.insertCell(3);
                     feedbackCell.innerHTML = `<input type="text" value="${row.feedback}" />`;
                 });
