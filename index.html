@@ -706,13 +706,18 @@ document.querySelectorAll(".quick-input").forEach((button) => {
    const feedbackInput = row.querySelector("td:last-child input");  
   
    // Populate the modal with the current data  
+   const essayDiv = document.createElement("div");  
+   essayDiv.innerHTML = essayInput.value;  
+   modal.insertBefore(essayDiv, modal.firstChild);  
+  
    document.getElementById("quick-input-grade").value = gradeInput.value;  
    const subgradesDiv = document.getElementById("quick-input-subgrades");  
    subgradesDiv.innerHTML = "";  
-   subgradeCells.forEach((cell) => {  
+   const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
+   subgradeCells.forEach((cell, index) => {  
     const subgradeInput = cell.querySelector("input");  
     const subgradeLabel = document.createElement("label");  
-    subgradeLabel.textContent = subgradeInput.name;  
+    subgradeLabel.textContent = subgradeHeaders[index].textContent;  
     const subgradeValue = document.createElement("input");  
     subgradeValue.type = "text";  
     subgradeValue.value = subgradeInput.value;  
@@ -733,14 +738,17 @@ document.querySelectorAll(".quick-input").forEach((button) => {
   
     // Hide the modal  
     modal.style.display = "none";  
+    modal.removeChild(modal.firstChild);  
    });  
   
    document.getElementById("quick-input-cancel").addEventListener("click", () => {  
     // Hide the modal  
     modal.style.display = "none";  
+    modal.removeChild(modal.firstChild);  
    });  
   });  
 });
+
 
 
 
