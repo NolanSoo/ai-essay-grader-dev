@@ -6,8 +6,7 @@
   <link rel="stylesheet" href="styles.css" />  
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />  
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.4.0"></script>  
-  <script src="https://cdn.jsdelivr.net/npm/docx-parser@0.2.1/index.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/decompress@4.2.1/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx-parser@0.2.1/dist/docx-parser.min.js"></script>  
 </head>  
   
 <body>  
@@ -629,36 +628,38 @@ globalThis.downloadData = function downloadData() {
             reader.readAsText(file);
         }
 
-        globalThis.handleFolderUpload = async function handleFolderUpload(event) {
-            const files = event.target.files;
-            const table = document.getElementById("data_table");
+     globalThis.handleFolderUpload = async function handleFolderUpload(event) {  
+  const files = event.target.files;  
+  const table = document.getElementById("data_table");  
+  
+  for (const file of files) {  
+   if (file.name.endsWith(".docx")) {  
+    const arrayBuffer = await file.arrayBuffer();  
+    const text = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });  
+    const content = text.value.trim();  
+  
+    // Add a new row using existing add_row logic  
+    const newRow = table.insertRow(table.rows.length - 1);  
+    newRow.id = `row${table.rows.length - 1}`;  
+  
+    const essayCell = newRow.insertCell(0);  
+    essayCell.innerHTML = `<input type="text" value="${content}"/>`;  
+  
+    const gradeCell = newRow.insertCell(1);  
+    gradeCell.innerHTML = `<input type="text"/>`;  
+  
+    const actionsCell = newRow.insertCell(2);  
+    actionsCell.innerHTML = `  
+      <input type='button' value='Save' class='save'>  
+      <input type='button' value='Remove Essay' class='delete'>  
+    `;  
+  
+    const feedbackCell = newRow.insertCell(3);  
+    feedbackCell.innerHTML = `<input type="text"/>`;  
+   }  
+  }  
+}
 
-            for (const file of files) {
-                if (file.name.endsWith(".docx")) {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const doc = await docx.Packer.load(arrayBuffer);
-                    const content = doc.body.map((p) => p.text).join("\n").trim();
-
-                    // Add a new row using existing add_row logic
-                    const newRow = table.insertRow(table.rows.length - 1);
-                    newRow.id = `row${table.rows.length - 1}`;
-
-                    const essayCell = newRow.insertCell(0);
-                    essayCell.innerHTML = `<input type="text" value="${content}" />`;
-
-                    const gradeCell = newRow.insertCell(1);
-                    gradeCell.innerHTML = `<input type="text" />`;
-
-                    const actionsCell = newRow.insertCell(2);
-                    actionsCell.innerHTML = `
-                        <input type='button' value='Save' class='save'>
-                        <input type='button' value='Remove Essay' class='delete'>`;
-
-                    const feedbackCell = newRow.insertCell(3);
-                    feedbackCell.innerHTML = `<input type="text" />`;
-                }
-            }
-        }
 
     
         document.getElementById("upload_folder").addEventListener("change", handleFolderUpload);
