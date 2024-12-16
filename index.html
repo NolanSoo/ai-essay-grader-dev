@@ -728,7 +728,7 @@ document.querySelectorAll(".quick-input").forEach((button, index) => {
    essayDiv.innerHTML = essayInput.value;  
    modal.insertBefore(essayDiv, modal.firstChild);  
   
-   document.getElementById("quick-input-grade").textContent = gradeInput.value;  
+   document.getElementById("quick-input-grade").value = gradeInput.value;  
    const subgradesDiv = document.getElementById("quick-input-subgrades");  
    subgradesDiv.innerHTML = "";  
    const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
@@ -812,9 +812,15 @@ function updateModalContent() {
   essayDiv.innerHTML = essayInput.value;  
   modal.insertBefore(essayDiv, modal.firstChild);  
   
-  document.getElementById("quick-input-grade").value = gradeInput.value;  
-  const subgradesDiv = document.getElementById("quick-input-subgrades");  
-  subgradesDiv.innerHTML = "";  
+  const gradeInputModal = document.createElement("input");  
+  gradeInputModal.id = "quick-input-grade";  
+  gradeInputModal.type = "text";  
+  gradeInputModal.value = gradeInput.value;  
+  modal.appendChild(gradeInputModal);  
+  
+  const subgradesDiv = document.createElement("div");  
+  subgradesDiv.id = "quick-input-subgrades";  
+  modal.appendChild(subgradesDiv);  
   const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
   subgradeCells.forEach((cell, index) => {  
    const subgradeInput = cell.querySelector("input");  
@@ -828,7 +834,10 @@ function updateModalContent() {
     subgradesDiv.appendChild(subgradeValue);  
    }  
   });  
-  document.getElementById("quick-input-feedback").value = feedbackInput.value;  
+  const feedbackInputModal = document.createElement("textarea");  
+  feedbackInputModal.id = "quick-input-feedback";  
+  feedbackInputModal.value = feedbackInput.value;  
+  modal.appendChild(feedbackInputModal);  
   
   // Add navigation buttons  
   const navigationDiv = document.createElement("div");  
@@ -854,6 +863,7 @@ function updateModalContent() {
    }  
   });  
 }
+
 
 
 
