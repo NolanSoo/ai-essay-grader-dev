@@ -858,14 +858,23 @@ function updateModalContent() {
   feedbackInputModal.value = feedbackInput.value;  
   modal.appendChild(feedbackInputModal);  
   
-  // Add navigation buttons  
-  const navigationDiv = document.createElement("div");  
-  navigationDiv.innerHTML = `  
-   <button id="previous-button">Previous</button>  
-   <span id="current-essay-label">Essay $${currentRowIndex + 1}/$$ {rows.length}</span>  
-   <button id="next-button">Next</button>  
-  `;  
-  modal.appendChild(navigationDiv);  
+const navigationDiv = document.createElement("div");  
+const previousButton = document.createElement("button");  
+previousButton.id = "previous-button";  
+previousButton.textContent = "Previous";  
+navigationDiv.appendChild(previousButton);  
+  
+const currentEssayLabel = document.createElement("span");  
+currentEssayLabel.id = "current-essay-label";  
+currentEssayLabel.textContent = `Essay $${currentRowIndex + 1}/$$ {rows.length}`;  
+navigationDiv.appendChild(currentEssayLabel);  
+  
+const nextButton = document.createElement("button");  
+nextButton.id = "next-button";  
+nextButton.textContent = "Next";  
+navigationDiv.appendChild(nextButton);  
+modal.appendChild(navigationDiv);
+
   
   // Add event listeners to the navigation buttons  
   document.getElementById("previous-button").addEventListener("click", () => {  
