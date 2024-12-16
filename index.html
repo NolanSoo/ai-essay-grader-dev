@@ -502,13 +502,14 @@
    }  
   
 
-   // Function to delete a row  
-   globalThis.delete_row = function delete_row(no) {  
-    console.log("Deleting row...");  
-    document.getElementById(`row${no}`).innerHTML = "";  
-   }  
+globalThis.delete_row = function delete_row(no) {  
+  console.log("Deleting row...");  
+  const row = document.getElementById(`row${no}`);  
+  row.parentNode.removeChild(row);  
+}
+
   
- globalThis.add_row = function add_row() {  
+globalThis.add_row = function add_row() {  
   console.log("Adding new row...");  
   const table = document.getElementById("data_table");  
   const newRow = table.insertRow(table.rows.length - 1);  
@@ -553,7 +554,16 @@
   while (newRow.cells.length > table.rows[0].cells.length) {  
    newRow.deleteCell(-1);  
   }  
+  
+  // Add event listener to the new delete button  
+  const newDeleteButton = newRow.querySelector(".delete");  
+  newDeleteButton.addEventListener("click", function() {  
+   const row = newDeleteButton.closest("tr");  
+   const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
+   delete_row(rowNumber);  
+  });  
 };
+
   
   
    // Add event listeners  
