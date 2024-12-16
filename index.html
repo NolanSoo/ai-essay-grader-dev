@@ -501,10 +501,11 @@
     });  
    }  
   
+
    // Function to delete a row  
    globalThis.delete_row = function delete_row(no) {  
     console.log("Deleting row...");  
-    document.getElementById(`row${no}`).outerHTML = "";  
+    document.getElementById(`row${no}`).innerHTML = "";  
    }  
   
  globalThis.add_row = function add_row() {  
