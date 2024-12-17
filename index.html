@@ -731,8 +731,9 @@ document.querySelectorAll(".quick-input").forEach((button, index) => {
    const row = button.parentNode.parentNode;  
    const essayInput = row.querySelector("td:nth-child(1) input");  
    const gradeInput = row.querySelector("td:nth-child(2) input");  
-   const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+   const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)"); // Update subgradeCells here  
    const feedbackInput = row.querySelector("td:last-child input");  
+ 
   
    // Populate the modal with the current data  
    const essayDiv = document.createElement("div");  
@@ -834,7 +835,7 @@ function updateModalContent() {
   const row = rows[currentRowIndex];  
   const essayInput = row.querySelector("td:nth-child(1) input");  
   const gradeInput = row.querySelector("td:nth-child(2) input");  
-  const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+  const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)"); // Update subgradeCells here  
   const feedbackInput = row.querySelector("td:last-child input");  
   
   // Populate the modal with the current data  
@@ -869,23 +870,22 @@ function updateModalContent() {
   feedbackInputModal.value = feedbackInput.value;  
   modal.appendChild(feedbackInputModal);  
   
-const navigationDiv = document.createElement("div");  
-const previousButton = document.createElement("button");  
-previousButton.id = "previous-button";  
-previousButton.textContent = "Previous";  
-navigationDiv.appendChild(previousButton);  
+  const navigationDiv = document.createElement("div");  
+  const previousButton = document.createElement("button");  
+  previousButton.id = "previous-button";  
+  previousButton.textContent = "Previous";  
+  navigationDiv.appendChild(previousButton);  
   
-const currentEssayLabel = document.createElement("span");  
-currentEssayLabel.id = "current-essay-label";  
-currentEssayLabel.textContent = `Essay $${currentRowIndex + 1}/$$ {rows.length}`;  
-navigationDiv.appendChild(currentEssayLabel);  
+  const currentEssayLabel = document.createElement("span");  
+  currentEssayLabel.id = "current-essay-label";  
+  currentEssayLabel.textContent = `Essay $${currentRowIndex + 1}/$$ {rows.length}`;  
+  navigationDiv.appendChild(currentEssayLabel);  
   
-const nextButton = document.createElement("button");  
-nextButton.id = "next-button";  
-nextButton.textContent = "Next";  
-navigationDiv.appendChild(nextButton);  
-modal.appendChild(navigationDiv);
-
+  const nextButton = document.createElement("button");  
+  nextButton.id = "next-button";  
+  nextButton.textContent = "Next";  
+  navigationDiv.appendChild(nextButton);  
+  modal.appendChild(navigationDiv);  
   
   // Add event listeners to the navigation buttons  
   document.getElementById("previous-button").addEventListener("click", () => {  
@@ -908,10 +908,11 @@ modal.appendChild(navigationDiv);
   saveButton.addEventListener("click", () => {  
    // Update the row data with the modal input values  
    gradeInput.value = document.getElementById("quick-input-grade").value;  
+   const subgradeInputs = modal.querySelectorAll("#quick-input-subgrades input"); // Get the subgrade inputs from the modal  
    subgradeCells.forEach((cell, index) => {  
     const subgradeInput = cell.querySelector("input");  
     if (subgradeHeaders[index].textContent !== "Actions") {  
-      subgradeInput.value = subgradesDiv.children[index * 2 + 1].value;  
+      subgradeInput.value = subgradeInputs[index].value; // Update the subgrade input value  
     }  
    });  
    feedbackInput.value = document.getElementById("quick-input-feedback").value;  
@@ -935,6 +936,7 @@ modal.appendChild(navigationDiv);
   });  
   modal.appendChild(cancelButton);  
 }
+
 
 
 
