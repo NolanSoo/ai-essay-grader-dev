@@ -794,23 +794,25 @@ document.querySelectorAll(".quick-input").forEach((button, index) => {
    // Add event listeners to the save and cancel buttons  
    const saveButton = document.createElement("button");  
    saveButton.textContent = "Save";  
-   saveButton.addEventListener("click", () => {  
-    // Update the row data with the modal input values  
-    gradeInput.value = document.getElementById("quick-input-grade").value;  
-    subgradeCells.forEach((cell, index) => {  
-      const subgradeInput = cell.querySelector("input");  
-      if (subgradeHeaders[index].textContent !== "Actions") {  
-       subgradeInput.value = subgradesDiv.children[index * 2 + 1].value;  
-      }  
-    });  
-    feedbackInput.value = document.getElementById("quick-input-feedback").value;  
+saveButton.addEventListener("click", () => {  
+  // Update the row data with the modal input values  
+  gradeInput.value = document.getElementById("quick-input-grade").value;  
+  const subgradeInputs = modal.querySelectorAll("#quick-input-subgrades input[type='text']"); // Get only the subgrade input elements  
+  subgradeCells.forEach((cell, index) => {  
+   const subgradeInput = cell.querySelector("input");  
+   if (subgradeHeaders[index].textContent !== "Actions") {  
+    subgradeInput.value = subgradeInputs[index].value; // Update the subgrade input value  
+   }  
+  });  
+  feedbackInput.value = document.getElementById("quick-input-feedback").value;  
   
-    // Hide the modal  
-    modal.style.display = "none";  
-    while (modal.firstChild) {  
-      modal.removeChild(modal.firstChild);  
-    }  
-   });  
+  // Hide the modal  
+  modal.style.display = "none";  
+  while (modal.firstChild) {  
+   modal.removeChild(modal.firstChild);  
+  }  
+});
+ 
    modal.appendChild(saveButton);  
   
    const cancelButton = document.createElement("button");  
