@@ -709,9 +709,10 @@ globalThis.handleFolderUpload = async function handleFolderUpload(event) {
   }  
 };
 
+
 let currentRowIndex = 0;  
 let rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
-  // Addevent listener to the quick input button  
+// done!!
 document.addEventListener("click", function(event) {  
   if (event.target.classList.contains("quick-input")) {  
    // Delete all other instances of quick input  
@@ -767,17 +768,17 @@ document.addEventListener("click", function(event) {
   
    // Add navigation buttons  
    const navigationDiv = document.createElement("div");  
+   const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
+   const currentIndex = Array.prototype.indexOf.call(rows, row);  
    navigationDiv.innerHTML = `  
     <button id="previous-button">Previous</button>  
-    <span id="current-essay-label">Essay $${Array.prototype.indexOf.call(row.parentNode.children, row) + 1}/$$ {row.parentNode.children.length - 2}</span>  
+    <span id="current-essay-label">Essay $${currentIndex + 1}/$$ {rows.length}</span>  
     <button id="next-button">Next</button>  
    `;  
    modal.appendChild(navigationDiv);  
   
    // Add event listeners to the navigation buttons  
    document.getElementById("previous-button").addEventListener("click", () => {  
-    const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
-    const currentIndex = Array.prototype.indexOf.call(rows, row);  
     if (currentIndex > 0) {  
       const previousRow = rows[currentIndex - 1];  
       const previousEssayInput = previousRow.querySelector("td:nth-child(1) input");  
@@ -802,13 +803,11 @@ document.addEventListener("click", function(event) {
        }  
       });  
       feedbackInputModal.value = previousFeedbackInput.value;  
-      navigationDiv.querySelector("span").textContent = `Essay $${Array.prototype.indexOf.call(row.parentNode.children, previousRow) + 1}/$$ {row.parentNode.children.length - 2}`;  
+      navigationDiv.querySelector("span").textContent = `Essay $${currentIndex}/$$ {rows.length}`;  
     }  
    });  
   
    document.getElementById("next-button").addEventListener("click", () => {  
-    const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
-    const currentIndex = Array.prototype.indexOf.call(rows, row);  
     if (currentIndex < rows.length - 1) {  
       const nextRow = rows[currentIndex + 1];  
       const nextEssayInput = nextRow.querySelector("td:nth-child(1) input");  
@@ -833,7 +832,7 @@ document.addEventListener("click", function(event) {
        }  
       });  
       feedbackInputModal.value = nextFeedbackInput.value;  
-      navigationDiv.querySelector("span").textContent = `Essay $${Array.prototype.indexOf.call(row.parentNode.children, nextRow) + 1}/$$ {row.parentNode.children.length - 2}`;  
+      navigationDiv.querySelector("span").textContent = `Essay $${currentIndex + 2}/$$ {rows.length}`;  
     }  
    });  
   
@@ -842,15 +841,16 @@ document.addEventListener("click", function(event) {
    saveButton.textContent = "Save";  
    saveButton.addEventListener("click", () => {  
     // Update the row data with the modal input values  
-    gradeInput.value = gradeInputModal.value;  
-    const subgradeInputs = modal.querySelectorAll("#quick-input-subgrades input");  
+    gradeInput.value = document.getElementById("quick-input-grade").value;  
+    const subgradeInputs = document.querySelectorAll("#quick-input-subgrades input");  
+    const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
     subgradeCells.forEach((cell, index) => {  
       const subgradeInput = cell.querySelector("input");  
       if (subgradeHeaders[index].textContent !== "Actions") {  
        subgradeInput.value = subgradeInputs[index].value;  
       }  
     });  
-    feedbackInput.value = feedbackInputModal.value;  
+    feedbackInput.value = document.getElementById("quick-input-feedback").value;  
   
     // Hide the modal  
     modal.style.display = "none";  
@@ -872,6 +872,7 @@ document.addEventListener("click", function(event) {
    modal.appendChild(cancelButton);  
   }  
 });
+
 
 
 
