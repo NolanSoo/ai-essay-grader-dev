@@ -667,53 +667,53 @@ globalThis.downloadData = function downloadData() {
 
 import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";
 
-globalThis.handleFolderUpload = async function handleFolderUpload(event) {
-  const files = event.target.files;
-  const table = document.getElementById("data_table");
+globalThis.handleFolderUpload = async function handleFolderUpload(event) {  
+  const files = event.target.files;  
+  const table = document.getElementById("data_table");  
+  
+  for (const file of files) {  
+   if (file.name.endsWith(".docx")) {  
+    const reader = new FileReader();  
+  
+    // Read the file as ArrayBuffer  
+    reader.onload = async function(event) {  
+      const arrayBuffer = event.target.result;  
+  
+      // Parse the .docx content using mammoth.js  
+      const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });  
+  
+      // Add the parsed text to a new row in the table  
+      const newRow = table.insertRow(table.rows.length - 1);  
+      newRow.id = `row${table.rows.length - 1}`;  
+  
+      const essayCell = newRow.insertCell(0);  
+      essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;  
+  
+      const gradeCell = newRow.insertCell(1);  
+      gradeCell.innerHTML = `<input type="text"/>`;  
+  
+      const actionsCell = newRow.insertCell(2);  
+      actionsCell.innerHTML = `  
+       <input type="button" value="Save" class="save">  
+       <input type="button" value="Remove Essay" class="delete">  
+       <input type='button' value='QuickInput' class='quick-input'>  
+      `;  
+  
+      const feedbackCell = newRow.insertCell(3);  
+      feedbackCell.innerHTML = `<input type="text"/>`;  
+    };  
+  
+    // Trigger file reading  
+    reader.readAsArrayBuffer(file);  
+   }  
+  }  
+};
 
-  for (const file of files) {
-    if (file.name.endsWith(".docx")) {
-      const reader = new FileReader();
-
-      // Read the file as ArrayBuffer
-      reader.onload = async function (event) {
-        const arrayBuffer = event.target.result;
-
-        // Parse the .docx content using mammoth.js
-        const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });
-
-        // Add the parsed text to a new row in the table
-        const newRow = table.insertRow(table.rows.length - 1);
-        newRow.id = `row${table.rows.length - 1}`;
-
-        const essayCell = newRow.insertCell(0);
-        essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;
-
-        const gradeCell = newRow.insertCell(1);
-        gradeCell.innerHTML = `<input type="text"/>`;
-
-        const actionsCell = newRow.insertCell(2);
-        actionsCell.innerHTML = `
-          <input type="button" value="Save" class="save">
-          <input type="button" value="Remove Essay" class="delete">
-          <input type='button' value='Quick Input' class='quick-input'>  
-        `;
-
-        const feedbackCell = newRow.insertCell(3);
-        feedbackCell.innerHTML = `<input type="text"/>`;
-      };
-
-      // Trigger file reading
-      reader.readAsArrayBuffer(file);
-    }
-  }
-}; 
 let currentRowIndex = 0;  
 let rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
-  
-// Add event listener to the quick input button  
-document.querySelectorAll(".quick-input").forEach((button, index) => {  
-  button.addEventListener("click", () => {  
+  // Addevent listener to the quick input button  
+document.addEventListener("click", function(event) {  
+  if (event.target.classList.contains("quick-input")) {  
    // Delete all other instances of quick input  
    const modals = document.querySelectorAll("#quick-input-modal");  
    modals.forEach((modal) => {  
@@ -727,13 +727,11 @@ document.querySelectorAll(".quick-input").forEach((button, index) => {
    modal.style.display = "block";  
   
    // Get the current row and its data  
-   currentRowIndex = index;  
-   const row = button.parentNode.parentNode;  
+   const row = event.target.parentNode.parentNode;  
    const essayInput = row.querySelector("td:nth-child(1) input");  
    const gradeInput = row.querySelector("td:nth-child(2) input");  
-   const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)"); // Update subgradeCells here  
+   const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
    const feedbackInput = row.querySelector("td:last-child input");  
- 
   
    // Populate the modal with the current data  
    const essayDiv = document.createElement("div");  
@@ -771,48 +769,95 @@ document.querySelectorAll(".quick-input").forEach((button, index) => {
    const navigationDiv = document.createElement("div");  
    navigationDiv.innerHTML = `  
     <button id="previous-button">Previous</button>  
-    <span id="current-essay-label">Essay $${currentRowIndex + 1}/$$ {rows.length}</span>  
+    <span id="current-essay-label">Essay $${Array.prototype.indexOf.call(row.parentNode.children, row) + 1}/$$ {row.parentNode.children.length - 2}</span>  
     <button id="next-button">Next</button>  
    `;  
    modal.appendChild(navigationDiv);  
   
    // Add event listeners to the navigation buttons  
    document.getElementById("previous-button").addEventListener("click", () => {  
-    if (currentRowIndex > 0) {  
-      currentRowIndex--;  
-      updateModalContent();  
+    const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
+    const currentIndex = Array.prototype.indexOf.call(rows, row);  
+    if (currentIndex > 0) {  
+      const previousRow = rows[currentIndex - 1];  
+      const previousEssayInput = previousRow.querySelector("td:nth-child(1) input");  
+      const previousGradeInput = previousRow.querySelector("td:nth-child(2) input");  
+      const previousSubgradeCells = previousRow.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+      const previousFeedbackInput = previousRow.querySelector("td:last-child input");  
+  
+      // Update the modal with the previous row's data  
+      essayDiv.innerHTML = previousEssayInput.value;  
+      gradeInputModal.value = previousGradeInput.value;  
+      subgradesDiv.innerHTML = "";  
+      previousSubgradeCells.forEach((cell, index) => {  
+       const subgradeInput = cell.querySelector("input");  
+       const subgradeLabel = document.createElement("label");  
+       subgradeLabel.textContent = subgradeHeaders[index].textContent;  
+       if (subgradeLabel.textContent !== "Actions") {  
+        const subgradeValue = document.createElement("input");  
+        subgradeValue.type = "text";  
+        subgradeValue.value = subgradeInput.value;  
+        subgradesDiv.appendChild(subgradeLabel);  
+        subgradesDiv.appendChild(subgradeValue);  
+       }  
+      });  
+      feedbackInputModal.value = previousFeedbackInput.value;  
+      navigationDiv.querySelector("span").textContent = `Essay $${Array.prototype.indexOf.call(row.parentNode.children, previousRow) + 1}/$$ {row.parentNode.children.length - 2}`;  
     }  
    });  
   
    document.getElementById("next-button").addEventListener("click", () => {  
-    if (currentRowIndex < rows.length - 1) {  
-      currentRowIndex++;  
-      updateModalContent();  
+    const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
+    const currentIndex = Array.prototype.indexOf.call(rows, row);  
+    if (currentIndex < rows.length - 1) {  
+      const nextRow = rows[currentIndex + 1];  
+      const nextEssayInput = nextRow.querySelector("td:nth-child(1) input");  
+      const nextGradeInput = nextRow.querySelector("td:nth-child(2) input");  
+      const nextSubgradeCells = nextRow.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+      const nextFeedbackInput = nextRow.querySelector("td:last-child input");  
+  
+      // Update the modal with the next row's data  
+      essayDiv.innerHTML = nextEssayInput.value;  
+      gradeInputModal.value = nextGradeInput.value;  
+      subgradesDiv.innerHTML = "";  
+      nextSubgradeCells.forEach((cell, index) => {  
+       const subgradeInput = cell.querySelector("input");  
+       const subgradeLabel = document.createElement("label");  
+       subgradeLabel.textContent = subgradeHeaders[index].textContent;  
+       if (subgradeLabel.textContent !== "Actions") {  
+        const subgradeValue = document.createElement("input");  
+        subgradeValue.type = "text";  
+        subgradeValue.value = subgradeInput.value;  
+        subgradesDiv.appendChild(subgradeLabel);  
+        subgradesDiv.appendChild(subgradeValue);  
+       }  
+      });  
+      feedbackInputModal.value = nextFeedbackInput.value;  
+      navigationDiv.querySelector("span").textContent = `Essay $${Array.prototype.indexOf.call(row.parentNode.children, nextRow) + 1}/$$ {row.parentNode.children.length - 2}`;  
     }  
    });  
   
    // Add event listeners to the save and cancel buttons  
    const saveButton = document.createElement("button");  
    saveButton.textContent = "Save";  
-saveButton.addEventListener("click", () => {  
-  // Update the row data with the modal input values  
-  gradeInput.value = document.getElementById("quick-input-grade").value;  
-  const subgradeInputs = modal.querySelectorAll("#quick-input-subgrades input[type='text']"); // Get only the subgrade input elements  
-  subgradeCells.forEach((cell, index) => {  
-   const subgradeInput = cell.querySelector("input");  
-   if (subgradeHeaders[index].textContent !== "Actions") {  
-    subgradeInput.value = subgradeInputs[index].value; // Update the subgrade input value  
-   }  
-  });  
-  feedbackInput.value = document.getElementById("quick-input-feedback").value;  
+   saveButton.addEventListener("click", () => {  
+    // Update the row data with the modal input values  
+    gradeInput.value = gradeInputModal.value;  
+    const subgradeInputs = modal.querySelectorAll("#quick-input-subgrades input");  
+    subgradeCells.forEach((cell, index) => {  
+      const subgradeInput = cell.querySelector("input");  
+      if (subgradeHeaders[index].textContent !== "Actions") {  
+       subgradeInput.value = subgradeInputs[index].value;  
+      }  
+    });  
+    feedbackInput.value = feedbackInputModal.value;  
   
-  // Hide the modal  
-  modal.style.display = "none";  
-  while (modal.firstChild) {  
-   modal.removeChild(modal.firstChild);  
-  }  
-});
- 
+    // Hide the modal  
+    modal.style.display = "none";  
+    while (modal.firstChild) {  
+      modal.removeChild(modal.firstChild);  
+    }  
+   });  
    modal.appendChild(saveButton);  
   
    const cancelButton = document.createElement("button");  
@@ -825,120 +870,8 @@ saveButton.addEventListener("click", () => {
     }  
    });  
    modal.appendChild(cancelButton);  
-  });  
-});  
-  
-function updateModalContent() {  
-  const modal = document.getElementById("quick-input-modal");  
-  while (modal.firstChild) {  
-   modal.removeChild(modal.firstChild);  
   }  
-  
-  const row = rows[currentRowIndex];  
-  const essayInput = row.querySelector("td:nth-child(1) input");  
-  const gradeInput = row.querySelector("td:nth-child(2) input");  
-  const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)"); // Update subgradeCells here  
-  const feedbackInput = row.querySelector("td:last-child input");  
-  
-  // Populate the modal with the current data  
-  const essayDiv = document.createElement("div");  
-  essayDiv.innerHTML = essayInput.value;  
-  modal.insertBefore(essayDiv, modal.firstChild);  
-  
-  const gradeInputModal = document.createElement("input");  
-  gradeInputModal.id = "quick-input-grade";  
-  gradeInputModal.type = "text";  
-  gradeInputModal.value = gradeInput.value;  
-  modal.appendChild(gradeInputModal);  
-  
-  const subgradesDiv = document.createElement("div");  
-  subgradesDiv.id = "quick-input-subgrades";  
-  modal.appendChild(subgradesDiv);  
-  const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
-  subgradeCells.forEach((cell, index) => {  
-   const subgradeInput = cell.querySelector("input");  
-   const subgradeLabel = document.createElement("label");  
-   subgradeLabel.textContent = subgradeHeaders[index].textContent;  
-   if (subgradeLabel.textContent !== "Actions") {  
-    const subgradeValue = document.createElement("input");  
-    subgradeValue.type = "text";  
-    subgradeValue.value = subgradeInput.value;  
-    subgradesDiv.appendChild(subgradeLabel);  
-    subgradesDiv.appendChild(subgradeValue);  
-   }  
-  });  
-  const feedbackInputModal = document.createElement("textarea");  
-  feedbackInputModal.id = "quick-input-feedback";  
-  feedbackInputModal.value = feedbackInput.value;  
-  modal.appendChild(feedbackInputModal);  
-  
-  const navigationDiv = document.createElement("div");  
-  const previousButton = document.createElement("button");  
-  previousButton.id = "previous-button";  
-  previousButton.textContent = "Previous";  
-  navigationDiv.appendChild(previousButton);  
-  
-  const currentEssayLabel = document.createElement("span");  
-  currentEssayLabel.id = "current-essay-label";  
-  currentEssayLabel.textContent = `Essay $${currentRowIndex + 1}/$$ {rows.length}`;  
-  navigationDiv.appendChild(currentEssayLabel);  
-  
-  const nextButton = document.createElement("button");  
-  nextButton.id = "next-button";  
-  nextButton.textContent = "Next";  
-  navigationDiv.appendChild(nextButton);  
-  modal.appendChild(navigationDiv);  
-  
-  // Add event listeners to the navigation buttons  
-  document.getElementById("previous-button").addEventListener("click", () => {  
-   if (currentRowIndex > 0) {  
-    currentRowIndex--;  
-    updateModalContent();  
-   }  
-  });  
-  
-  document.getElementById("next-button").addEventListener("click", () => {  
-   if (currentRowIndex < rows.length - 1) {  
-    currentRowIndex++;  
-    updateModalContent();  
-   }  
-  });  
-  
-  // Add event listeners to the save and cancel buttons  
-  const saveButton = document.createElement("button");  
-  saveButton.textContent = "Save";  
-  saveButton.addEventListener("click", () => {  
-   // Update the row data with the modal input values  
-   gradeInput.value = document.getElementById("quick-input-grade").value;  
-   const subgradeInputs = modal.querySelectorAll("#quick-input-subgrades input"); // Get the subgrade inputs from the modal  
-   subgradeCells.forEach((cell, index) => {  
-    const subgradeInput = cell.querySelector("input");  
-    if (subgradeHeaders[index].textContent !== "Actions") {  
-      subgradeInput.value = subgradeInputs[index].value; // Update the subgrade input value  
-    }  
-   });  
-   feedbackInput.value = document.getElementById("quick-input-feedback").value;  
-  
-   // Hide the modal  
-   modal.style.display = "none";  
-   while (modal.firstChild) {  
-    modal.removeChild(modal.firstChild);  
-   }  
-  });  
-  modal.appendChild(saveButton);  
-  
-  const cancelButton = document.createElement("button");  
-  cancelButton.textContent = "Cancel";  
-  cancelButton.addEventListener("click", () => {  
-   // Hide the modal  
-   modal.style.display = "none";  
-   while (modal.firstChild) {  
-    modal.removeChild(modal.firstChild);  
-   }  
-  });  
-  modal.appendChild(cancelButton);  
-}
-
+});
 
 
 
