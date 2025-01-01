@@ -769,7 +769,7 @@ document.addEventListener("click", function(event) {
    // Add navigation buttons  
    const navigationDiv = document.createElement("div");  
    const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
-   const currentIndex = Array.prototype.indexOf.call(rows, row);  
+   var currentIndex = Array.prototype.indexOf.call(rows, row);  
    navigationDiv.innerHTML = `  
     <button id="previous-button">Previous</button>  
     <span id="current-essay-label">Essay $${currentIndex + 1}/$$ {rows.length}</span>  
