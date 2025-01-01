@@ -97,8 +97,11 @@
   
 <!-- Add a file input to upload the table data -->  
 <input type="file" id="upload_data" accept=".autograde" />
-    <!-- Add a folder input to upload multiple .docx files -->
-<input type="file" id="upload_folder" webkitdirectory mozdirectory directory>
+<input type="file" id="fileUpload" multiple accept=".docx">  
+<br><br>  
+<!-- Input for folders -->  
+<input type="file" id="folderUpload" webkitdirectory multiple>
+
     <label for="upload_folder">Upload Essays from Folder</label>
 <!-- Add this to the HTML body -->  
 <div id="quick-input-modal" style="display: none;">  
@@ -667,57 +670,45 @@ globalThis.downloadData = function downloadData() {
             reader.readAsText(file);
         }
 
-
+const fileUpload = document.getElementById('fileUpload');  
+const folderUpload = document.getElementById('folderUpload');  
+  
+fileUpload.addEventListener('change', handleFileUpload);  
+folderUpload.addEventListener('change', handleFolderUpload);  
 import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";
 
-globalThis.handleFolderUpload = async function handleFolderUpload(event) {  
+
+globalThis.handleFileUpload = async function handleFileUpload(event) {
   const files = event.target.files;  
-  const docxFiles = [];  
-  
-  // Filter out non-docx files  
+  // Process the uploaded files  
   for (const file of files) {  
-   if (file.name.endsWith(".docx")) {  
-    docxFiles.push(file);  
+   if (file.name.endsWith('.docx')) {  
+    // Read the file content using FileReader  
+    const reader = new FileReader();  
+    reader.onload = (event) => {  
+      const fileContent = event.target.result;  
+      // Process the file content  
+    };  
+    reader.readAsArrayBuffer(file);  
    }  
   }  
+}  
   
-  // Process the docx files  
-  for (const file of docxFiles) {  
-   // Read the file as an array buffer  
-   const reader = new FileReader();  
-   reader.onload = async function(event) {  
-    const arrayBuffer = event.target.result;  
-  
-    // Parse the docx content using mammoth.js  
-    const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });  
-  
-    // Add the parsed text to a new row in the table  
-    const table = document.getElementById("data_table");  
-    const newRow = table.insertRow(table.rows.length - 1);  
-    newRow.id = `row${table.rows.length - 1}`;  
-  
-    const essayCell = newRow.insertCell(0);  
-    essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;  
-  
-    const gradeCell = newRow.insertCell(1);  
-    gradeCell.innerHTML = `<input type="text"/>`;  
-  
-    const actionsCell = newRow.insertCell(2);  
-    actionsCell.innerHTML = `  
-      <input type="button" value="Save" class="save">  
-      <input type="button" value="Remove Essay" class="delete">  
-      <input type='button' value='Quick Input' class='quick-input'>  
-    `;  
-  
-    const feedbackCell = newRow.insertCell(3);  
-    feedbackCell.innerHTML = `<input type="text"/>`;  
-   };  
-  
-   // Trigger file reading  
-   reader.readAsArrayBuffer(file);  
+globalThis.handleFolderUpload = async function handleFolderUpload(event) {
+  const files = event.target.files;  
+  // Process the uploaded files  
+  for (const file of files) {  
+   if (file.name.endsWith('.docx')) {  
+    // Read the file content using FileReader  
+    const reader = new FileReader();  
+    reader.onload = (event) => {  
+      const fileContent = event.target.result;  
+      // Process the file content  
+    };  
+    reader.readAsArrayBuffer(file);  
+   }  
   }  
-}
-
+}  
 
 let currentRowIndex = 0;  
 let rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
@@ -889,8 +880,11 @@ saveButton.addEventListener("click", () => {
   }  
 });
     document.getElementById("upload_folder").addEventListener("change", handleFolderUpload);  
-        document.getElementById("upload_data").addEventListener("change", uploadData);
-        document.getElementById("download_data").addEventListener("click", downloadData);
+const fileUpload = document.getElementById('fileUpload');  
+const folderUpload = document.getElementById('folderUpload');  
+  
+fileUpload.addEventListener('change', handleFileUpload);  
+folderUpload.addEventListener('change', handleFolderUpload); 
   </script>  
 </body>  
 </html>
