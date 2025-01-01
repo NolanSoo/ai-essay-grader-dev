@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="styles.css" />  
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />  
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.4.0"></script>  
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/dist/mammoth.min.js"></script>
+
 </head>  
   
 <body>  
@@ -96,7 +98,7 @@
 <!-- Add a file input to upload the table data -->  
 <input type="file" id="upload_data" accept=".autograde" />
     <!-- Add a folder input to upload multiple .docx files -->
-    <input type="file" id="upload_folder" webkitdirectory mozdirectory directory multiple accept=".docx" />
+<input type="file" id="upload_folder" webkitdirectory mozdirectory directory multiple accept=".docx" />
     <label for="upload_folder">Upload Essays from Folder</label>
 <!-- Add this to the HTML body -->  
 <div id="quick-input-modal" style="display: none;">  
@@ -665,49 +667,56 @@ globalThis.downloadData = function downloadData() {
             reader.readAsText(file);
         }
 
-import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";
 
-globalThis.handleFolderUpload = async function handleFolderUpload(event) {  
-  const files = event.target.files;  
-  const table = document.getElementById("data_table");  
+document.getElementById("upload_folder").addEventListener("change", handleFolderUpload);  
   
+function handleFolderUpload(event) {  
+  const files = event.target.files;  
+  const docxFiles = [];  
+  
+  // Filter out non-docx files  
   for (const file of files) {  
    if (file.name.endsWith(".docx")) {  
-    const reader = new FileReader();  
-  
-    // Read the file as ArrayBuffer  
-    reader.onload = async function(event) {  
-      const arrayBuffer = event.target.result;  
-  
-      // Parse the .docx content using mammoth.js  
-      const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });  
-  
-      // Add the parsed text to a new row in the table  
-      const newRow = table.insertRow(table.rows.length - 1);  
-      newRow.id = `row${table.rows.length - 1}`;  
-  
-      const essayCell = newRow.insertCell(0);  
-      essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;  
-  
-      const gradeCell = newRow.insertCell(1);  
-      gradeCell.innerHTML = `<input type="text"/>`;  
-  
-      const actionsCell = newRow.insertCell(2);  
-      actionsCell.innerHTML = `  
-       <input type="button" value="Save" class="save">  
-       <input type="button" value="Remove Essay" class="delete">  
-       <input type='button' value='QuickInput' class='quick-input'>  
-      `;  
-  
-      const feedbackCell = newRow.insertCell(3);  
-      feedbackCell.innerHTML = `<input type="text"/>`;  
-    };  
-  
-    // Trigger file reading  
-    reader.readAsArrayBuffer(file);  
+    docxFiles.push(file);  
    }  
   }  
-};
+  
+  // Process the docx files  
+  for (const file of docxFiles) {  
+   // Read the file as an array buffer  
+   const reader = new FileReader();  
+   reader.onload = async function(event) {  
+    const arrayBuffer = event.target.result;  
+  
+    // Parse the docx content using mammoth.js  
+    const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });  
+  
+    // Add the parsed text to a new row in the table  
+    const table = document.getElementById("data_table");  
+    const newRow = table.insertRow(table.rows.length - 1);  
+    newRow.id = `row${table.rows.length - 1}`;  
+  
+    const essayCell = newRow.insertCell(0);  
+    essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;  
+  
+    const gradeCell = newRow.insertCell(1);  
+    gradeCell.innerHTML = `<input type="text"/>`;  
+  
+    const actionsCell = newRow.insertCell(2);  
+    actionsCell.innerHTML = `  
+      <input type="button" value="Save" class="save">  
+      <input type="button" value="Remove Essay" class="delete">  
+      <input type='button' value='Quick Input' class='quick-input'>  
+    `;  
+  
+    const feedbackCell = newRow.insertCell(3);  
+    feedbackCell.innerHTML = `<input type="text"/>`;  
+   };  
+  
+   // Trigger file reading  
+   reader.readAsArrayBuffer(file);  
+  }  
+}
 
 
 let currentRowIndex = 0;  
@@ -891,7 +900,6 @@ saveButton.addEventListener("click", () => {
 
 
     
-        document.getElementById("upload_folder").addEventListener("change", handleFolderUpload);
         document.getElementById("upload_data").addEventListener("change", uploadData);
         document.getElementById("download_data").addEventListener("click", downloadData);
   </script>  
