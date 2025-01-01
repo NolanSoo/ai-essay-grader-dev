@@ -839,25 +839,29 @@ document.addEventListener("click", function(event) {
    // Add event listeners to the save and cancel buttons  
    const saveButton = document.createElement("button");  
    saveButton.textContent = "Save";  
-   saveButton.addEventListener("click", () => {  
-    // Update the row data with the modal input values  
-    gradeInput.value = document.getElementById("quick-input-grade").value;  
-    const subgradeInputs = document.querySelectorAll("#quick-input-subgrades input");  
-    const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
-    subgradeCells.forEach((cell, index) => {  
-      const subgradeInput = cell.querySelector("input");  
-      if (subgradeHeaders[index].textContent !== "Actions") {  
-       subgradeInput.value = subgradeInputs[index].value;  
-      }  
-    });  
-    feedbackInput.value = document.getElementById("quick-input-feedback").value;  
-  
-    // Hide the modal  
-    modal.style.display = "none";  
-    while (modal.firstChild) {  
-      modal.removeChild(modal.firstChild);  
-    }  
+saveButton.addEventListener("click", () => {  
+  // Update the row data with the modal input values  
+  gradeInput.value = document.getElementById("quick-input-grade").value;  
+  const subgradeInputs = document.querySelectorAll("#quick-input-subgrades input");  
+  const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
+  subgradeCells.forEach((cell, index) => {  
+   const subgradeInput = cell.querySelector("input");  
+   const subgradeLabel = subgradeHeaders[index].textContent;  
+   const matchingSubgradeInput = Array.prototype.find.call(subgradeInputs, (input) => {  
+    return input.previousElementSibling.textContent === subgradeLabel;  
    });  
+   if (matchingSubgradeInput) {  
+    subgradeInput.value = matchingSubgradeInput.value;  
+   }  
+  });  
+  feedbackInput.value = document.getElementById("quick-input-feedback").value;  
+  
+  // Hide the modal  
+  modal.style.display = "none";  
+  while (modal.firstChild) {  
+   modal.removeChild(modal.firstChild);  
+  }  
+});
    modal.appendChild(saveButton);  
   
    const cancelButton = document.createElement("button");  
