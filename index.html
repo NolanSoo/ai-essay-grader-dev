@@ -778,63 +778,66 @@ document.addEventListener("click", function(event) {
    modal.appendChild(navigationDiv);  
   
    // Add event listeners to the navigation buttons  
-   document.getElementById("previous-button").addEventListener("click", () => {  
-    if (currentIndex > 0) {  
-      const previousRow = rows[currentIndex - 1];  
-      const previousEssayInput = previousRow.querySelector("td:nth-child(1) input");  
-      const previousGradeInput = previousRow.querySelector("td:nth-child(2) input");  
-      const previousSubgradeCells = previousRow.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
-      const previousFeedbackInput = previousRow.querySelector("td:last-child input");  
+document.getElementById("previous-button").addEventListener("click", () => {  
+  if (currentIndex > 0) {  
+   currentIndex--;  
+   const previousRow = rows[currentIndex];  
+   const previousEssayInput = previousRow.querySelector("td:nth-child(1) input");  
+   const previousGradeInput = previousRow.querySelector("td:nth-child(2) input");  
+   const previousSubgradeCells = previousRow.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+   const previousFeedbackInput = previousRow.querySelector("td:last-child input");  
   
-      // Update the modal with the previous row's data  
-      essayDiv.innerHTML = previousEssayInput.value;  
-      gradeInputModal.value = previousGradeInput.value;  
-      subgradesDiv.innerHTML = "";  
-      previousSubgradeCells.forEach((cell, index) => {  
-       const subgradeInput = cell.querySelector("input");  
-       const subgradeLabel = document.createElement("label");  
-       subgradeLabel.textContent = subgradeHeaders[index].textContent;  
-       if (subgradeLabel.textContent !== "Actions") {  
-        const subgradeValue = document.createElement("input");  
-        subgradeValue.type = "text";  
-        subgradeValue.value = subgradeInput.value;  
-        subgradesDiv.appendChild(subgradeLabel);  
-        subgradesDiv.appendChild(subgradeValue);  
-       }  
-      });  
-      feedbackInputModal.value = previousFeedbackInput.value;  
-      navigationDiv.querySelector("span").textContent = `Essay $${currentIndex}/$$ {rows.length}`;  
+   // Update the modal with the previous row's data  
+   essayDiv.innerHTML = previousEssayInput.value;  
+   gradeInputModal.value = previousGradeInput.value;  
+   subgradesDiv.innerHTML = "";  
+   previousSubgradeCells.forEach((cell, index) => {  
+    const subgradeInput = cell.querySelector("input");  
+    const subgradeLabel = document.createElement("label");  
+    subgradeLabel.textContent = subgradeHeaders[index].textContent;  
+    if (subgradeLabel.textContent !== "Actions") {  
+      const subgradeValue = document.createElement("input");  
+      subgradeValue.type = "text";  
+      subgradeValue.value = subgradeInput.value;  
+      subgradesDiv.appendChild(subgradeLabel);  
+      subgradesDiv.appendChild(subgradeValue);  
     }  
    });  
+   feedbackInputModal.value = previousFeedbackInput.value;  
+   navigationDiv.querySelector("span").textContent = `Essay ${currentIndex + 1}/${rows.length}`;  
+  }  
+});  
   
-   document.getElementById("next-button").addEventListener("click", () => {  
-    if (currentIndex < rows.length - 1) {  
-      const nextRow = rows[currentIndex + 1];  
-      const nextEssayInput = nextRow.querySelector("td:nth-child(1) input");  
-      const nextGradeInput = nextRow.querySelector("td:nth-child(2) input");  
-      const nextSubgradeCells = nextRow.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
-      const nextFeedbackInput = nextRow.querySelector("td:last-child input");  
+document.getElementById("next-button").addEventListener("click", () => {  
+  if (currentIndex < rows.length - 1) {  
+   currentIndex++;  
+   const nextRow = rows[currentIndex];  
+   const nextEssayInput = nextRow.querySelector("td:nth-child(1) input");  
+   const nextGradeInput = nextRow.querySelector("td:nth-child(2) input");  
+   const nextSubgradeCells = nextRow.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+   const nextFeedbackInput = nextRow.querySelector("td:last-child input");  
   
-      // Update the modal with the next row's data  
-      essayDiv.innerHTML = nextEssayInput.value;  
-      gradeInputModal.value = nextGradeInput.value;  
-      subgradesDiv.innerHTML = "";  
-      nextSubgradeCells.forEach((cell, index) => {  
-       const subgradeInput = cell.querySelector("input");  
-       const subgradeLabel = document.createElement("label");  
-       subgradeLabel.textContent = subgradeHeaders[index].textContent;  
-       if (subgradeLabel.textContent !== "Actions") {  
-        const subgradeValue = document.createElement("input");  
-        subgradeValue.type = "text";  
-        subgradeValue.value = subgradeInput.value;  
-        subgradesDiv.appendChild(subgradeLabel);  
-        subgradesDiv.appendChild(subgradeValue);  
-       }  
-      });  
-      feedbackInputModal.value = nextFeedbackInput.value;  
-      navigationDiv.querySelector("span").textContent = `Essay $${currentIndex + 2}/$$ {rows.length}`;  
+   // Update the modal with the next row's data  
+   essayDiv.innerHTML = nextEssayInput.value;  
+   gradeInputModal.value = nextGradeInput.value;  
+   subgradesDiv.innerHTML = "";  
+   nextSubgradeCells.forEach((cell, index) => {  
+    const subgradeInput = cell.querySelector("input");  
+    const subgradeLabel = document.createElement("label");  
+    subgradeLabel.textContent = subgradeHeaders[index].textContent;  
+    if (subgradeLabel.textContent !== "Actions") {  
+      const subgradeValue = document.createElement("input");  
+      subgradeValue.type = "text";  
+      subgradeValue.value = subgradeInput.value;  
+      subgradesDiv.appendChild(subgradeLabel);  
+      subgradesDiv.appendChild(subgradeValue);  
     }  
    });  
+   feedbackInputModal.value = nextFeedbackInput.value;  
+   navigationDiv.querySelector("span").textContent = `Essay ${currentIndex + 1}/${rows.length}`;  
+  }  
+});
+  
   
    // Add event listeners to the save and cancel buttons  
    const saveButton = document.createElement("button");  
