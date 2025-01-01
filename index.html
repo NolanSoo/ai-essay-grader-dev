@@ -715,12 +715,21 @@ globalThis.handleFileUpload = async function handleFileUpload(event) {
   
     const feedbackCell = newRow.insertCell(3);  
     feedbackCell.innerHTML = `<input type="text"/>`;  
+  
+    // Add event listener for the "Remove Essay" button  
+    const deleteButton = newRow.querySelector(".delete");  
+    deleteButton.addEventListener("click", function() {  
+      const row = deleteButton.closest("tr");  
+      const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
+      delete_row(rowNumber);  
+    });  
    };  
   
    // Trigger file reading  
    reader.readAsArrayBuffer(file);  
   }  
-}  
+}
+
   
 fileUpload.addEventListener('change', handleFileUpload);  
 folderUpload.addEventListener('change', handleFileUpload);
