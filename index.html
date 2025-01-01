@@ -672,43 +672,62 @@ globalThis.downloadData = function downloadData() {
 
 const fileUpload = document.getElementById('fileUpload');  
 const folderUpload = document.getElementById('folderUpload');  
-  
-fileUpload.addEventListener('change', handleFileUpload);  
-folderUpload.addEventListener('change', handleFolderUpload);  
 import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";
 
 
-globalThis.handleFileUpload = async function handleFileUpload(event) {
+const fileUpload = document.getElementById('fileUpload');  
+const folderUpload = document.getElementById('folderUpload');  
+  
+globalThis.handleFileUpload = async function handleFileUpload(event) {  
   const files = event.target.files;  
-  // Process the uploaded files  
+  const docxFiles = [];  
+  
+  // Filter out non-docx files  
   for (const file of files) {  
-   if (file.name.endsWith('.docx')) {  
-    // Read the file content using FileReader  
-    const reader = new FileReader();  
-    reader.onload = (event) => {  
-      const fileContent = event.target.result;  
-      // Process the file content  
-    };  
-    reader.readAsArrayBuffer(file);  
+   if (file.name.endsWith(".docx")) {  
+    docxFiles.push(file);  
    }  
+  }  
+  
+  // Process the docx files  
+  for (const file of docxFiles) {  
+   // Read the file as an array buffer  
+   const reader = new FileReader();  
+   reader.onload = async function(event) {  
+    const arrayBuffer = event.target.result;  
+  
+    // Parse the docx content using mammoth.js  
+    const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });  
+  
+    // Add the parsed text to a new row in the table  
+    const table = document.getElementById("data_table");  
+    const newRow = table.insertRow(table.rows.length - 1);  
+    newRow.id = `row${table.rows.length - 1}`;  
+  
+    const essayCell = newRow.insertCell(0);  
+    essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;  
+  
+    const gradeCell = newRow.insertCell(1);  
+    gradeCell.innerHTML = `<input type="text"/>`;  
+  
+    const actionsCell = newRow.insertCell(2);  
+    actionsCell.innerHTML = `  
+      <input type="button" value="Save" class="save">  
+      <input type="button" value="Remove Essay" class="delete">  
+      <input type='button' value='Quick Input' class='quick-input'>  
+    `;  
+  
+    const feedbackCell = newRow.insertCell(3);  
+    feedbackCell.innerHTML = `<input type="text"/>`;  
+   };  
+  
+   // Trigger file reading  
+   reader.readAsArrayBuffer(file);  
   }  
 }  
   
-globalThis.handleFolderUpload = async function handleFolderUpload(event) {
-  const files = event.target.files;  
-  // Process the uploaded files  
-  for (const file of files) {  
-   if (file.name.endsWith('.docx')) {  
-    // Read the file content using FileReader  
-    const reader = new FileReader();  
-    reader.onload = (event) => {  
-      const fileContent = event.target.result;  
-      // Process the file content  
-    };  
-    reader.readAsArrayBuffer(file);  
-   }  
-  }  
-}  
+fileUpload.addEventListener('change', handleFileUpload);  
+folderUpload.addEventListener('change', handleFileUpload);
 
 let currentRowIndex = 0;  
 let rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
