@@ -669,8 +669,9 @@ globalThis.downloadData = function downloadData() {
 
 
 document.getElementById("upload_folder").addEventListener("change", handleFolderUpload);  
-  
-function handleFolderUpload(event) {  
+import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";
+
+globalThis.handleFolderUpload = async function handleFolderUpload(event) {    
   const files = event.target.files;  
   const docxFiles = [];  
   
