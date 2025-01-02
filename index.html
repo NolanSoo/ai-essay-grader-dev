@@ -755,7 +755,7 @@ globalThis.handleFileUpload = async function handleFileUpload(event) {
   
   try {  
     const response = await fetch(apiEndpoint, options);  
-    const result = await response.text();  
+    const result = await response.json();  
     const table = document.getElementById("data_table");  
     const newRow = table.insertRow(table.rows.length - 1);  
     newRow.id = `row${table.rows.length - 1}`;  
