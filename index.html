@@ -670,54 +670,107 @@ globalThis.downloadData = function downloadData() {
             reader.readAsText(file);
         }
 
-const fileUpload = document.getElementById('fileUpload');  
-const folderUpload = document.getElementById('folderUpload');  
+  
+const fileUpload = document.getElementById('fileUpload');   
+const folderUpload = document.getElementById('folderUpload');   
 import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";  
-import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.min.js';  
   
-globalThis.handleFileUpload = async function handleFileUpload(event) {  
-  const files = event.target.files;  
-  const docxFiles = [];  
-  const pdfFiles = [];  
-  const pptxFiles = [];  
+const apiEndpoint = 'https://docxtract1.p.rapidapi.com/extract';  
+const apiKey = 'a29cfe4fa6mshb63da984e4b3f7dp12efdajsneda384ed8b83';  
+const apiHost = 'docxtract1.p.rapidapi.com';  
   
-  // Filter out non-supported files  
-  for (const file of files) {  
-   if (file.name.endsWith(".docx")) {  
-    docxFiles.push(file);  
-   } else if (file.name.endsWith(".pdf")) {  
-    pdfFiles.push(file);  
-   } else if (file.name.endsWith(".pptx")) {  
-    pptxFiles.push(file);  
-   }  
-  }  
+globalThis.handleFileUpload = async function handleFileUpload(event) {   
+  const files = event.target.files;   
+  const docxFiles = [];   
+  const pdfFiles = [];   
+  const pptxFiles = [];   
+   
+  // Filter out non-supported files   
+  for (const file of files) {   
+  if (file.name.endsWith(".docx")) {   
+   docxFiles.push(file);   
+  } else if (file.name.endsWith(".pdf")) {   
+   pdfFiles.push(file);   
+  } else if (file.name.endsWith(".pptx")) {   
+   pptxFiles.push(file);   
+  }   
+  }   
+   
+  // Process the docx files   
+  for (const file of docxFiles) {   
+  // Read the file as an array buffer   
+  const reader = new FileReader();   
+  reader.onload = async function(event) {   
+   const arrayBuffer = event.target.result;   
+   
+   // Parse the docx content using mammoth.js   
+   const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });   
+   
+   // Add the parsed text to a new row in the table   
+   const table = document.getElementById("data_table");   
+   const newRow = table.insertRow(table.rows.length - 1);   
+   newRow.id = `row${table.rows.length - 1}`;   
+   
+   const essayCell = newRow.insertCell(0);   
+   essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;   
+   
+   const gradeCell = newRow.insertCell(1);   
+   gradeCell.innerHTML = `<input type="text"/>`;   
+   
+   const actionsCell = newRow.insertCell(2);   
+   actionsCell.innerHTML = `   
+    <input type="button" value="Save" class="save">   
+    <input type="button" value="Remove Essay" class="delete">   
+    <input type='button' value='Quick Input' class='quick-input'>   
+   `;   
+   
+   const feedbackCell = newRow.insertCell(3);   
+   feedbackCell.innerHTML = `<input type="text"/>`;   
+   
+   // Add event listener for the "Remove Essay" button   
+   const deleteButton = newRow.querySelector(".delete");   
+   deleteButton.addEventListener("click", function() {   
+    const row = deleteButton.closest("tr");   
+    const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;   
+    delete_row(rowNumber);   
+   });   
+  };   
+   
+  // Trigger file reading   
+  reader.readAsArrayBuffer(file);   
+  }   
+   
+  // Process the pdf files   
+  for (const file of pdfFiles) {   
+  const formData = new FormData();  
+  formData.append('file', file);  
+  const options = {  
+    method: 'POST',  
+    headers: {  
+     'x-rapidapi-key': apiKey,  
+     'x-rapidapi-host': apiHost  
+    },  
+    body: formData  
+  };  
   
-  // Process the docx files  
-  for (const file of docxFiles) {  
-   // Read the file as an array buffer  
-   const reader = new FileReader();  
-   reader.onload = async function(event) {  
-    const arrayBuffer = event.target.result;  
-  
-    // Parse the docx content using mammoth.js  
-    const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });  
-  
-    // Add the parsed text to a new row in the table  
+  try {  
+    const response = await fetch(apiEndpoint, options);  
+    const result = await response.text();  
     const table = document.getElementById("data_table");  
     const newRow = table.insertRow(table.rows.length - 1);  
     newRow.id = `row${table.rows.length - 1}`;  
   
     const essayCell = newRow.insertCell(0);  
-    essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;  
+    essayCell.innerHTML = `<input type="text" value="${result.trim()}"/>`;  
   
     const gradeCell = newRow.insertCell(1);  
     gradeCell.innerHTML = `<input type="text"/>`;  
   
     const actionsCell = newRow.insertCell(2);  
     actionsCell.innerHTML = `  
-      <input type="button" value="Save" class="save">  
-      <input type="button" value="Remove Essay" class="delete">  
-      <input type='button' value='Quick Input' class='quick-input'>  
+     <input type="button" value="Save" class="save">  
+     <input type="button" value="Remove Essay" class="delete">  
+     <input type='button' value='Quick Input' class='quick-input'>  
     `;  
   
     const feedbackCell = newRow.insertCell(3);  
@@ -726,49 +779,46 @@ globalThis.handleFileUpload = async function handleFileUpload(event) {
     // Add event listener for the "Remove Essay" button  
     const deleteButton = newRow.querySelector(".delete");  
     deleteButton.addEventListener("click", function() {  
-      const row = deleteButton.closest("tr");  
-      const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
-      delete_row(rowNumber);  
+     const row = deleteButton.closest("tr");  
+     const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
+     delete_row(rowNumber);  
     });  
-   };  
-  
-   // Trigger file reading  
-   reader.readAsArrayBuffer(file);  
+  } catch (error) {  
+    console.error(error);  
   }  
+  }   
+   
+  // Process the pptx files   
+  for (const file of pptxFiles) {   
+  const formData = new FormData();  
+  formData.append('file', file);  
+  const options = {  
+    method: 'POST',  
+    headers: {  
+     'x-rapidapi-key': apiKey,  
+     'x-rapidapi-host': apiHost  
+    },  
+    body: formData  
+  };  
   
-  // Process the pdf files  
-  for (const file of pdfFiles) {  
-   // Read the file as an array buffer  
-   const reader = new FileReader();  
-   reader.onload = async function(event) {  
-    const arrayBuffer = event.target.result;  
-  
-    // Parse the pdf content using pdfjsLib  
-    const pdfDoc = await pdfjsLib.getDocument(arrayBuffer).promise;  
-    const textContent = await pdfDoc.getTextContent();  
-  
-    // Extract the text from the pdf content  
-    let extractedText = '';  
-    for (const item of textContent.items) {  
-      extractedText += item.str + ' ';  
-    }  
-  
-    // Add the extracted text to a new row in the table  
+  try {  
+    const response = await fetch(apiEndpoint, options);  
+    const result = await response.text();  
     const table = document.getElementById("data_table");  
     const newRow = table.insertRow(table.rows.length - 1);  
     newRow.id = `row${table.rows.length - 1}`;  
   
     const essayCell = newRow.insertCell(0);  
-    essayCell.innerHTML = `<input type="text" value="${extractedText.trim()}"/>`;  
+    essayCell.innerHTML = `<input type="text" value="${result.trim()}"/>`;  
   
     const gradeCell = newRow.insertCell(1);  
     gradeCell.innerHTML = `<input type="text"/>`;  
   
     const actionsCell = newRow.insertCell(2);  
     actionsCell.innerHTML = `  
-      <input type="button" value="Save" class="save">  
-      <input type="button" value="Remove Essay" class="delete">  
-      <input type='button' value='Quick Input' class='quick-input'>  
+     <input type="button" value="Save" class="save">  
+     <input type="button" value="Remove Essay" class="delete">  
+     <input type='button' value='Quick Input' class='quick-input'>  
     `;  
   
     const feedbackCell = newRow.insertCell(3);  
@@ -777,70 +827,19 @@ globalThis.handleFileUpload = async function handleFileUpload(event) {
     // Add event listener for the "Remove Essay" button  
     const deleteButton = newRow.querySelector(".delete");  
     deleteButton.addEventListener("click", function() {  
-      const row = deleteButton.closest("tr");  
-      const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
-      delete_row(rowNumber);  
+     const row = deleteButton.closest("tr");  
+     const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
+     delete_row(rowNumber);  
     });  
-   };  
-  
-   // Trigger file reading  
-   reader.readAsArrayBuffer(file);  
+  } catch (error) {  
+    console.error(error);  
   }  
-  
-  // Process the pptx files  
-  for (const file of pptxFiles) {  
-   // Read the file as an array buffer  
-   const reader = new FileReader();  
-   reader.onload = async function(event) {  
-    const arrayBuffer = event.target.result;  
-  
-    // Load PPTX as zip  
-    const zip = await JSZip.loadAsync(arrayBuffer);  
-  
-    // Extract text from slides  
-    const slideTexts = [];  
-    for (const [filename, fileObj] of Object.entries(zip.files)) {  
-      if (filename.includes("ppt/slides/slide")) {  
-       const content = await fileObj.async("string");  
-       const slideText = extractTextFromXml(content);  
-       slideTexts.push(slideText);  
-      }  
-    }  
-  
-    // Add the extracted text to a new row in the table  
-    const table = document.getElementById("data_table");  
-    const newRow = table.insertRow(table.rows.length - 1);  
-    newRow.id = `row${table.rows.length - 1}`;  
-  
-    const essayCell = newRow.insertCell(0);  
-    essayCell.innerHTML = `<input type="text" value="${slideTexts.join("\n\n").trim()}"/>`;  
-  
-    const gradeCell = newRow.insertCell(1);  
-    gradeCell.innerHTML = `<input type="text"/>`;  
-  
-    const actionsCell = newRow.insertCell(2);  
-    actionsCell.innerHTML = `  
-      <input type="button" value="Save" class="save">  
-      <input type="button" value="Remove Essay" class="delete">  
-      <input type='button' value='Quick Input' class='quick-input'>  
-    `;  
-  
-    const feedbackCell = newRow.insertCell(3);  
-    feedbackCell.innerHTML = `<input type="text"/>`;  
-  
-    // Add event listener for the "Remove Essay" button  
-    const deleteButton = newRow.querySelector(".delete");  
-    deleteButton.addEventListener("click", function() {  
-      const row = deleteButton.closest("tr");  
-      const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
-      delete_row(rowNumber);  
-    });  
-   };  
-  
-   // Trigger file reading  
-   reader.readAsArrayBuffer(file);  
-  }  
+  }   
 }  
+  
+fileUpload.addEventListener('change', handleFileUpload);   
+folderUpload.addEventListener('change', handleFileUpload);
+
   
 // Function to extract text from slide XML  
 function extractTextFromXml(xmlContent) {  
