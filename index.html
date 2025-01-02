@@ -97,7 +97,7 @@
   
 <!-- Add a file input to upload the table data -->  
 <input type="file" id="upload_data" accept=".autograde" />
-<input type="file" id="fileUpload" multiple accept=".docx">  
+<input type="file" id="fileUpload" multiple accept=".docx, .pdf, .pptx">
 <br><br>  
 <!-- Input for folders -->  
 <input type="file" id="folderUpload" webkitdirectory multiple>
@@ -677,11 +677,17 @@ import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";
 globalThis.handleFileUpload = async function handleFileUpload(event) {  
   const files = event.target.files;  
   const docxFiles = [];  
+  const pdfFiles = [];  
+  const pptxFiles = [];  
   
-  // Filter out non-docx files  
+  // Filter out non-supported files  
   for (const file of files) {  
    if (file.name.endsWith(".docx")) {  
     docxFiles.push(file);  
+   } else if (file.name.endsWith(".pdf")) {  
+    pdfFiles.push(file);  
+   } else if (file.name.endsWith(".pptx")) {  
+    pptxFiles.push(file);  
    }  
   }  
   
@@ -693,6 +699,94 @@ globalThis.handleFileUpload = async function handleFileUpload(event) {
     const arrayBuffer = event.target.result;  
   
     // Parse the docx content using mammoth.js  
+    const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });  
+  
+    // Add the parsed text to a new row in the table  
+    const table = document.getElementById("data_table");  
+    const newRow = table.insertRow(table.rows.length - 1);  
+    newRow.id = `row${table.rows.length - 1}`;  
+  
+    const essayCell = newRow.insertCell(0);  
+    essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;  
+  
+    const gradeCell = newRow.insertCell(1);  
+    gradeCell.innerHTML = `<input type="text"/>`;  
+  
+    const actionsCell = newRow.insertCell(2);  
+    actionsCell.innerHTML = `  
+      <input type="button" value="Save" class="save">  
+      <input type="button" value="Remove Essay" class="delete">  
+      <input type='button' value='Quick Input' class='quick-input'>  
+    `;  
+  
+    const feedbackCell = newRow.insertCell(3);  
+    feedbackCell.innerHTML = `<input type="text"/>`;  
+  
+    // Add event listener for the "Remove Essay" button  
+    const deleteButton = newRow.querySelector(".delete");  
+    deleteButton.addEventListener("click", function() {  
+      const row = deleteButton.closest("tr");  
+      const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
+      delete_row(rowNumber);  
+    });  
+   };  
+  
+   // Trigger file reading  
+   reader.readAsArrayBuffer(file);  
+  }  
+  
+  // Process the pdf files  
+  for (const file of pdfFiles) {  
+   // Read the file as an array buffer  
+   const reader = new FileReader();  
+   reader.onload = async function(event) {  
+    const arrayBuffer = event.target.result;  
+  
+    // Parse the pdf content using mammoth.js  
+    const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });  
+  
+    // Add the parsed text to a new row in the table  
+    const table = document.getElementById("data_table");  
+    const newRow = table.insertRow(table.rows.length - 1);  
+    newRow.id = `row${table.rows.length - 1}`;  
+  
+    const essayCell = newRow.insertCell(0);  
+    essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;  
+  
+    const gradeCell = newRow.insertCell(1);  
+    gradeCell.innerHTML = `<input type="text"/>`;  
+  
+    const actionsCell = newRow.insertCell(2);  
+    actionsCell.innerHTML = `  
+      <input type="button" value="Save" class="save">  
+      <input type="button" value="Remove Essay" class="delete">  
+      <input type='button' value='Quick Input' class='quick-input'>  
+    `;  
+  
+    const feedbackCell = newRow.insertCell(3);  
+    feedbackCell.innerHTML = `<input type="text"/>`;  
+  
+    // Add event listener for the "Remove Essay" button  
+    const deleteButton = newRow.querySelector(".delete");  
+    deleteButton.addEventListener("click", function() {  
+      const row = deleteButton.closest("tr");  
+      const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
+      delete_row(rowNumber);  
+    });  
+   };  
+  
+   // Trigger file reading  
+   reader.readAsArrayBuffer(file);  
+  }  
+  
+  // Process the pptx files  
+  for (const file of pptxFiles) {  
+   // Read the file as an array buffer  
+   const reader = new FileReader();  
+   reader.onload = async function(event) {  
+    const arrayBuffer = event.target.result;  
+  
+    // Parse the pptx content using mammoth.js  
     const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });  
   
     // Add the parsed text to a new row in the table  
