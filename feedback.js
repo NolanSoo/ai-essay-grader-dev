@@ -3,7 +3,6 @@ import Groq from "https://cdn.jsdelivr.net/npm/groq-sdk@0.8.0/+esm";
   
 // Initialize the Groq client  
 const client = new Groq({  
-  // apiKey: "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",  temporary
   apiKey: "", 
   dangerouslyAllowBrowser: true,  
 });  
