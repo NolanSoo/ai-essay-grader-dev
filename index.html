@@ -759,9 +759,9 @@ globalThis.handleFileUpload = async function handleFileUpload(event) {
     const table = document.getElementById("data_table");  
     const newRow = table.insertRow(table.rows.length - 1);  
     newRow.id = `row${table.rows.length - 1}`;  
-  
+    console.log("api result:", result);
     const essayCell = newRow.insertCell(0);  
-    essayCell.innerHTML = `<input type="text" value="${result.trim()}"/>`;  
+    essayCell.innerHTML = `<input type="text" value="${result}"/>`;  
   
     const gradeCell = newRow.insertCell(1);  
     gradeCell.innerHTML = `<input type="text"/>`;  
