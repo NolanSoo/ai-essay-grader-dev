@@ -1,0 +1,953 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+  <title>Assignments/LMS Program</title>  
+  <meta charset="UTF-8" />  
+  <link rel="stylesheet" href="styles.css" />  
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />  
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.4.0"></script>  
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/dist/mammoth.min.js"></script>  
+</head>  
+<body>  
+  <h1>Assignments/LMS Program</h1>  
+  <div id="app"></div>  
+  <div class="w3-black">  
+   <div class="w3-container w3-green w3-center" id="loading_bar" style="width: 0%">  
+    <p id="percentage_label">0%</p>  
+    <br />  
+    <p id="time_label"></p>  
+    <br />  
+    <p id="training_label"></p>  
+   </div>  
+  </div>  
+  <h1></h1>  
+  <div id="wrapper" align="center">  
+   <br />  
+   <textarea id="rubric" rows="1" cols="150" placeholder="Paste/enter rubric (Optional)"></textarea>  
+   <textarea id="prompt" rows="1" cols="150" placeholder="Paste/type prompt or any important directions (Optional)"></textarea>  
+   <table align="center" cellspacing="2" cellpadding="5" id="data_table" border="1">  
+    <tr id="header_row">  
+      <th>Essay</th>  
+      <th>Overall Grade</th>  
+      <!-- Subgrade headers will be added here dynamically -->  
+      <th id="actions_header">Actions</th>  
+      <th id="feedback_header">Feedback</th>  
+    </tr>  
+    <tr id="add_row">  
+      <td>  
+       <input type="text" id="new_name" />  
+      </td>  
+      <td>  
+       <input type="text" id="new_country" />  
+      </td>  
+      <!-- Subgrade input cells will be added here dynamically -->  
+      <td id="add_actions">  
+       <input type="button" class="add" value="Add Essay" />  
+       <input type="button" class="add_subgrade" value="Add Subgrade" />  
+      </td>  
+      <td id="add_feedback">  
+       <input type="text" value="" />  
+      </td>  
+    </tr>  
+   </table>  
+   <input type="number" id="epochs" value="10000" />  
+   <label for="epochs">Iterations of training (100 per second on a decent computer and usable internet)</label>  
+   <br />  
+   <input type="button" id="train_model" value="Start" />  
+   <h5>Select at least two options (except using essays entered in the table - that can be used on its own)</h5>  
+   <div id="predict_section" style="display: none; margin-top: 20px; margin-left: auto; margin-right: auto">  
+    <h2>Grading</h2>  
+    <h3>Enter a new essay to grade it and generate feedback:</h3>  
+    <textarea id="new_essay_input" rows="4" cols="50" placeholder="Paste/type essay to be graded"></textarea>  
+    <br />  
+    <input type="button" id="predict_grade" value="Grade Essay" />  
+    <div id="predicted_grade_output"></div>  
+   </div>  
+   <div id="output"></div>  
+  </div>  
+  <!-- Add a button to download the table data -->  
+  <input type="button" id="download_data" value="Download Data" />  
+  <!-- Add a file input to upload the table data -->  
+  <input type="file" id="upload_data" accept=".autograde" />  
+  <input type="file" id="fileUpload" multiple accept=".docx, .pdf, .pptx" />  
+  <br />  
+  <br />  
+  <!-- Input for folders -->  
+  <input type="file" id="folderUpload" webkitdirectory multiple />  
+  <label for="upload_folder">Upload Essays from Folder</label>  
+  <!-- Add this to the HTML body -->  
+  <div id="quick-input-modal" style="display: none;">  
+   <h2>Quick Input</h2>  
+   <label for="quick-input-grade">Grade:</label>  
+   <input type="text" id="quick-input-grade" />  
+   <br />  
+   <label for="quick-input-subgrades">Subgrades:</label>  
+   <div id="quick-input-subgrades"></div>  
+   <br />  
+   <label for="quick-input-feedback">Feedback:</label>  
+   <textarea id="quick-input-feedback"></textarea>  
+   <br />  
+   <input type="button" value="Save" id="quick-input-save" />  
+   <input type="button" value="Cancel" id="quick-input-cancel" />  
+  </div>  
+  <script type="module" defer>  
+   import { feedback } from './feedback.js';  
+   var finalModel;  
+   var subgradeModels = {};  
+   const inputEssaysMG = [];  
+   const inputGradesMG = [];  
+   const inputEssaysSG = {};  
+   const inputGradesSG = {};  
+   const inputFeedbackMG = [];  
+  
+   // Function to update progress bar  
+   function updateProgress(percentage, totalTimeTaken, trainingLabel) {  
+    console.log("Updating progress bar...");  
+    console.log("Percentage: " + percentage);  
+    console.log("Total time taken: " + totalTimeTaken);  
+    console.log("Training label: " + trainingLabel);  
+  
+    // Ensure the percentage is between 0 and 100  
+    percentage = Math.max(0, Math.min(100, percentage));  
+    percentage = percentage.toFixed(2);  
+  
+    // Get the loading bar and percentage label elements  
+    const loadingBar = document.getElementById("loading_bar");  
+    const percentageLabel = document.getElementById("percentage_label");  
+    const timeLabel = document.getElementById("time_label");  
+    const trainingLabelElement = document.getElementById("training_label");  
+  
+    // Update the width of the loading bar  
+    loadingBar.style.width = percentage + "%";  
+  
+    // Update the percentage label text  
+    percentageLabel.textContent = percentage + "%";  
+  
+    // Update the training label text  
+    trainingLabelElement.textContent = trainingLabel;  
+  
+    // Calculate the estimated total time based on total time taken and done  
+    if (percentage > 0) {  
+      const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs  
+  
+      // Estimate the total time based on the current progress (linear approximation)  
+      const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time  
+  
+      // Calculate remaining time  
+      const remainingTime = expectedTotalTime - elapsedTime;  
+  
+      // Format time (minutes:seconds)  
+      const formatTime = (timeInSeconds) => {  
+       const minutes = Math.floor(timeInSeconds / 60);  
+       const seconds = Math.floor(timeInSeconds % 60);  
+       return `${minutes} minutes - ${seconds.toString().padStart(2, "0")} seconds`;  
+      };  
+  
+      // Display the time taken and expected total time in a human-readable format  
+      const timeTaken = formatTime(elapsedTime);  
+      const totalTime = formatTime(expectedTotalTime);  
+  
+      // Update the label with time information  
+      timeLabel.textContent = `${timeTaken} / ${totalTime}`;  
+    }  
+   }  
+  
+   // Function for predicting the grade  
+   async function predictGrade() {  
+    const inputEssaysMG = [];  
+    const inputGradesMG = [];  
+    const inputEssaysSG = {};  
+    const inputGradesSG = {};  
+    const inputFeedbackMG = [];  
+  
+    console.log("Predicting grade...");  
+  
+    function preprocessText(essays) {  
+      console.log("Preprocessing text...");  
+      const tokenizedInputs = essays.map((essay) => {  
+       const words = essay.trim().split(/\s+/);  
+       const vector = new Array(1200).fill(0);  
+       for (let word of words) {  
+        const index = Math.min(word.length, 1199);  
+        vector[index] += 1;  
+       }  
+       return vector;  
+      });  
+      return tf.tensor2d(tokenizedInputs);  
+    }  
+  
+    const essayInput = document.getElementById("new_essay_input").value.trim();  
+  
+    // Check if the input is not empty  
+    if (!essayInput) {  
+      alert("Please enter an essay to predict the grade.");  
+      return;  
+    }  
+  
+    // Preprocess the input essay into tensor format  
+    const essayTensor = preprocessText([essayInput]); // Wrap in an array for single input  
+  
+    if (!finalModel) {  
+      alert("The model is not trained yet. Please train the model before predicting.");  
+      return;  
+    }  
+  
+    // Use the trained model to predict  
+    const prediction = await finalModel.predict(essayTensor).data();  
+  
+    // Round the predicted grade and display it  
+    const predictedGrade = prediction[0];  
+    console.log("Predicted grade: " + predictedGrade);  
+    document.getElementById("predicted_grade_output").innerText = `Predicted Grade: ${Math.round(predictedGrade)}`;  
+  
+    // Predict subgrades  
+    const subgradePredictions = {};  
+    for (const subgrade in subgradeModels) {  
+      const subgradePrediction = await subgradeModels[subgrade].predict(essayTensor).data();  
+      subgradePredictions[subgrade] = subgradePrediction[0];  
+      console.log("Subgrade prediction for " + subgrade + ": " + subgradePrediction[0]);  
+    }  
+  
+    // Display subgrade predictions  
+    const subgradePredictionText = Object.keys(subgradePredictions).map((subgrade) => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(",");  
+    document.getElementById("predicted_grade_output").innerText += `\nSubgrade Predictions: ${subgradePredictionText}`;  
+    var promptInput = document.getElementById("prompt").value.trim();  
+    // Check if the input is not empty  
+    if (!promptInput) {  
+      promptInput = "No specific prompt or directions";  
+    }  
+    var rubricInput = document.getElementById("rubric").value.trim();  
+    // Call the feedback function  
+    // Collect data from table rows  
+    const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
+    // Excluding header row and add row  
+    rows.forEach((row) => {  
+      const essay = row.querySelector("td:nth-child(1) input").value.trim();  
+      const grade = parseFloat(row.querySelector("td:nth-child(2) input").value.trim());  
+      const feedback = row.querySelector("td:nth-child(4) input").value.trim();  
+      if (essay && !isNaN(grade)) {  
+       inputEssaysMG.push(essay);  
+       inputGradesMG.push(grade);  
+      }  
+      // Collect subgrade data  
+      const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+      subgradeCells.forEach((cell, index) => {  
+       const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
+       inputEssaysSG[subgradeName] = [];  
+       inputGradesSG[subgradeName] = [];  
+       const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
+       if (!isNaN(subgradeValue)) {  
+        inputEssaysSG[subgradeName].push(essay);  
+        inputGradesSG[subgradeName].push(subgradeValue);  
+       }  
+      });  
+    });  
+    console.log("IGSG", inputGradesSG);  
+    feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
+   }  
+  
+   // Function for training the model  
+   async function trainModel() {  
+    console.log("Training model...");  
+    // Get the input element by its ID  
+    const epochsInput = document.getElementById("epochs");  
+  
+    // Retrieve the value of the input  
+    let epochs = epochsInput.value;  
+    console.log("epochs", epochs); // Debug  
+    const learningRate = 0.005;  
+    var percentageDone = 0;  
+    var totalTimeTaken = 0;  
+    var startTime = Date.now() / 1000;  
+    var currentTime = 0;  
+  
+    function preprocessText(essays) {  
+      console.log("Preprocessing text...");  
+      const tokenizedInputs = essays.map((essay) => {  
+       const words = essay.trim().split(/\s+/);  
+       const vector = new Array(1200).fill(0);  
+       for (let word of words) {  
+        const index = Math.min(word.length, 1199);  
+        vector[index] += 1;  
+       }  
+       return vector;  
+      });  
+      return tf.tensor2d(tokenizedInputs);  
+    }  
+  
+    const mainGradeInputEssays = [];  
+    const mainGradeTargets = [];  
+    const subgradeInputEssays = {};  
+    const subgradeTargets = {};  
+  
+    // Collect data from table rows  
+    const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
+    // Excluding header row and add row  
+    rows.forEach((row) => {  
+      const essay = row.querySelector("td:nth-child(1) input").value.trim();  
+      const grade = parseFloat(row.querySelector("td:nth-child(2) input").value.trim());  
+      const feedback = row.querySelector("td:nth-child(4) input").value.trim();  
+      if (essay && !isNaN(grade)) {  
+       mainGradeInputEssays.push(essay);  
+       mainGradeTargets.push(grade);  
+       inputEssaysMG.push(essay);  
+       inputGradesMG.push(grade);  
+       inputFeedbackMG.push(feedback);  
+      }  
+  
+      // Collect subgrade data  
+      const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+      subgradeCells.forEach((cell, index) => {  
+       const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
+       if (!subgradeInputEssays[subgradeName]) {  
+        subgradeInputEssays[subgradeName] = [];  
+        subgradeTargets[subgradeName] = [];  
+        inputEssaysSG[subgradeName] = [];  
+        inputGradesSG[subgradeName] = [];  
+       }  
+       subgradeInputEssays[subgradeName].push(essay);  
+       const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
+       if (!isNaN(subgradeValue)) {  
+        subgradeTargets[subgradeName].push(subgradeValue);  
+        inputEssaysSG[subgradeName].push(essay);  
+        inputGradesSG[subgradeName].push(subgradeValue);  
+       }  
+      });  
+    });  
+  
+    // Check if there are any subgrades  
+    if (Object.keys(subgradeInputEssays).length === 0) {  
+      alert("Please add at least one subgrade.");  
+      return;  
+    }  
+  
+    const mainGradeInputTrainTensor = preprocessText(mainGradeInputEssays);  
+    const mainGradeTargetTrainTensor = tf.tensor1d(mainGradeTargets);  
+  
+    // Create and train a model for main grade predictions  
+    finalModel = tf.sequential();  
+    finalModel.add(tf.layers.dense({ inputShape: [1200], units: 1 }));  
+    const mainGradeOptimizer = tf.train.adam(learningRate);  
+    finalModel.compile({  
+      optimizer: mainGradeOptimizer,  
+      loss: "meanSquaredError",  
+    });  
+  
+    // Train the model  
+    let mainGradeEpoch = 0;  
+    while (mainGradeEpoch < epochs) {  
+      mainGradeEpoch += 1;  
+      await finalModel.fit(mainGradeInputTrainTensor, mainGradeTargetTrainTensor, {  
+       epochs: 1,  
+       verbose: 0,  
+      });  
+  
+      // Log progress every 10 epochs  
+      if (mainGradeEpoch % 10 === 0) {  
+       console.log(`Main Grade Training Epoch ${mainGradeEpoch} completed.`);  
+       percentageDone += (1000 / epochs) / (Object.keys(subgradeInputEssays).length);  
+       currentTime = Date.now() / 1000;  
+       totalTimeTaken = currentTime - startTime;  
+       updateProgress(percentageDone, totalTimeTaken, "Training Main Grade");  
+      }  
+    }  
+  
+    // Train subgrade models  
+    for (const subgrade in subgradeInputEssays) {  
+      const subgradeInputTrainTensor = preprocessText(subgradeInputEssays[subgrade]);  
+      const subgradeTargetTrainTensor = tf.tensor1d(subgradeTargets[subgrade]);  
+  
+      // Check if the subgrade has any targets  
+      if (subgradeTargetTrainTensor.shape[0] === 0) {  
+       console.log(`No targets for subgrade ${subgrade}. Skipping...`);  
+       continue;  
+      }  
+  
+      subgradeModels[subgrade] = tf.sequential();  
+      subgradeModels[subgrade].add(tf.layers.dense({ inputShape: [1200], units: 1 }));  
+      const subgradeOptimizer = tf.train.adam(learningRate);  
+      subgradeModels[subgrade].compile({  
+       optimizer: subgradeOptimizer,  
+       loss: "meanSquaredError",  
+      });  
+  
+      let subgradeEpoch = 0;  
+      while (subgradeEpoch < epochs) {  
+       subgradeEpoch += 1;  
+       await subgradeModels[subgrade].fit(subgradeInputTrainTensor, subgradeTargetTrainTensor, {  
+        epochs: 1,  
+        verbose: 0,  
+       });  
+  
+       // Log progress every 10 epochs  
+       if (subgradeEpoch % 10 === 0) {  
+        console.log(`${subgrade} (Playground) Training Epoch ${subgradeEpoch} completed.`);  
+        percentageDone += (1000 / epochs) / Object.keys(subgradeInputEssays).length;  
+        currentTime = Date.now() / 1000;  
+        totalTimeTaken = currentTime - startTime;  
+        updateProgress(percentageDone, totalTimeTaken, `Training ${subgrade}`);  
+       }  
+      }  
+    }  
+  
+    console.log("Model training completed!");  
+    document.getElementById("output").innerText = "Model training completed!";  
+    // Show the prediction input section after training  
+    document.getElementById("predict_section").style.display = "block";  
+   }  
+  
+   // Function to add a new subgrade  
+   globalThis.add_subgrade = function add_subgrade() {  
+    console.log("Adding new subgrade...");  
+    const subgradeName = prompt("Enter the name of the new subgrade:");  
+    if (subgradeName) {  
+      // Add a new header cell for the subgrade  
+      const headerRow = document.getElementById("header_row");  
+      const newHeaderCell = document.createElement("th");  
+      newHeaderCell.innerText = subgradeName;  
+      const feedbackHeader = document.getElementById("feedback_header");  
+      headerRow.insertBefore(newHeaderCell, feedbackHeader);  
+  
+      // Add a new cell for the subgrade in each row  
+      const rows = document.querySelectorAll("#data_table tr:not(:first-child)");  
+      rows.forEach((row) => {  
+       const newCell = document.createElement("td");  
+       newCell.innerHTML = "<input type='text'/>";  
+       const feedbackCell = row.querySelector("td:last-child");  
+       row.insertBefore(newCell, feedbackCell);  
+      });  
+    }  
+   };  
+  
+   // Function to save a row  
+   globalThis.save_row = function save_row(no) {  
+    console.log("Saving row...");  
+    const row = document.getElementById(`row${no}`);  
+    const essay = row.querySelector("td:nth-child(1) input").value.trim();  
+    const grade = row.querySelector("td:nth-child(2) input").value.trim();  
+    const feedback = row.querySelector("td:nth-child(4) input").value.trim();  
+    const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+  
+    // Update the row with the saved values  
+    row.querySelector("td:nth-child(1) input").value = essay;  
+    row.querySelector("td:nth-child(2) input").value = grade;  
+    row.querySelector("td:nth-child(4) input").value = feedback;  
+    subgradeCells.forEach((cell) => {  
+      cell.querySelector("input").value = cell.querySelector("input").value.trim();  
+    });  
+   };  
+  
+   globalThis.delete_row = function delete_row(no) {  
+    console.log("Deleting row...");  
+    const row = document.getElementById(`row${no}`);  
+    row.parentNode.removeChild(row);  
+   };  
+  
+   globalThis.add_row = function add_row() {  
+    console.log("Adding new row...");  
+    const table = document.getElementById("data_table");  
+    const newRow = table.insertRow(table.rows.length - 1);  
+    newRow.id = `row${table.rows.length - 1}`;  
+  
+    // Create cells for the new row  
+    const essayCell = document.createElement("td");  
+    essayCell.innerHTML = "<input type='text'/>";  
+    newRow.appendChild(essayCell);  
+  
+    const gradeCell = document.createElement("td");  
+    gradeCell.innerHTML = "<input type='text'/>";  
+    newRow.appendChild(gradeCell);  
+  
+    // Create the actions cell and insert it immediately after the grade cell  
+    const actionsCell = document.createElement("td");  
+    actionsCell.innerHTML = `  
+      <input type='button' value='Save' class='save'>  
+      <input type='button' value='Remove Essay' class='delete'>  
+      <input type='button' value='Quick Input' class='quick-input'>  
+    `;  
+    newRow.appendChild(actionsCell);  
+  
+    // Dynamically check for subgrade headers  
+    const subgradeHeaders = document.querySelectorAll("#header_row th:not(#actions_header):not(#feedback_header)");  
+  
+    if (subgradeHeaders.length > 0) {  
+      // Add a cell for each subgrade  
+      subgradeHeaders.forEach(() => {  
+       const newCell = document.createElement("td");  
+       newCell.innerHTML = "<input type='text'/>";  
+       newRow.appendChild(newCell);  
+      });  
+    }  
+  
+    // Add the feedback cell at the end  
+    const feedbackCell = document.createElement("td");  
+    feedbackCell.innerHTML = "<input type='text'/>";  
+    newRow.appendChild(feedbackCell);  
+  
+    // Remove extra cells if any (ensures no unintended cells are added)  
+    while (newRow.cells.length > table.rows[0].cells.length) {  
+      newRow.deleteCell(-1);  
+    }  
+  
+    // Add event listener to the new delete button  
+    const newDeleteButton = newRow.querySelector(".delete");  
+    newDeleteButton.addEventListener("click", function () {  
+      const row = newDeleteButton.closest("tr");  
+      const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
+      delete_row(rowNumber);  
+    });  
+   };  
+  
+   // Add event listeners  
+   document.getElementById("train_model").addEventListener("click", trainModel);  
+   document.getElementById("predict_grade").addEventListener("click", predictGrade);  
+  
+   const saveButtons = document.querySelectorAll(".save");  
+   saveButtons.forEach((button, index) => {  
+    button.addEventListener("click", function () {  
+      save_row(index + 1);  
+    });  
+   });  
+  
+   const deleteButtons = document.querySelectorAll(".delete");  
+   deleteButtons.forEach((button, index) => {  
+    button.addEventListener("click", function () {  
+      delete_row(index + 1);  
+    });  
+   });  
+  
+   const addRowButton = document.querySelector(".add");  
+   addRowButton.addEventListener("click", add_row);  
+  
+   const addSubgradeButton = document.querySelector(".add_subgrade");  
+   addSubgradeButton.addEventListener("click", add_subgrade);  
+  
+   // Function to download the table data  
+   globalThis.downloadData = function downloadData() {  
+    console.log("Downloading table data...");  
+    const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
+    const data = [];  
+  
+    // Collect data from table rows  
+    rows.forEach((row) => {  
+      const essay = row.querySelector("td:nth-child(1) input").value.trim();  
+      const grade = row.querySelector("td:nth-child(2) input").value.trim();  
+      const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child):not(:nth-child(3))");  
+      const feedback = row.querySelector("td:last-child input").value.trim();  
+      const subgrades = {};  
+  
+      // Dynamically check for subgrade headers  
+      const subgradeHeaders = document.getElementById("header_row").querySelectorAll("th:not(.actions_header):not(.feedback_header):not(:first-child):not(:nth-child(2))");  
+  
+      subgradeCells.forEach((cell, index) => {  
+       const subgradeName = subgradeHeaders[index].innerText;  
+       subgrades[subgradeName] = cell.querySelector("input").value.trim();  
+      });  
+  
+      data.push({  
+       essay,  
+       grade,  
+       feedback,  
+       subgrades,  
+      });  
+    });  
+  
+    // Convert the data to a JSON string  
+    const jsonData = JSON.stringify(data, null, 2);  
+  
+    // Create a blob with the JSON data  
+    const blob = new Blob([jsonData], { type: "text/plain" });  
+  
+    // Create a link to download the blob  
+    const link = document.createElement("a");  
+    link.href = URL.createObjectURL(blob);  
+    link.download = "table_data.autograde";  
+    link.click();  
+   };  
+  
+   globalThis.uploadData = function uploadData(event) {  
+    const file = event.target.files[0];  
+    const reader = new FileReader();  
+    reader.onload = (event) => {  
+      const data = JSON.parse(event.target.result);  
+      const table = document.getElementById("data_table");  
+      data.forEach((row) => {  
+       // Use existing add_row logic  
+       const newRow = table.insertRow(table.rows.length - 1);  
+       newRow.id = `row${table.rows.length - 1}`;  
+       const essayCell = newRow.insertCell(0);  
+       essayCell.innerHTML = `<input type="text" value="${row.essay}"/>`;  
+       const gradeCell = newRow.insertCell(1);  
+       gradeCell.innerHTML = `<input type="text" value="${row.grade}"/>`;  
+       const actionsCell = newRow.insertCell(2);  
+       actionsCell.innerHTML = `  
+        <input type='button' value='Save' class='save'>  
+        <input type='button' value='Remove Essay' class='delete'>  
+        <input type='button' value='Quick Input' class='quick-input'>  
+       `;  
+       const feedbackCell = newRow.insertCell(3);  
+       feedbackCell.innerHTML = `<input type="text" value="${row.feedback}"/>`;  
+      });  
+      const deleteButtons = document.querySelectorAll(".delete");  
+      deleteButtons.forEach((button, index) => {  
+       button.addEventListener("click", function () {  
+        const row = button.closest("tr");  
+        const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
+        delete_row(rowNumber);  
+       });  
+      });  
+    };  
+    reader.readAsText(file);  
+   };  
+  
+   const fileUpload = document.getElementById("fileUpload");  
+   const folderUpload = document.getElementById("folderUpload");  
+   import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";  
+  
+   const apiEndpoint = "https://docxtract1.p.rapidapi.com/extract";  
+   const apiKey = "a29cfe4fa6mshb63da984e4b3f7dp12efdajsneda384ed8b83";  
+   const apiHost = "docxtract1.p.rapidapi.com";  
+  
+   globalThis.handleFileUpload = async function handleFileUpload(event) {  
+    const files = event.target.files;  
+    const docxFiles = [];  
+    const pdfFiles = [];  
+    const pptxFiles = [];  
+  
+    // Filter out non-supported files  
+    for (const file of files) {  
+      if (file.name.endsWith(".docx")) {  
+       docxFiles.push(file);  
+      } else if (file.name.endsWith(".pdf")) {  
+       pdfFiles.push(file);  
+      } else if (file.name.endsWith(".pptx")) {  
+       pptxFiles.push(file);  
+      }  
+    }  
+  
+    // Process the docx files  
+    for (const file of docxFiles) {  
+      // Read the file as an array buffer  
+      const reader = new FileReader();  
+      reader.onload = async function (event) {  
+       const arrayBuffer = event.target.result;  
+  
+       // Parse the docx content using mammoth.js  
+       const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });  
+  
+       // Add the parsed text to a new row in the table  
+       const table = document.getElementById("data_table");  
+       const newRow = table.insertRow(table.rows.length - 1);  
+       newRow.id = `row${table.rows.length - 1}`;  
+  
+       const essayCell = newRow.insertCell(0);  
+       essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;  
+  
+       const gradeCell = newRow.insertCell(1);  
+       gradeCell.innerHTML = `<input type="text"/>`;  
+  
+       const actionsCell = newRow.insertCell(2);  
+       actionsCell.innerHTML = `  
+        <input type='button' value='Save' class='save'>  
+        <input type='button' value='Remove Essay' class='delete'>  
+        <input type='button' value='Quick Input' class='quick-input'>  
+       `;  
+  
+       const feedbackCell = newRow.insertCell(3);  
+       feedbackCell.innerHTML = `<input type="text"/>`;  
+  
+       // Add event listener to the "Remove Essay" button  
+       const deleteButton = newRow.querySelector(".delete");  
+       deleteButton.addEventListener("click", function () {  
+        const row = deleteButton.closest("tr");  
+        const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
+        delete_row(rowNumber);  
+       });  
+      };  
+  
+      // Trigger file reading  
+      reader.readAsArrayBuffer(file);  
+    }  
+  
+    // Process the pdf files  
+    for (const file of pdfFiles) {  
+      const formData = new FormData();  
+      formData.append("file", file);  
+      const options = {  
+       method: "POST",  
+       headers: {  
+        "x-rapidapi-key": apiKey,  
+        "x-rapidapi-host": apiHost,  
+       },  
+       body: formData,  
+      };  
+  
+      try {  
+       const response = await fetch(apiEndpoint, options);  
+       const result = await response.json();  
+       const table = document.getElementById("data_table");  
+       const newRow = table.insertRow(table.rows.length - 1);  
+       newRow.id = `row${table.rows.length - 1}`;  
+       console.log("api result:", result);  
+       const essayCell = newRow.insertCell(0);  
+       essayCell.innerHTML = `<input type="text" value="${result.text}"/>`;  
+  
+       const gradeCell = newRow.insertCell(1);  
+       gradeCell.innerHTML = `<input type="text"/>`;  
+  
+       const actionsCell = newRow.insertCell(2);  
+       actionsCell.innerHTML = `  
+        <input type='button' value='Save' class='save'>  
+        <input type='button' value='Remove Essay' class='delete'>  
+        <input type='button' value='Quick Input' class='quick-input'>  
+       `;  
+  
+       const feedbackCell = newRow.insertCell(3);  
+       feedbackCell.innerHTML = `<input type="text"/>`;  
+  
+       // Add event listener to the "Remove Essay" button  
+       const deleteButton = newRow.querySelector(".delete");  
+       deleteButton.addEventListener("click", function () {  
+        const row = deleteButton.closest("tr");  
+        const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
+        delete_row(rowNumber);  
+       });  
+      } catch (error) {  
+       console.error(error);  
+      }  
+    }  
+  
+    // Process the pptx files  
+    for (const file of pptxFiles) {  
+      const formData = new FormData();  
+      formData.append("file", file);  
+      const options = {  
+       method: "POST",  
+       headers: {  
+        "x-rapidapi-key": apiKey,  
+        "x-rapidapi-host": apiHost,  
+       },  
+       body: formData,  
+      };  
+  
+      try {  
+       const response = await fetch(apiEndpoint, options);  
+       const result = await response.text();  
+       const table = document.getElementById("data_table");  
+       const newRow = table.insertRow(table.rows.length - 1);  
+       newRow.id = `row${table.rows.length - 1}`;  
+  
+       const essayCell = newRow.insertCell(0);  
+       essayCell.innerHTML = `<input type="text" value="${result.trim()}"/>`;  
+  
+       const gradeCell = newRow.insertCell(1);  
+       gradeCell.innerHTML = `<input type="text"/>`;  
+  
+       const actionsCell = newRow.insertCell(2);  
+       actionsCell.innerHTML = `  
+        <input type='button' value='Save' class='save'>  
+        <input type='button' value='Remove Essay' class='delete'>  
+        <input type='button' value='Quick Input' class='quick-input'>  
+       `;  
+  
+       const feedbackCell = newRow.insertCell(3);  
+       feedbackCell.innerHTML = `<input type="text"/>`;  
+  
+       // Add event listener to the "Remove Essay" button  
+       const deleteButton = newRow.querySelector(".delete");  
+       deleteButton.addEventListener("click", function () {  
+        const row = deleteButton.closest("tr");  
+        const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;  
+        delete_row(rowNumber);  
+       });  
+      } catch (error) {  
+       console.error(error);  
+      }  
+    }  
+   };  
+  
+   fileUpload.addEventListener("change", handleFileUpload);  
+   folderUpload.addEventListener("change", handleFileUpload);  
+  
+   // Function to extract text from slide XML  
+   function extractTextFromXml(xmlContent) {  
+    const parser = new DOMParser();  
+    const xmlDoc = parser.parseFromString(xmlContent, "application/xml");  
+    const textNodes = xmlDoc.getElementsByTagName("a:t");  
+    return Array.from(textNodes).map((node) => node.textContent).join("");  
+   }  
+  
+   fileUpload.addEventListener("change", handleFileUpload);  
+   folderUpload.addEventListener("change", handleFileUpload);  
+  
+   let currentRowIndex = 0;  
+   let rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
+   // done!!  
+   document.addEventListener("click", function (event) {  
+    if (event.target.classList.contains("quick-input")) {  
+      // Delete all other instances of quick input  
+      const modals = document.querySelectorAll("#quick-input-modal");  
+      modals.forEach((modal) => {  
+       modal.style.display = "none";  
+       while (modal.firstChild) {  
+        modal.removeChild(modal.firstChild);  
+       }  
+      });  
+  
+      const modal = document.getElementById("quick-input-modal");  
+      modal.style.display = "block";  
+  
+      // Get the current row and its data  
+      const row = event.target.parentNode.parentNode;  
+      const essayInput = row.querySelector("td:nth-child(1) input");  
+      const gradeInput = row.querySelector("td:nth-child(2) input");  
+      const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+      const feedbackInput = row.querySelector("td:last-child input");  
+  
+      // Populate the modal with the current data  
+      const essayDiv = document.createElement("div");  
+      essayDiv.innerHTML = essayInput.value;  
+      modal.insertBefore(essayDiv, modal.firstChild);  
+  
+      const gradeInputModal = document.createElement("input");  
+      gradeInputModal.id = "quick-input-grade";  
+      gradeInputModal.type = "text";  
+      gradeInputModal.value = gradeInput.value;  
+      modal.appendChild(gradeInputModal);  
+  
+      const subgradesDiv = document.createElement("div");  
+      subgradesDiv.id = "quick-input-subgrades";  
+      modal.appendChild(subgradesDiv);  
+      const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
+      subgradeCells.forEach((cell, index) => {  
+       const subgradeInput = cell.querySelector("input");  
+       const subgradeLabel = document.createElement("label");  
+       subgradeLabel.textContent = subgradeHeaders[index].textContent;  
+       if (subgradeLabel.textContent !== "Actions") {  
+        const subgradeValue = document.createElement("input");  
+        subgradeValue.type = "text";  
+        subgradeValue.value = subgradeInput.value;  
+        subgradesDiv.appendChild(subgradeLabel);  
+        subgradesDiv.appendChild(subgradeValue);  
+       }  
+      });  
+      const feedbackInputModal = document.createElement("textarea");  
+      feedbackInputModal.id = "quick-input-feedback";  
+      feedbackInputModal.value = feedbackInput.value;  
+      modal.appendChild(feedbackInputModal);  
+  
+      // Add navigation buttons  
+      const navigationDiv = document.createElement("div");  
+      const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
+      var currentIndex = Array.prototype.indexOf.call(rows, row);  
+      navigationDiv.innerHTML = `  
+       <button id="previous-button">Previous</button>  
+       <span id="current-essay-label">Essay ${currentIndex + 1} / ${rows.length}</span>  
+       <button id="next-button">Next</button>  
+      `;  
+      modal.appendChild(navigationDiv);  
+  
+      // Add event listeners to the navigation buttons  
+      document.getElementById("previous-button").addEventListener("click", () => {  
+       if (currentIndex > 0) {  
+        currentIndex--;  
+        const previousRow = rows[currentIndex];  
+        const previousEssayInput = previousRow.querySelector("td:nth-child(1) input");  
+        const previousGradeInput = previousRow.querySelector("td:nth-child(2) input");  
+        const previousSubgradeCells = previousRow.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+        const previousFeedbackInput = previousRow.querySelector("td:last-child input");  
+  
+        // Update the modal with the previous row's data  
+        essayDiv.innerHTML = previousEssayInput.value;  
+        gradeInputModal.value = previousGradeInput.value;  
+        subgradesDiv.innerHTML = "";  
+        previousSubgradeCells.forEach((cell, index) => {  
+          const subgradeInput = cell.querySelector("input");  
+          const subgradeLabel = document.createElement("label");  
+          subgradeLabel.textContent = subgradeHeaders[index].textContent;  
+          if (subgradeLabel.textContent !== "Actions") {  
+           const subgradeValue = document.createElement("input");  
+           subgradeValue.type = "text";  
+           subgradeValue.value = subgradeInput.value;  
+           subgradesDiv.appendChild(subgradeLabel);  
+           subgradesDiv.appendChild(subgradeValue);  
+          }  
+        });  
+        feedbackInputModal.value = previousFeedbackInput.value;  
+        navigationDiv.querySelector("span").textContent = `Essay ${currentIndex + 1} / ${rows.length}`;  
+       }  
+      });  
+  
+      document.getElementById("next-button").addEventListener("click", () => {  
+       if (currentIndex < rows.length - 1) {  
+        currentIndex++;  
+        const nextRow = rows[currentIndex];  
+        const nextEssayInput = nextRow.querySelector("td:nth-child(1) input");  
+        const nextGradeInput = nextRow.querySelector("td:nth-child(2) input");  
+        const nextSubgradeCells = nextRow.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+        const nextFeedbackInput = nextRow.querySelector("td:last-child input");  
+  
+        // Update the modal with the next row's data  
+        essayDiv.innerHTML = nextEssayInput.value;  
+        gradeInputModal.value = nextGradeInput.value;  
+        subgradesDiv.innerHTML = "";  
+        nextSubgradeCells.forEach((cell, index) => {  
+          const subgradeInput = cell.querySelector("input");  
+          const subgradeLabel = document.createElement("label");  
+          subgradeLabel.textContent = subgradeHeaders[index].textContent;  
+          if (subgradeLabel.textContent !== "Actions") {  
+           const subgradeValue = document.createElement("input");  
+           subgradeValue.type = "text";  
+           subgradeValue.value = subgradeInput.value;  
+           subgradesDiv.appendChild(subgradeLabel);  
+           subgradesDiv.appendChild(subgradeValue);  
+          }  
+        });  
+        feedbackInputModal.value = nextFeedbackInput.value;  
+        navigationDiv.querySelector("span").textContent = `Essay ${currentIndex + 1} / ${rows.length}`;  
+       }  
+      });  
+  
+      // Add event listeners to the save and cancel buttons  
+      const saveButton = document.createElement("button");  
+      saveButton.textContent = "Save";  
+      saveButton.addEventListener("click", () => {  
+       // Update the row data with the modal input values  
+       gradeInput.value = document.getElementById("quick-input-grade").value;  
+       const subgradeInputs = document.querySelectorAll("#quick-input-subgrades input");  
+       const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
+       subgradeCells.forEach((cell, index) => {  
+        const subgradeInput = cell.querySelector("input");  
+        const subgradeLabel = subgradeHeaders[index].textContent;  
+        const matchingSubgradeInput = Array.prototype.find.call(subgradeInputs, (input) => {  
+          return input.previousElementSibling.textContent === subgradeLabel;  
+        });  
+        if (matchingSubgradeInput) {  
+          subgradeInput.value = matchingSubgradeInput.value;  
+        }  
+       });  
+       feedbackInput.value = document.getElementById("quick-input-feedback").value;  
+  
+       // Hide the modal  
+       modal.style.display = "none";  
+       while (modal.firstChild) {  
+        modal.removeChild(modal.firstChild);  
+       }  
+      });  
+      modal.appendChild(saveButton);  
+  
+      const cancelButton = document.createElement("button");  
+      cancelButton.textContent = "Cancel";  
+      cancelButton.addEventListener("click", () => {  
+       // Hide the modal  
+       modal.style.display = "none";  
+       while (modal.firstChild) {  
+        modal.removeChild(modal.firstChild);  
+       }  
+      });  
+      modal.appendChild(cancelButton);  
+    }  
+   });  
+  </script>  
+</body>  
+</html>
