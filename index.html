@@ -674,7 +674,6 @@ const fileUpload = document.getElementById('fileUpload');
 const folderUpload = document.getElementById('folderUpload');  
 import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";  
 import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.min.js';  
-import PPTXCompose from 'https://cdn.jsdelivr.net/npm/pptx-compose@1.0.0/lib/index.min.js';  
   
 globalThis.handleFileUpload = async function handleFileUpload(event) {  
   const files = event.target.files;  
@@ -795,16 +794,16 @@ globalThis.handleFileUpload = async function handleFileUpload(event) {
    reader.onload = async function(event) {  
     const arrayBuffer = event.target.result;  
   
-    // Parse the pptx content using PPTXCompose  
-    const pptx = await PPTXCompose.toJSON(arrayBuffer);  
+    // Load PPTX as zip  
+    const zip = await JSZip.loadAsync(arrayBuffer);  
   
-    // Extract the text from the pptx content  
-    let extractedText = '';  
-    for (const slide of pptx.slides) {  
-      for (const shape of slide.shapes) {  
-       if (shape.type === 'text') {  
-        extractedText += shape.text + ' ';  
-       }  
+    // Extract text from slides  
+    const slideTexts = [];  
+    for (const [filename, fileObj] of Object.entries(zip.files)) {  
+      if (filename.includes("ppt/slides/slide")) {  
+       const content = await fileObj.async("string");  
+       const slideText = extractTextFromXml(content);  
+       slideTexts.push(slideText);  
       }  
     }  
   
@@ -814,7 +813,7 @@ globalThis.handleFileUpload = async function handleFileUpload(event) {
     newRow.id = `row${table.rows.length - 1}`;  
   
     const essayCell = newRow.insertCell(0);  
-    essayCell.innerHTML = `<input type="text" value="${extractedText.trim()}"/>`;  
+    essayCell.innerHTML = `<input type="text" value="${slideTexts.join("\n\n").trim()}"/>`;  
   
     const gradeCell = newRow.insertCell(1);  
     gradeCell.innerHTML = `<input type="text"/>`;  
@@ -841,11 +840,19 @@ globalThis.handleFileUpload = async function handleFileUpload(event) {
    // Trigger file reading  
    reader.readAsArrayBuffer(file);  
   }  
-}
-
+}  
+  
+// Function to extract text from slide XML  
+function extractTextFromXml(xmlContent) {  
+  const parser = new DOMParser();  
+  const xmlDoc = parser.parseFromString(xmlContent, "application/xml");  
+  const textNodes = xmlDoc.getElementsByTagName("a:t");  
+  return Array.from(textNodes).map(node => node.textContent).join(" ");  
+}  
   
 fileUpload.addEventListener('change', handleFileUpload);  
 folderUpload.addEventListener('change', handleFileUpload);
+
 
 let currentRowIndex = 0;  
 let rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
