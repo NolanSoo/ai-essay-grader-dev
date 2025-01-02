@@ -672,7 +672,9 @@ globalThis.downloadData = function downloadData() {
 
 const fileUpload = document.getElementById('fileUpload');  
 const folderUpload = document.getElementById('folderUpload');  
-import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";
+import mammoth from "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm";  
+import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.min.js';  
+import PPTXCompose from 'https://cdn.jsdelivr.net/npm/pptx-compose@1.0.0/lib/index.min.js';  
   
 globalThis.handleFileUpload = async function handleFileUpload(event) {  
   const files = event.target.files;  
@@ -742,16 +744,23 @@ globalThis.handleFileUpload = async function handleFileUpload(event) {
    reader.onload = async function(event) {  
     const arrayBuffer = event.target.result;  
   
-    // Parse the pdf content using mammoth.js  
-    const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });  
+    // Parse the pdf content using pdfjsLib  
+    const pdfDoc = await pdfjsLib.getDocument(arrayBuffer).promise;  
+    const textContent = await pdfDoc.getTextContent();  
   
-    // Add the parsed text to a new row in the table  
+    // Extract the text from the pdf content  
+    let extractedText = '';  
+    for (const item of textContent.items) {  
+      extractedText += item.str + ' ';  
+    }  
+  
+    // Add the extracted text to a new row in the table  
     const table = document.getElementById("data_table");  
     const newRow = table.insertRow(table.rows.length - 1);  
     newRow.id = `row${table.rows.length - 1}`;  
   
     const essayCell = newRow.insertCell(0);  
-    essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;  
+    essayCell.innerHTML = `<input type="text" value="${extractedText.trim()}"/>`;  
   
     const gradeCell = newRow.insertCell(1);  
     gradeCell.innerHTML = `<input type="text"/>`;  
@@ -786,16 +795,26 @@ globalThis.handleFileUpload = async function handleFileUpload(event) {
    reader.onload = async function(event) {  
     const arrayBuffer = event.target.result;  
   
-    // Parse the pptx content using mammoth.js  
-    const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });  
+    // Parse the pptx content using PPTXCompose  
+    const pptx = await PPTXCompose.toJSON(arrayBuffer);  
   
-    // Add the parsed text to a new row in the table  
+    // Extract the text from the pptx content  
+    let extractedText = '';  
+    for (const slide of pptx.slides) {  
+      for (const shape of slide.shapes) {  
+       if (shape.type === 'text') {  
+        extractedText += shape.text + ' ';  
+       }  
+      }  
+    }  
+  
+    // Add the extracted text to a new row in the table  
     const table = document.getElementById("data_table");  
     const newRow = table.insertRow(table.rows.length - 1);  
     newRow.id = `row${table.rows.length - 1}`;  
   
     const essayCell = newRow.insertCell(0);  
-    essayCell.innerHTML = `<input type="text" value="${textContent.trim()}"/>`;  
+    essayCell.innerHTML = `<input type="text" value="${extractedText.trim()}"/>`;  
   
     const gradeCell = newRow.insertCell(1);  
     gradeCell.innerHTML = `<input type="text"/>`;  
