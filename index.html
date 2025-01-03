@@ -102,7 +102,7 @@
 
     <label for="upload_folder">Upload Essays from Folder</label>
       <!--Add a button to import images-->  
-  <input type="file" id="image_upload" multiple accept=".jpg,.png">  
+<input type="file" id="imageInput" accept="image/*" multiple />
   <input type="button" id="scan_images" value="Scan Images">  
 <!-- Add this to the HTML body -->  
 <div id="quick-input-modal" style="display: none;">  
@@ -1023,14 +1023,18 @@ saveButton.addEventListener("click", () => {
   }  
 });
 // Function to handle image uploads using file paths
+// Example handler for uploading the image
 globalThis.handleImageUpload = async function handleImageUpload(event) {
   const files = event.target.files; // Selected files
   const table = document.getElementById("data_table"); // Table to populate data
 
   for (const file of files) {
     try {
-      // Pass the file object directly to the scanImage function
-      const scannedText = await scanImage(file);
+      // Create a temporary URL for the uploaded image
+      const imageUrl = URL.createObjectURL(file);
+
+      // Pass the file URL directly to the scanImage function
+      const scannedText = await scanImage(imageUrl);
 
       // Add a new row to the table with the scanned data and feedback from Groq
       const newRow = table.insertRow(table.rows.length - 1);
@@ -1062,6 +1066,7 @@ globalThis.handleImageUpload = async function handleImageUpload(event) {
       });
     } catch (error) {
       console.error("Error processing file:", error);
+      // Optionally, handle the error gracefully in the UI (e.g., show an error message)
     }
   }
 };
