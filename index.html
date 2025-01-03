@@ -101,6 +101,9 @@
 <input type="file" id="folderUpload" webkitdirectory multiple>
 
     <label for="upload_folder">Upload Essays from Folder</label>
+      <!--Add a button to import images-->  
+  <input type="file" id="image_upload" multiple accept=".jpg,.png">  
+  <input type="button" id="scan_images" value="Scan Images">  
 <!-- Add this to the HTML body -->  
 <div id="quick-input-modal" style="display: none;">  
   <h2>Quick Input</h2>  
@@ -1020,6 +1023,39 @@ saveButton.addEventListener("click", () => {
    modal.appendChild(cancelButton);  
   }  
 });
+      // Function to handle image upload  
+   globalThis.handleImageUpload = async function handleImageUpload(event) {  
+    const images = event.target.files;  
+    for (const image of images) {  
+      const reader = new FileReader();  
+      reader.onload = async function(event) {  
+       const imageData = event.target.result;  
+       const scannedText = await scanImage(imageData);  
+       const table = document.getElementById("data_table");  
+       const newRow = table.insertRow(table.rows.length - 1);  
+       newRow.id = `row${table.rows.length - 1}`;  
+  
+       const essayCell = newRow.insertCell(0);  
+       essayCell.innerHTML = `<input type="text" value="${scannedText}"/>`;  
+  
+       const gradeCell = newRow.insertCell(1);  
+       gradeCell.innerHTML = `<input type="text"/>`;  
+  
+       const actionsCell = newRow.insertCell(2);  
+       actionsCell.innerHTML = `  
+        <input type="button" value="Save" class="save">  
+        <input type="button" value="Remove Essay" class="delete">  
+        <input type='button' value='Quick Input' class='quick-input'>  
+       `;  
+  
+       const feedbackCell = newRow.insertCell(3);  
+       feedbackCell.innerHTML = `<input type="text"/>`;  
+      };  
+      reader.readAsDataURL(image);  
+    }  
+   };  
+  
+   document.getElementById("image_upload").addEventListener('change', handleImageUpload);  
   </script>  
 </body>  
 </html>
