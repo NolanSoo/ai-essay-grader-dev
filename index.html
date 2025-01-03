@@ -1030,8 +1030,8 @@ globalThis.handleImageUpload = async function handleImageUpload(event) {
 
   for (const file of files) {
     try {
-      // Scan the image using the file path
-      const scannedText = await scanImage(files);
+      // Pass the file object directly to the scanImage function
+      const scannedText = await scanImage(file);
 
       // Add a new row to the table with the scanned data
       const newRow = table.insertRow(table.rows.length - 1);
@@ -1072,6 +1072,8 @@ globalThis.delete_row = function delete_row(rowNumber) {
   const table = document.getElementById("data_table");
   table.deleteRow(rowNumber - 1); // Adjust for zero-based indexing
 };
+
+
 
   
    document.getElementById("image_upload").addEventListener('change', handleImageUpload);  
