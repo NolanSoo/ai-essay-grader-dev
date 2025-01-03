@@ -1023,7 +1023,6 @@ saveButton.addEventListener("click", () => {
   }  
 });
 // Function to handle image uploads using file paths
-// Function to handle image uploads using file paths
 globalThis.handleImageUpload = async function handleImageUpload(event) {
   const files = event.target.files; // Selected files
   const table = document.getElementById("data_table"); // Table to populate data
@@ -1033,7 +1032,7 @@ globalThis.handleImageUpload = async function handleImageUpload(event) {
       // Pass the file object directly to the scanImage function
       const scannedText = await scanImage(file);
 
-      // Add a new row to the table with the scanned data
+      // Add a new row to the table with the scanned data and feedback from Groq
       const newRow = table.insertRow(table.rows.length - 1);
       newRow.id = `row${table.rows.length - 1}`;
 
@@ -1052,7 +1051,7 @@ globalThis.handleImageUpload = async function handleImageUpload(event) {
       `;
 
       const feedbackCell = newRow.insertCell(3);
-      feedbackCell.innerHTML = `<input type="text" />`;
+      feedbackCell.innerHTML = `<input type="text" value="${scannedText}" />`; // Use Groq feedback here
 
       // Add delete functionality to the delete button
       const newDeleteButton = actionsCell.querySelector(".delete");
