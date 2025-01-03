@@ -48,25 +48,14 @@ async function scanImage(inputImage) {
     const imageDataUrl = await convertImageToDataURL(inputImage);
     console.log("Image Data URL: ", imageDataUrl); // Log the image URL
 
-    // Construct the message for Groq
-    const message = `Read this - and explain the methodology of how the link was generated for you to read the image`;
+    // Construct the message for Groq (single string with text and image URL)
+    const message = `Scan this and output ONLY THE EXACT TEXT The image URL is: ${imageDataUrl}`;
 
     const params = {
       messages: [
         {
           role: "user",
-          content: [
-            {
-              type: "text",
-              text: message, // Text asking to explain the methodology
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: imageDataUrl, // Include the base64 image URL
-              },
-            },
-          ],
+          content: message, // Send a single string as content
         },
       ],
       model: "llama3-8b-8192", // Groq model
@@ -84,7 +73,6 @@ async function scanImage(inputImage) {
     return ''; // Return empty string in case of an error
   }
 }
-
 
 // Helper function to pause execution for a given time (in milliseconds)
 function sleep(ms) {
