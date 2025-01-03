@@ -1030,10 +1030,8 @@ globalThis.handleImageUpload = async function handleImageUpload(event) {
 
   for (const file of files) {
     try {
-      const filePath = URL.createObjectURL(file); // Create a file path for the uploaded file
-
       // Scan the image using the file path
-      const scannedText = await scanImage(filePath);
+      const scannedText = await scanImage(files);
 
       // Add a new row to the table with the scanned data
       const newRow = table.insertRow(table.rows.length - 1);
