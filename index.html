@@ -1033,7 +1033,7 @@ globalThis.handleImageUpload = async function handleImageUpload(event) {
       // Create a temporary URL for the uploaded image
       const imageUrl = URL.createObjectURL(file);
 
-      // Pass the file URL directly to the scanImage function
+      // Pass the image URL to the scanImage function
       const scannedText = await scanImage(imageUrl);
 
       // Add a new row to the table with the scanned data and feedback from Groq
@@ -1066,7 +1066,6 @@ globalThis.handleImageUpload = async function handleImageUpload(event) {
       });
     } catch (error) {
       console.error("Error processing file:", error);
-      // Optionally, handle the error gracefully in the UI (e.g., show an error message)
     }
   }
 };
@@ -1076,6 +1075,7 @@ globalThis.delete_row = function delete_row(rowNumber) {
   const table = document.getElementById("data_table");
   table.deleteRow(rowNumber - 1); // Adjust for zero-based indexing
 };
+
 
 
 
