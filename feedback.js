@@ -1,22 +1,14 @@
 // Import the Groq SDK  
 import Groq from "https://cdn.jsdelivr.net/npm/groq-sdk@0.8.0/+esm";  
-// API key (replace with your actual key)
-const apiKey = "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"; // NOT THE REAL KEY BTW   sss
 
-// Encoding the API key in Base64
-const encodedApiKey = btoa(apiKey);
-
-// Decoding it back (for access in your code)
+const encodedApiKey = "Z3NrX21tTzZvWlpXMjdQbkJqTnpyWFVHV0dkeWIzRllsT0Z5TzVBYUtSbldQUGdubkZ5T1hKY2M=";
+// this is a fake key btw
 const decodedApiKey = atob(encodedApiKey);
-
-// Example usage:
-console.log("Encoded API Key: ", encodedApiKey); // For obfuscation
-console.log("Decoded API Key: ", decodedApiKey); // For actual usage
 
 // Keep decodedApiKey hidden and use it in your API request logic
 // Initialize the Groq client  
 const client = new Groq({  
-  apiKey: "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", 
+  apiKey: decodedApiKey, 
   dangerouslyAllowBrowser: true,  
 });  
   
