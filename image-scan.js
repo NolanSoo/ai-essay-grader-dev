@@ -30,6 +30,3 @@ async function scanImage(imageData) {
 }
 
 export { scanImage };
-
-
-export { scanImage };
