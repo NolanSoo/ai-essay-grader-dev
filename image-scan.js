@@ -18,7 +18,6 @@
 //     return ''; // Return empty string in case of an error  
 //   }  
 // }  tesseract underperformed
-   
 // Import the Groq SDK
 import Groq from "https://cdn.jsdelivr.net/npm/groq-sdk@0.8.0/+esm";
 
@@ -31,53 +30,44 @@ const client = new Groq({
   dangerouslyAllowBrowser: true,
 });
 
-// Function to convert an image file to a data URL
-function convertImageToDataURL(imageFile) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result); // Resolves with data URL
-    reader.onerror = (error) => reject(error); // Reject on error
-    reader.readAsDataURL(imageFile); // Read the file as a data URL
-  });
-}
-
-// Function to get feedback from Groq (scan the image)
-async function scanImage(inputImage) {
+// Function to scan image from a URL
+async function scanImage(imageUrl) {
   try {
-    // Convert the image file to a data URL
-    const imageDataUrl = await convertImageToDataURL(inputImage);
-    console.log("Image Data URL: ", imageDataUrl); // Log the image URL
-
-    // Construct a smaller message for Groq
-    // Instead of sending the whole base64 string, send the image URL or a short message
-    const message = `Please process the image located at this URL: ${imageDataUrl.slice(0, 100)}... (data too long to display fully)`;
-
-    const params = {
+    // Make the API call to process the image URL
+    const chatCompletion = await client.chat.completions.create({
       messages: [
         {
           role: "user",
-          content: message, // Single string
-        },
+          content: [
+            {
+              type: "text",
+              text: "Please process the image from this URL:"
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: imageUrl
+              }
+            }
+          ]
+        }
       ],
-      model: "llama3-8b-8192", // Groq model
-    };
+      model: "llama-3.2-11b-vision-preview",
+      temperature: 1,
+      max_tokens: 1024,
+      top_p: 1,
+      stream: false,
+      stop: null
+    });
 
-    // Make the API call to Groq
-    const chatCompletion = await client.chat.completions.create(params);
-    const messageContent = chatCompletion.choices[0].message.content;
-
-    console.log("Groq Response: ", messageContent); // Log the response from Groq
-    return messageContent; // Return the feedback or result from Groq
-
+    // Log the response from Groq and return the result
+    console.log(chatCompletion.choices[0].message.content);
+    return chatCompletion.choices[0].message.content;
   } catch (error) {
-    console.error("Error during image processing with Groq:", error);
-    return ''; // Return empty string in case of an error
+    console.error("Error during image processing:", error);
+    return 'Error during image processing';
   }
 }
 
-// Helper function to pause execution for a given time (in milliseconds)
-function sleep(ms) {
-return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 export { scanImage };
