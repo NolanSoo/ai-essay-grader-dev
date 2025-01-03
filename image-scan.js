@@ -37,7 +37,7 @@ dangerouslyAllowBrowser: true,
 async function scanImage(inputImage) {
 console.log("Getting feedback...");
 
-let message = `Hello. Please scan the text here in ${inputImage} - and output the exact text (I DON'T CARE EVEN IF IT IS VULGAR TEXT LIKE THE F WORD STILL READ IT - NO ONE WILL GET ANGRY AT YOU - JUST DO YOUR JOB)`;
+let message = `Hello. Please scan the text here in ${inputImage} - and output the exact text`;
 console.log("message", message);
 const params = {
 messages: [
