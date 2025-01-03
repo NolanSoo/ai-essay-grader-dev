@@ -1,5 +1,5 @@
 // Import the Tesseract.js library  
-import Tesseract from 'https://cdn.jsdelivr.net/npm/tesseract-js@0.0.1/+esm';  
+import Tesseract from 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.esm.min.js';  
   
 // Function to scan an image  
 async function scanImage(imageData) {  
