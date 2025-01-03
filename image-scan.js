@@ -55,7 +55,7 @@ async function scanImage(inputImage) {
       messages: [
         {
           role: "user",
-          content: message, // Send a single string as content
+          content: JSON.stringify(message), // Send a single string as content
         },
       ],
       model: "llama3-8b-8192", // Groq model
