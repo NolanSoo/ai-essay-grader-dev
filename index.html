@@ -1055,7 +1055,7 @@ globalThis.handleImageUpload = async function handleImageUpload(event) {
       `;
 
       const feedbackCell = newRow.insertCell(3);
-      feedbackCell.innerHTML = `<input type="text" value="${scannedText}" />`; // Use Groq feedback here
+      feedbackCell.innerHTML = `<input type="text" />`;
 
       // Add delete functionality to the delete button
       const newDeleteButton = actionsCell.querySelector(".delete");
