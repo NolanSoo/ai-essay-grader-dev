@@ -1022,37 +1022,57 @@ saveButton.addEventListener("click", () => {
    modal.appendChild(cancelButton);  
   }  
 });
-      // Function to handle image upload  
-   globalThis.handleImageUpload = async function handleImageUpload(event) {  
-    const images = event.target.files;  
-    for (const image of images) {  
-      const reader = new FileReader();  
-      reader.onload = async function(event) {  
-       const imageData = event.target.result;  
-       const scannedText = await scanImage(imageData);  
-       const table = document.getElementById("data_table");  
-       const newRow = table.insertRow(table.rows.length - 1);  
-       newRow.id = `row${table.rows.length - 1}`;  
-  
-       const essayCell = newRow.insertCell(0);  
-       essayCell.innerHTML = `<input type="text" value="${scannedText}"/>`;  
-  
-       const gradeCell = newRow.insertCell(1);  
-       gradeCell.innerHTML = `<input type="text"/>`;  
-  
-       const actionsCell = newRow.insertCell(2);  
-       actionsCell.innerHTML = `  
-        <input type="button" value="Save" class="save">  
-        <input type="button" value="Remove Essay" class="delete">  
-        <input type='button' value='Quick Input' class='quick-input'>  
-       `;  
-  
-       const feedbackCell = newRow.insertCell(3);  
-       feedbackCell.innerHTML = `<input type="text"/>`;  
-      };  
-      reader.readAsDataURL(image);  
-    }  
-   };  
+// Function to handle image uploads using file paths
+globalThis.handleImageUpload = async function handleImageUpload(event) {
+  const files = event.target.files; // Selected files
+  const table = document.getElementById("data_table"); // Table to populate data
+
+  for (const file of files) {
+    try {
+      const filePath = URL.createObjectURL(file); // Create a file path for the uploaded file
+
+      // Scan the image using the file path
+      const scannedText = await scanImage(filePath);
+
+      // Add a new row to the table with the scanned data
+      const newRow = table.insertRow(table.rows.length - 1);
+      newRow.id = `row${table.rows.length - 1}`;
+
+      // Create cells for the new row
+      const essayCell = newRow.insertCell(0);
+      essayCell.innerHTML = `<input type="text" value="${scannedText}" />`;
+
+      const gradeCell = newRow.insertCell(1);
+      gradeCell.innerHTML = `<input type="text" />`;
+
+      const actionsCell = newRow.insertCell(2);
+      actionsCell.innerHTML = `
+        <input type="button" value="Save" class="save" />
+        <input type="button" value="Remove Essay" class="delete" />
+        <input type="button" value="Quick Input" class="quick-input" />
+      `;
+
+      const feedbackCell = newRow.insertCell(3);
+      feedbackCell.innerHTML = `<input type="text" />`;
+
+      // Add delete functionality to the delete button
+      const newDeleteButton = actionsCell.querySelector(".delete");
+      newDeleteButton.addEventListener("click", function () {
+        const row = newDeleteButton.closest("tr");
+        const rowNumber = Array.prototype.indexOf.call(row.parentNode.children, row) + 1;
+        delete_row(rowNumber);
+      });
+    } catch (error) {
+      console.error("Error processing file:", error);
+    }
+  }
+};
+
+// Function to delete a row
+globalThis.delete_row = function delete_row(rowNumber) {
+  const table = document.getElementById("data_table");
+  table.deleteRow(rowNumber - 1); // Adjust for zero-based indexing
+};
   
    document.getElementById("image_upload").addEventListener('change', handleImageUpload);  
   </script>  
