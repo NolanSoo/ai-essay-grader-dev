@@ -1023,6 +1023,7 @@ saveButton.addEventListener("click", () => {
   }  
 });
 // Function to handle image uploads using file paths
+// Function to handle image uploads using file paths
 globalThis.handleImageUpload = async function handleImageUpload(event) {
   const files = event.target.files; // Selected files
   const table = document.getElementById("data_table"); // Table to populate data
@@ -1073,6 +1074,7 @@ globalThis.delete_row = function delete_row(rowNumber) {
   const table = document.getElementById("data_table");
   table.deleteRow(rowNumber - 1); // Adjust for zero-based indexing
 };
+
   
    document.getElementById("image_upload").addEventListener('change', handleImageUpload);  
   </script>  
