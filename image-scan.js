@@ -19,63 +19,72 @@
 //   }  
 // }  tesseract underperformed
    
- // Import the Groq SDK
+// Import the Groq SDK
 import Groq from "https://cdn.jsdelivr.net/npm/groq-sdk@0.8.0/+esm";
 
-const encodedApiKey = "Z3NrX21tTzZvWlpXMjdQbkJqTnpyWFVHV0dkeWIzRllsT0Z5TzVBYUtSbldQUGdubkZ5T1hKY2M=";
-// this is a fake key btw
+const encodedApiKey = "Z3NrX21tTzZvWlpXMjdQbkJqTnpyWFVHV0dkeWIzRllsT0Z5TzVBYUtSbldQUGdubkZ5T1hKY2M="; // Fake key
 const decodedApiKey = atob(encodedApiKey);
 
-// Keep decodedApiKey hidden and use it in your API request logic
 // Initialize the Groq client
 const client = new Groq({
-apiKey: decodedApiKey,
-dangerouslyAllowBrowser: true,
+  apiKey: decodedApiKey,
+  dangerouslyAllowBrowser: true,
 });
 
-// Function to get feedback from the model
+// Function to convert an image file to a data URL
+function convertImageToDataURL(imageFile) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result); // Resolves with data URL
+    reader.onerror = (error) => reject(error); // Reject on error
+    reader.readAsDataURL(imageFile); // Read the file as a data URL
+  });
+}
+
+// Function to get feedback from Groq (scan the image)
 async function scanImage(inputImage) {
-console.log("Getting feedback...");
+  try {
+    // Convert the image file to a data URL
+    const imageDataUrl = await convertImageToDataURL(inputImage);
+    console.log("Image Data URL: ", imageDataUrl); // Log the image URL
 
-let message = `Hello. Please scan the text here in ${inputImage} - and output the exact text`;
-console.log("message", message);
-const params = {
-messages: [
-{
-role: "system",
-content: message,
-},
-],
-model: "llama3-8b-8192",
-};
+    // Construct the message for Groq
+    const message = `Read this - and explain the methodology of how the link was generated for you to read the image`;
 
-try {
-// Make the API call
-const chatCompletion = await client.chat.completions.create(params);
-console.log(chatCompletion);
+    const params = {
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: message, // Text asking to explain the methodology
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: imageDataUrl, // Include the base64 image URL
+              },
+            },
+          ],
+        },
+      ],
+      model: "llama3-8b-8192", // Groq model
+    };
 
-// Extract the main fields
-const { id, model, created, choices, usage } = chatCompletion;
-const messageContent = choices[0].message.content;
-const { prompt_tokens, total_tokens } = usage;
+    // Make the API call to Groq
+    const chatCompletion = await client.chat.completions.create(params);
+    const messageContent = chatCompletion.choices[0].message.content;
 
-console.log("ID:", id);
-console.log("Model:", model);
-console.log("Created Timestamp:", created);
-console.log("Message Content:", messageContent);
-console.log("Prompt Tokens Used:", prompt_tokens);
-console.log("Total Tokens Used:", total_tokens);
-return messageContent;
-} catch (err) {
-if (err instanceof Groq.APIError) {
-console.error("API Error:", err);
-document.getElementById("output").textContent = `Error: ${err.name} (${err.status})`;
-} else {
-console.error("Unexpected Error:", err);
-document.getElementById("output").textContent = "An unexpected error occurred.";
+    console.log("Groq Response: ", messageContent); // Log the response from Groq
+    return messageContent; // Return the feedback or result from Groq
+
+  } catch (error) {
+    console.error("Error during image processing with Groq:", error);
+    return ''; // Return empty string in case of an error
+  }
 }
-}
-}
+
 
 // Helper function to pause execution for a given time (in milliseconds)
 function sleep(ms) {
