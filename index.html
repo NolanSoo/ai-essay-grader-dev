@@ -418,17 +418,14 @@ feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedba
           verbose: 0,  
         }  
        );  
-  
-       // Log progress every 10 epochs  
-       if (mainGradeEpoch % 10 === 0) {  
+    
         console.log(  
           `Main Grade Training Epoch ${mainGradeEpoch} completed.`  
         );  
-        percentageDone += (1000 / epochs) / (Object.keys(subgradeInputEssays).length);  
+        percentageDone += (100 / epochs) / (Object.keys(subgradeInputEssays).length);  
         currentTime = Date.now() / 1000;  
         totalTimeTaken = currentTime - startTime;  
         updateProgress(percentageDone, totalTimeTaken, "Training Main Grade");  
-       }  
       }  
   
       // Train subgrade models  
@@ -462,16 +459,14 @@ feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedba
           }  
         );  
   
-        // Log progress every 10 epochs  
-        if (subgradeEpoch % 10 === 0) {  
           console.log(  
            `${subgrade} (Playground) Training Epoch ${subgradeEpoch} completed.`  
           );  
-          percentageDone += (1000 / epochs) / Object.keys(subgradeInputEssays).length;  
+          percentageDone += (100 / epochs) / Object.keys(subgradeInputEssays).length;  
           currentTime = Date.now() / 1000;  
           totalTimeTaken = currentTime - startTime;  
           updateProgress(percentageDone, totalTimeTaken, `Training ${subgrade}`);  
-        }  
+
        }  
       }  
   
