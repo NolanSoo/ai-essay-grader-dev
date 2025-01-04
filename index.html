@@ -19,7 +19,7 @@
   <h5>A brand-new AI model is newly trained on only your essays so the grades returned exactly matches your standards of grading</h5>  
   <div id="app"></div>  
   <div class="w3-black">  
-   <div class="w3-container w3-green w3-center" id="loading_bar" style="width:0%">  
+   <div class="w3-container w3-green w3-center" id="loading_bar" style="width:7.5%">  
     <p id="percentage_label">0%</p>  
     <break>  
     <p id="time_label"></p>  
@@ -150,7 +150,7 @@
     var modifiedPercentage = (percentage * 0.925) + (0.075) // experiment to make bar look nicer
     // Update the width of the loading bar  
     loadingBar.style.width = modifiedPercentage + "%";  
-  
+    console.log("modified", modifiedPercentage);
     // Update the percentage label text  
     percentageLabel.textContent = percentage + "%";  
   
@@ -173,7 +173,7 @@
        const seconds = Math.floor(timeInSeconds % 60);  
        return `${minutes}:${seconds  
         .toString()  
-        .padStart(2, "0")} seconds`;  
+        .padStart(2, "0")}`;  
       };  
   
       // Display the time taken and expected total time in a human-readable format  
