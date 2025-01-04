@@ -89,37 +89,38 @@ td input[type="text"], td input[type="file"], td input[type="button"] {
     padding: 8px;               /* Reduce padding for smaller screens */
   }
   
-  td input[type="text"], td input[type="button"] {
-    width: 100%;  /* Ensure inputs stretch to fit available space */
-  }
-}
-/* Ensure buttons in the actions column stay on one line */
-td#actions_row1, td#actions_row2 {
-  white-space: nowrap; /* Prevent wrapping of text and buttons */
-}
-
-td#actions_row1 input, td#actions_row2 input {
-  display: inline-block; /* Keep buttons inline */
-  margin-right: 5px; /* Add some spacing between buttons */
-  padding: 5px 10px; /* Add padding to buttons for consistent size */
-  border-radius: 8px; /* Ensure buttons have rounded corners */
-}
-
-td#actions_row1 input:last-child, td#actions_row2 input:last-child {
-  margin-right: 0; /* Remove margin for the last button */
-}
 /* Ensure buttons in the third column stay on one line */
 table td:nth-child(3) {
-  white-space: nowrap; /* Prevent wrapping of text and buttons */
+  white-space: nowrap; /* Prevent wrapping */
+  text-align: center; /* Center-align buttons */
 }
 
 table td:nth-child(3) input {
   display: inline-block; /* Keep buttons inline */
-  margin-right: 5px; /* Add some spacing between buttons */
-  padding: 5px 10px; /* Add padding to buttons for consistent size */
-  border-radius: 8px; /* Ensure buttons have rounded corners */
+  margin-right: 4px; /* Add spacing between buttons */
+  padding: 3px 10px; /* Adjust padding for smaller size */
+  font-size: 10px; /* Smaller font size */
+  height: auto; /* Maintain natural height */
+  border-radius: 6px; /* Slight rounding for clean look */
+  border: 1px solid #ccc; /* Subtle border */
 }
 
 table td:nth-child(3) input:last-child {
   margin-right: 0; /* Remove margin for the last button */
+}
+
+/* Keep consistent column layout and prevent overlap */
+table td:nth-child(3) {
+  max-width: 140px; /* Slightly wider for proper spacing */
+  overflow: hidden; /* Prevent overflow into adjacent columns */
+}
+
+table {
+  table-layout: fixed; /* Ensure fixed column widths */
+  width: 100%; /* Stretch table to fit container */
+}
+
+td {
+  overflow: hidden; /* Prevent content from spilling */
+  text-overflow: ellipsis; /* Add ellipsis for overflow text */
 }
