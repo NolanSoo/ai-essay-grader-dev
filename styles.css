@@ -5,6 +5,9 @@ body {
   box-sizing: border-box; /* So padding doesn't affect the layout size */
   border-radius: 12px; /* Apply rounded corners to the body */
 }
+html {
+    font-family: 'Comfortaa', cursive !important;
+}
 
 h1 {
   text-align: center;
