@@ -143,4 +143,6 @@ td {
     font-size: 14px; /* Adjust font size for readability on mobile */
   }
 }
-
+.logo {
+  color: #49d180;
+}
