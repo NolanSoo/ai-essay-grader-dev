@@ -275,36 +275,40 @@
       .value.trim();  
     // Call the feedback function  
     // Collect data from table rows  
-    const rows = document.querySelectorAll(  
-      "#data_table tr:not(:first-child):not(:last-child)"  
-    ); // Excluding header row and add row  
-    rows.forEach((row) => {  
-      const essay = row.querySelector("td:nth-child(1) input").value.trim();  
-      const grade = parseFloat(  
-       row.querySelector("td:nth-child(2) input").value.trim()  
-      );  
-      const feedback = row.querySelector("td:nth-child(4) input").value.trim();  
-      if (essay && !isNaN(grade)) {  
-       inputEssaysMG.push(essay);  
-       inputGradesMG.push(grade);  
-      }  
-      // Collect subgrade data  
-      const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
-      subgradeCells.forEach((cell, index) => {  
-       const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
-       inputEssaysSG[subgradeName] = [];  
-       inputGradesSG[subgradeName] = [];  
-       const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
-       if (!isNaN(subgradeValue)) {  
-        inputEssaysSG[subgradeName].push(essay);  
-        inputGradesSG[subgradeName].push(subgradeValue);  
-       }  
-      });  
-    }); 
-       console.log("IGSG", inputGradesSG);  
-    feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
-   }
-  
+    //Call the feedback function  
+//Collect data from table rows  
+const rows = document.querySelectorAll(  
+  "#data_table tr:not(:first-child):not(:last-child)"  
+); // Excluding header row and add row  
+rows.forEach((row) => {  
+  const essay = row.querySelector("td:nth-child(1) input").value.trim();  
+  const grade = parseFloat(  
+   row.querySelector("td:nth-child(2) input").value.trim()  
+  );  
+  const feedback = row.querySelector("td:last-child input").value.trim(); // Get feedback from last column  
+  if (essay && !isNaN(grade)) {  
+   inputEssaysMG.push(essay);  
+   inputGradesMG.push(grade);  
+   inputFeedbackMG.push(feedback); // Add feedback to inputFeedbackMG array  
+  }  
+  // Collect subgrade data  
+  const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+  subgradeCells.forEach((cell, index) => {  
+   const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
+   if (!inputEssaysSG[subgradeName]) {  
+    inputEssaysSG[subgradeName] = [];  
+    inputGradesSG[subgradeName] = [];  
+   }  
+   inputEssaysSG[subgradeName].push(essay);  
+   const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
+   if (!isNaN(subgradeValue)) {  
+    inputGradesSG[subgradeName].push(subgradeValue);  
+   }  
+  });  
+});  
+console.log("IGSG", inputGradesSG);  
+feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);
+   } 
    
   
   
