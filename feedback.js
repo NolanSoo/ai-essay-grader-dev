@@ -15,7 +15,7 @@ const client = new Groq({
 // Function to get feedback from the model  
 async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput) {  
   console.log("Getting feedback...");  
-  
+  console.log("feedbackMG", JSON.stringify(inputFeedbackMG));
   let message = "Hello. Please give professional feedback on essays (1-2 sentences for overall and for every subgrade)...";  
   for (let i = 0; i < inputEssaysMG.length; i++) {  
    message += `Essay ${(i + 1)}: ${inputEssaysMG[i]} - Main Grade: ${inputGradesMG[i]} - Feedback: ${inputFeedbackMG[i]}`;  
