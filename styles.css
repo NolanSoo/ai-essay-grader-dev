@@ -3,18 +3,24 @@ body.dark-theme {
   background: #1a1a1a;
  color: #ffffff;
 }
-
+/* Dark theme */
+#unloaded.dark-theme {
+  background: #ffffff !important;
+}
 /* Pink theme */
 body.pink-theme {
   background: #ffe4e6;
  color: #550000;
 }
-
+#loading-bar.pink-theme {
+  background: #bb0000 !important;
+}
 /* Green theme */
 body.green-theme {
   background: #e6ffe4;
   color: #003300;
 }
+
 th.dark-theme {
   background-color: #1a1a1a !important;
 }
