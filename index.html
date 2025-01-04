@@ -154,7 +154,7 @@ A brand-new AI model is newly trained on only your essays so the grades returned
   
     // Ensure the percentage is between 0 and 100  
     percentage = Math.max(0, Math.min(100, percentage));
-    unroundedPercentage = percentage.toFixed(10); // to start calculating earlier for requests that take more time
+    var unroundedPercentage = percentage.toFixed(10); // to start calculating earlier for requests that take more time
     percentage = percentage.toFixed(2);  
   
     // Get the loading bar and percentage label elements  
