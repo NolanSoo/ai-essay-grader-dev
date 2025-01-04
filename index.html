@@ -153,7 +153,8 @@ A brand-new AI model is newly trained on only your essays so the grades returned
     console.log("Training label: " + trainingLabel);  
   
     // Ensure the percentage is between 0 and 100  
-    percentage = Math.max(0, Math.min(100, percentage));  
+    percentage = Math.max(0, Math.min(100, percentage));
+    unroundedPercentage = percentage.toFixed(10); // to start calculating earlier for requests that take more time
     percentage = percentage.toFixed(2);  
   
     // Get the loading bar and percentage label elements  
@@ -172,11 +173,11 @@ A brand-new AI model is newly trained on only your essays so the grades returned
     trainingLabelElement.textContent = trainingLabel;  
   
     // Calculate the estimated total time based on total time taken and done  
-    if (percentage > 0) {  
+    if (unroundedPercentage > 0) {  
       const elapsedTime = totalTimeTaken; // Time in seconds taken for the completed epochs  
   
       // Estimate the total time based on the current progress (linear approximation)  
-      const expectedTotalTime = elapsedTime / (percentage / 100); // Estimate total time  
+      const expectedTotalTime = elapsedTime / (unroundedPercentage / 100); // Estimate total time  
   
       // Calculate remaining time  
       const remainingTime = expectedTotalTime - elapsedTime;  
