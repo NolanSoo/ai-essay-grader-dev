@@ -30,7 +30,6 @@ th {
 }
 
 td input[type="text"], td input[type="file"], td input[type="button"] {
-  width: 100%;  /* Make inputs take up the full width of their cells */
   box-sizing: border-box; /* Include padding and borders in the element's total width */
   border-radius: 8px; /* Apply rounding to inputs inside the table */
 }
