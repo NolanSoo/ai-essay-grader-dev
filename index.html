@@ -1098,7 +1098,27 @@ globalThis.themeSwitch =
    document.getElementById("imageInput").addEventListener('change', handleImageUpload);  
       document.getElementById("upload_data").addEventListener("change", uploadData);
         document.getElementById("download_data").addEventListener("click", downloadData);
-              document.getElementById("theme-toggle").addEventListener("click", themeSwitch);
+    const themeToggle = document.getElementById('theme-toggle');
+const themes = ['light', 'dark', 'pink', 'green'];
+let currentThemeIndex = 0; // Start with light theme
+
+// Function to switch themes
+function switchTheme() {
+  // Remove the current theme class
+  document.body.classList.remove(`${themes[currentThemeIndex]}-theme`);
+
+  // Update the theme index
+  currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+
+  // Add the new theme class (if not light)
+  if (themes[currentThemeIndex] !== 'light') {
+    document.body.classList.add(`${themes[currentThemeIndex]}-theme`);
+  }
+}
+
+// Add event listener to the button
+themeToggle.addEventListener('click', switchTheme);
+
   </script>  
 </body>  
 </html>
