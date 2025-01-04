@@ -497,14 +497,14 @@ feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedba
       const feedbackHeader = document.getElementById("feedback_header");  
       headerRow.insertBefore(newHeaderCell, feedbackHeader);  
   
-      // Add a new cell for the subgrade in each row  
-      const rows = document.querySelectorAll("#data_table tr:not(:first-child)");  
-      rows.forEach((row) => {  
-       const newCell = document.createElement("td");  
-       newCell.innerHTML = "<input type='text'/>";  
-       const feedbackCell = row.querySelector("td:last-child");  
-       row.insertBefore(newCell, feedbackCell);  
-      });  
+  // Add a new cell for the subgrade in each row except the last row
+const rows = document.querySelectorAll("#data_table tr:not(:last-child)");
+rows.forEach((row) => {
+  const newCell = document.createElement("td");
+  newCell.innerHTML = "<input type='text'/>";
+  const feedbackCell = row.querySelector("td:last-child");
+  row.insertBefore(newCell, feedbackCell);
+});  
     }  
    };  
   
