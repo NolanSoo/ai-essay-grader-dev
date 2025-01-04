@@ -1,9 +1,30 @@
+/* Dark theme */
+body.dark-theme {
+  bg-color: #1a1a1a;
+ font-color: #ffffff;
+ highlight-color: #4caf50;
+}
+
+/* Pink theme */
+body.pink-theme {
+  bg-color: #ffe4e6;
+ font-color: #550000;
+ highlight-color: #ff69b4;
+}
+
+/* Green theme */
+body.green-theme {
+  bg-color: #e6ffe4;
+  font-color: #003300;
+  highlight-color: #32cd32;
+}
+
 body {
   font-family: 'Comfortaa', cursive !important;
   background: #dedede;
   padding: 4%; 
-  box-sizing: border-box; /* So padding doesn't affect the layout size */
-  border-radius: 12px; /* Apply rounded corners to the body */
+  box-sizing: border-box !important; /* So padding doesn't affect the layout size */
+  border-radius: 12px !important; /* Apply rounded corners to the body */
 }
 html {
     font-family: 'Comfortaa', cursive !important;
@@ -145,33 +166,6 @@ td {
 }
 .logo {
   color: #49d180 !important;
-}
-/* Default light theme (current theme) */
-:root {
-  --bg-color: #dedede;
-  --font-color: #000;
-  --highlight-color: #007bff;
-}
-
-/* Dark theme */
-body.dark-theme {
-  --bg-color: #1a1a1a;
-  --font-color: #ffffff;
-  --highlight-color: #4caf50;
-}
-
-/* Pink theme */
-body.pink-theme {
-  --bg-color: #ffe4e6;
-  --font-color: #550000;
-  --highlight-color: #ff69b4;
-}
-
-/* Green theme */
-body.green-theme {
-  --bg-color: #e6ffe4;
-  --font-color: #003300;
-  --highlight-color: #32cd32;
 }
 
 /* Apply variables */
