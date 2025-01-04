@@ -146,3 +146,46 @@ td {
 .logo {
   color: #49d180 !important;
 }
+/* Default light theme (current theme) */
+:root {
+  --bg-color: #dedede;
+  --font-color: #000;
+  --highlight-color: #007bff;
+}
+
+/* Dark theme */
+body.dark-theme {
+  --bg-color: #1a1a1a;
+  --font-color: #ffffff;
+  --highlight-color: #4caf50;
+}
+
+/* Pink theme */
+body.pink-theme {
+  --bg-color: #ffe4e6;
+  --font-color: #550000;
+  --highlight-color: #ff69b4;
+}
+
+/* Green theme */
+body.green-theme {
+  --bg-color: #e6ffe4;
+  --font-color: #003300;
+  --highlight-color: #32cd32;
+}
+
+/* Apply variables */
+body {
+  background-color: var(--bg-color);
+  color: var(--font-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button {
+  background-color: var(--highlight-color);
+  color: var(--font-color);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
