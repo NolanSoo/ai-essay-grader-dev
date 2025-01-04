@@ -3,8 +3,7 @@ body {
   background: #dedede;
   padding: 4%; 
   box-sizing: border-box; /* So padding doesn't affect the layout size */
-  border-radius: 12px; 
-}
+  border-radius: 12px; /* Apply rounded corners to the body */
 }
 
 h1 {
@@ -13,59 +12,84 @@ h1 {
   font-size: 72px;
   margin: 0; 
 }
- table { border-collapse: collapse; width: 100%; }, th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-th { background-color: #f0f0f0; }
-/* Container for the canvas elements */
-.charts-container {
-  display: flex;
-  justify-content: space-between;  /* Space out the items equally */
-  gap: 20px;                      /* Adds space between the canvases */
-  flex-wrap: wrap;                 /* Allow wrapping on smaller screens */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  border-radius: 8px;  /* Slight rounding for table */
 }
 
-/* Make the canvas elements take up equal space */
-.charts-container > div {
-  flex: 1;                         /* Allow the divs to grow and take equal width */
-  min-width: 300px;                /* Ensure they don't get too small on mobile */
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
 }
 
-/* Media query for mobile devices: stacks the canvases vertically */
-@media (max-width: 768px) {
-  .charts-container {
-    flex-direction: column;        /* Stack elements vertically on mobile */
-    align-items: center;           /* Center align the elements when stacked */
-  }
-  
-  .charts-container > div {
-    width: 100%;                   /* Full width for each canvas on mobile */
-    margin-bottom: 20px;           /* Add space between stacked elements */
-  }
+th {
+  background-color: #f0f0f0;
 }
+
+td input[type="text"], td input[type="file"], td input[type="button"] {
+  width: 100%;  /* Make inputs take up the full width of their cells */
+  box-sizing: border-box; /* Include padding and borders in the element's total width */
+  border-radius: 8px; /* Apply rounding to inputs inside the table */
+}
+
 .file-inputs-container {
-  display: flex;                /* Use flexbox for alignment */
-  align-items: center;          /* Vertically align items */
-  gap: 10px;                    /* Space between items */
-  padding: 10px;                /* Add padding for aesthetics */
-  background-color: #f9f9f9;    /* Light background for contrast */
-  border: 1px solid #ccc;       /* Subtle border for separation */
-  border-radius: 10px;          /* Rounded corners */
+  display: flex;
+  flex-wrap: wrap;               /* Allow wrapping on smaller screens */
+  gap: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 12px;          /* Apply rounding to the container */
 }
 
 .file-inputs-container input {
-  padding: 5px 10px;            /* Add padding for input elements */
-  font-size: 14px;              /* Consistent font size */
-  border: 1px solid #ddd;       /* Subtle border for inputs */
-  border-radius: 5px;           /* Rounded corners for inputs */
-  background-color: #fff;       /* White background */
+  padding: 5px 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+  min-width: 150px;              /* Ensure inputs don't get too small */
+  flex: 1 1 auto;                /* Allow inputs to grow/shrink */
 }
 
 .file-inputs-container input[type="button"] {
-  background-color: #007bff;    /* Blue background for button */
-  color: #fff;                  /* White text for button */
-  border: none;                 /* Remove border for button */
-  cursor: pointer;              /* Pointer cursor for button */
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 15px;          /* More rounded for buttons */
 }
 
 .file-inputs-container input[type="button"]:hover {
-  background-color: #0056b3;    /* Darker blue on hover */
+  background-color: #0056b3;
+}
+
+/* Media query for mobile devices */
+@media (max-width: 768px) {
+  .file-inputs-container {
+    flex-direction: column;     /* Stack items vertically on small screens */
+    align-items: flex-start;    /* Align them to the left */
+  }
+
+  .file-inputs-container input {
+    width: 100%;                /* Ensure inputs take full width in column layout */
+    margin-bottom: 10px;        /* Add space between stacked elements */
+  }
+
+  /* Table adjustments for small screens */
+  table {
+    font-size: 12px;            /* Make text smaller on mobile */
+    width: 100%;
+  }
+
+  th, td {
+    padding: 8px;               /* Reduce padding for smaller screens */
+  }
+  
+  td input[type="text"], td input[type="button"] {
+    width: 100%;  /* Ensure inputs stretch to fit available space */
+  }
 }
