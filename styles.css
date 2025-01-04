@@ -15,7 +15,9 @@ body.green-theme {
   background: #e6ffe4;
   color: #003300;
 }
-
+th.dark-theme {
+  background-color: #1a1a1a !important;
+}
 body {
   font-family: 'Comfortaa', cursive !important;
   background: #dedede;
@@ -161,9 +163,7 @@ td {
     font-size: 14px; /* Adjust font size for readability on mobile */
   }
 }
-.logo {
-  color: #49d180 !important;
-}
+
 
 /* Apply variables */
 body {
