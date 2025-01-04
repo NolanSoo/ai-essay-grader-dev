@@ -10,6 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/dist/mammoth.min.js"></script>
 </head>  
 <body>  
+<input type="button" value="Theme" class="theme-toggle" />  
   <h1 class="logo">autograde</h1>  
   <h3>Playground</h3>  
   <br>  
@@ -1089,7 +1090,7 @@ globalThis.delete_row = function delete_row(rowNumber) {
   const table = document.getElementById("data_table");
   table.deleteRow(rowNumber - 1); // Adjust for zero-based indexing
 };
-
+globalThis.themeSwitch = 
 
 
 
@@ -1097,6 +1098,7 @@ globalThis.delete_row = function delete_row(rowNumber) {
    document.getElementById("imageInput").addEventListener('change', handleImageUpload);  
       document.getElementById("upload_data").addEventListener("change", uploadData);
         document.getElementById("download_data").addEventListener("click", downloadData);
+              document.getElementById("theme-toggle").addEventListener("click", themeSwitch);
   </script>  
 </body>  
 </html>
