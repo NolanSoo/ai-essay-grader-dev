@@ -1,22 +1,19 @@
 /* Dark theme */
 body.dark-theme {
-  bg-color: #1a1a1a;
- font-color: #ffffff;
- highlight-color: #4caf50;
+  background: #1a1a1a;
+ color: #ffffff;
 }
 
 /* Pink theme */
 body.pink-theme {
-  bg-color: #ffe4e6;
- font-color: #550000;
- highlight-color: #ff69b4;
+  background: #ffe4e6;
+ color: #550000;
 }
 
 /* Green theme */
 body.green-theme {
-  bg-color: #e6ffe4;
-  font-color: #003300;
-  highlight-color: #32cd32;
+  background: #e6ffe4;
+  color: #003300;
 }
 
 body {
