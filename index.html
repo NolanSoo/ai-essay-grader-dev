@@ -10,8 +10,8 @@
   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/dist/mammoth.min.js"></script>
 </head>  
 <body>  
-  <h1>AI Essay Grader</h1>  
-  <h2>Training</h2>  
+  <h2 class="logo">autograde</h2>  
+  <h3>Playground</h3>  
   <br>  
  <h5>Try out AutoGrade, which grades essays on your terms without the hassle.</h5>
 <h5>Input graded essays in the essay column - along with their corresponding overall grades and feedback
@@ -81,7 +81,6 @@ A brand-new AI model is newly trained on only your essays so the grades returned
      <label for="epochs">Iterations of training (100 per second on a decent computer and usable internet)</label>
      <br>
    <input type="button" id="train_model" value="Start" />  
-   <h5>Select at least two options (except using essays entered in the table - that can be used on its own)</h5>  
    <div id="predict_section" style="display:none;margin-top:20px;margin-left:auto;margin-right:auto">  
     <h2>Grading</h2>  
     <h3>Enter a new essay to grade it and generate feedback:</h3>  
