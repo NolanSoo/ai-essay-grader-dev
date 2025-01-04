@@ -124,3 +124,20 @@ td {
   overflow: hidden; /* Prevent content from spilling */
   text-overflow: ellipsis; /* Add ellipsis for overflow text */
 }
+  textarea {
+  width: 100%; /* Full width for parent container */
+  max-width: 100%; /* Prevent exceeding the container */
+  box-sizing: border-box; /* Include padding in the element's total width */
+  padding: 10px; /* Add padding for aesthetics */
+  border-radius: 8px; /* Rounded corners for consistency */
+  border: 1px solid #ccc; /* Subtle border for visual clarity */
+  resize: vertical; /* Allow vertical resizing only */
+}
+
+@media (max-width: 768px) {
+  textarea {
+    width: 100%; /* Ensure full width on smaller screens */
+    font-size: 14px; /* Adjust font size for readability on mobile */
+  }
+}
+
