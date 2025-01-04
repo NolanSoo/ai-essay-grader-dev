@@ -3,6 +3,8 @@ body {
   background: #dedede;
   padding: 4%; 
   box-sizing: border-box; /* So padding doesn't affect the layout size */
+  border-radius: 12px; 
+}
 }
 
 h1 {
