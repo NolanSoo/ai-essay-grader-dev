@@ -1,5 +1,5 @@
 body {
-  font-family: 'Comfortaa', cursive;
+  font-family: 'Comfortaa', cursive !important;
   background: #dedede;
   padding: 4%; 
   box-sizing: border-box; /* So padding doesn't affect the layout size */
