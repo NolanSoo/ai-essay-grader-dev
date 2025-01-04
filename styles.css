@@ -103,6 +103,7 @@ table td:nth-child(3) input {
   height: auto; /* Maintain natural height */
   border-radius: 6px; /* Slight rounding for clean look */
   border: 1px solid #ccc; /* Subtle border */
+  width: 33% !important;
 }
 
 table td:nth-child(3) input:last-child {
