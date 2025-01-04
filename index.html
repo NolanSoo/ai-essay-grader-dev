@@ -483,29 +483,101 @@ feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedba
   
       
    }  
+  // Function to remove a subgrade  
+globalThis.remove_subgrade = function remove_subgrade() {  
+  console.log("Removing subgrade...");  
+  const subgradeName = prompt("Enter the name of the subgrade to remove:");  
+  if (subgradeName) {  
+   // Remove the subgrade header cell  
+   const headerRow = document.getElementById("header_row");  
+   const subgradeHeaderCells = headerRow.querySelectorAll("th");  
+   subgradeHeaderCells.forEach((cell, index) => {  
+    if (cell.innerText === subgradeName) {  
+      headerRow.deleteCell(index);  
+    }  
+   });  
   
+   // Remove the subgrade cells from each row  
+   const rows = document.querySelectorAll("#data_table tr:not(:first-child)");  
+   rows.forEach((row) => {  
+    const subgradeCells = row.querySelectorAll("td");  
+    subgradeCells.forEach((cell, index) => {  
+      const headerCell = headerRow.cells[index];  
+      if (headerCell && headerCell.innerText === subgradeName) {  
+       row.deleteCell(index);  
+      }  
+    });  
+   });  
+  
+   // Update the subgradeModels object  
+   delete subgradeModels[subgradeName];  
+  }  
+};
+
    // Function to add a new subgrade  
-   globalThis.add_subgrade = function add_subgrade() {  
-    console.log("Adding new subgrade...");  
-    const subgradeName = prompt("Enter the name of the new subgrade:");  
-    if (subgradeName) {  
-      // Add a new header cell for the subgrade  
-      const headerRow = document.getElementById("header_row");  
-      const newHeaderCell = document.createElement("th");  
-      newHeaderCell.innerText = subgradeName;  
-      const feedbackHeader = document.getElementById("feedback_header");  
-      headerRow.insertBefore(newHeaderCell, feedbackHeader);  
+// Function to add a new subgrade  
+globalThis.add_subgrade = function add_subgrade() {  
+  console.log("Adding new subgrade...");  
+  const subgradeName = prompt("Enter the name of the new subgrade:");  
+  if (subgradeName) {  
+   // Add a new header cell for the subgrade  
+   const headerRow = document.getElementById("header_row");  
+   const newHeaderCell = document.createElement("th");  
+   newHeaderCell.innerText = subgradeName;  
+   const feedbackHeader = document.getElementById("feedback_header");  
+   headerRow.insertBefore(newHeaderCell, feedbackHeader);  
   
-      // Add a new cell for the subgrade in each row  
+   // Add a new cell for the subgrade in each row  
+   const rows = document.querySelectorAll("#data_table tr:not(:first-child)");  
+   rows.forEach((row) => {  
+    const newCell = document.createElement("td");  
+    newCell.innerHTML = "<input type='text'/>";  
+    const feedbackCell = row.querySelector("td:last-child");  
+    row.insertBefore(newCell, feedbackCell);  
+   });  
+  
+   // Add a remove subgrade button  
+   const removeSubgradeButton = document.createElement("input");  
+   removeSubgradeButton.type = "button";  
+   removeSubgradeButton.value = "Remove Subgrade";  
+   removeSubgradeButton.classList.add("remove_subgrade");  
+   document.getElementById("add_actions").appendChild(removeSubgradeButton);  
+  
+   // Add an event listener to the remove subgrade button  
+   removeSubgradeButton.addEventListener("click", function() {  
+    const subgradeName = prompt("Enter the name of the subgrade to remove:");  
+    if (subgradeName) {  
+      // Remove the subgrade header cell  
+      const headerRow = document.getElementById("header_row");  
+      const subgradeHeaderCells = headerRow.querySelectorAll("th");  
+      subgradeHeaderCells.forEach((cell, index) => {  
+       if (cell.innerText === subgradeName) {  
+        headerRow.deleteCell(index);  
+       }  
+      });  
+  
+      // Remove the subgrade cells from each row  
       const rows = document.querySelectorAll("#data_table tr:not(:first-child)");  
       rows.forEach((row) => {  
-       const newCell = document.createElement("td");  
-       newCell.innerHTML = "<input type='text'/>";  
-       const feedbackCell = row.querySelector("td:last-child");  
-       row.insertBefore(newCell, feedbackCell);  
+       const subgradeCells = row.querySelectorAll("td");  
+       subgradeCells.forEach((cell, index) => {  
+        const headerCell = headerRow.cells[index];  
+        if (headerCell && headerCell.innerText === subgradeName) {  
+          row.deleteCell(index);  
+        }  
+       });  
       });  
+  
+      // Update the subgradeModels object  
+      delete subgradeModels[subgradeName];  
+  
+      // Remove the remove subgrade button  
+      this.remove();  
     }  
-   };  
+   });  
+  }  
+};
+
   
    // Function to save a row  
    globalThis.save_row = function save_row(no) {  
