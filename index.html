@@ -1,124 +1,126 @@
 <!DOCTYPE html>  
-<html>  
+<html lang="en">  
 <head>  
-  <title>AI Essay Grader Demo</title>  
-  <meta charset="UTF-8" />  
-  <link rel="stylesheet" href="styles.css" />  
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />  
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.4.0"></script>  
-  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/dist/mammoth.min.js"></script>
+   <meta charset="UTF-8">  
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+   <title>AIEssayGraderDemo</title>  
+   <link rel="stylesheet" href="styles.css">  
+   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">  
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.4.0"></script>  
+   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/dist/mammoth.min.js"></script>  
 </head>  
 <body>  
-  <h1>AI Essay Grader</h1>  
-  <h2>Training</h2>  
-  <br>  
-  <h5>Input essays you have graded in the past in the essay column - along with their corresponding overall grades and feedback</h5>  
-  <h5>For specific rubric sections (such as "Conventions", use the "Add Subgrade" button, then input the essays' corresponding grades for those sections)</h5>  
-  <h5>After training finishes, you can input students' essays to grade them. You can also generate detailed, professional feedback</h5>  
-  <h5>A brand-new AI model is newly trained on only your essays so the grades returned exactly matches your standards of grading</h5>  
-  <div id="app"></div>  
-  <div class="w3-black">  
-   <div class="w3-container w3-green w3-center" id="loading_bar" style="width:0%">  
-    <p id="percentage_label">0%</p>  
-    <break>  
-    <p id="time_label"></p>  
-    <break>  
-    <p id="training_label"></p>  
+   <div class="container">  
+      <header>  
+        <h1>AIEssayGrader</h1>  
+      </header>  
+      <main>  
+        <section class="training-section">  
+           <h2>Training</h2>  
+           <p>Input essays you have graded in the past in the essay column, along with their corresponding overall grades and feedback.</p>  
+           <p>For specific rubric sections (such as "Conventions"), use the "Add Subgrade" button, then input the essays' corresponding grades for those sections.</p>  
+           <p>After training finishes, you can input students' essays to grade them. You can also generate detailed, professional feedback.</p>  
+           <p>A brand-new AI model is newly trained on only your essays, so the grades returned exactly match your standards of grading.</p>  
+           <div class="table-container">  
+              <table id="data_table" class="w3-table w3-striped w3-bordered">  
+                <thead>  
+                   <tr>  
+                      <th>Essay</th>  
+                      <th>Overall Grade</th>  
+                      <!-- Subgrade headers will be added here dynamically -->  
+                      <th id="actions_header">Actions</th>  
+                      <th id="feedback_header">Feedback</th>  
+                   </tr>  
+                </thead>  
+                <tbody>  
+                   <tr id="row1">  
+                      <td><input type="text" value="This is a terrible essay"/></td>  
+                      <td><input type="text" value="1"/></td>  
+                      <!-- Subgrade cells will be added here dynamically -->  
+                      <td id="actions_row1">  
+                        <button class="save">Save</button>  
+                        <button class="delete">Remove Essay</button>  
+                        <button class="quick-input">Quick Input</button>  
+                      </td>  
+                      <td id="feedback_row1"><input type="text" value=""/></td>  
+                   </tr>  
+                   <tr id="row2">  
+                      <td><input type="text" value="This is an excellent essay."/></td>  
+                      <td><input type="text" value="4"/></td>  
+                      <!-- Subgrade cells will be added here dynamically -->  
+                      <td id="actions_row2">  
+                        <button class="save">Save</button>  
+                        <button class="delete">Remove Essay</button>  
+                        <button class="quick-input">Quick Input</button>  
+                      </td>  
+                      <td id="feedback_row2"><input type="text" value=""/></td>  
+                   </tr>  
+                   <tr id="add_row">  
+                      <td><input type="text" id="new_name"/></td>  
+                      <td><input type="text" id="new_country"/></td>  
+                      <!-- Subgrade input cells will be added here dynamically -->  
+                      <td id="add_actions">  
+                        <button class="add">Add Essay</button>  
+                        <button class="add_subgrade">Add Subgrade</button>  
+                      </td>  
+                      <td id="add_feedback"><input type="text" value=""/></td>  
+                   </tr>  
+                </tbody>  
+              </table>  
+           </div>  
+           <div class="loading-bar-container">  
+              <div class="w3-black" id="loading_bar" style="width: 0%">  
+                <p id="percentage_label">0%</p>  
+                <br>  
+                <p id="time_label"></p>  
+                <br>  
+                <p id="training_label"></p>  
+              </div>  
+           </div>  
+           <input type="number" id="epochs" value="10000">  
+           <label for="epochs">Iterations of training (100 per second on a decent computer and usable internet)</label>  
+           <br>  
+           <button id="train_model" class="train-button">Start</button>  
+        </section>  
+        <section class="predict-section" style="display: none; margin-top: 20px; margin-left: auto; margin-right: auto">  
+           <h2>Grading</h2>  
+           <h3>Enter a new essay to grade it and generate feedback:</h3>  
+           <textarea id="new_essay_input" rows="4" cols="50" placeholder="Paste/type essay to be graded"></textarea>  
+           <br/>  
+           <button id="predict_grade" class="predict-button">Grade Essay</button>  
+           <div id="predicted_grade_output"></div>  
+        </section>  
+        <section class="output-section">  
+           <div id="output"></div>  
+        </section>  
+      </main>  
+      <footer>  
+        <button id="download_data" class="download-button">Download Data</button>  
+        <input type="file" id="upload_data" accept=".autograde"/>  
+        <input type="file" id="fileUpload" multiple accept=".docx, .pdf, .pptx"/>  
+        <br><br>  
+        <input type="file" id="folderUpload" webkitdirectory multiple>  
+        <label for="upload_folder">Upload Essays from Folder</label>  
+        <input type="file" id="imageInput" accept="image/*" multiple/>  
+        <button id="scan_images" class="scan-button">Scan Images</button>  
+      </footer>  
+      <div id="quick-input-modal" style="display: none;">  
+        <h2>Quick Input</h2>  
+        <label for="quick-input-grade">Grade:</label>  
+        <input type="text" id="quick-input-grade"/>  
+        <br/>  
+        <label for="quick-input-subgrades">Subgrades:</label>  
+        <div id="quick-input-subgrades"></div>  
+        <br/>  
+        <label for="quick-input-feedback">Feedback:</label>  
+        <textarea id="quick-input-feedback"></textarea>  
+        <br/>  
+        <button id="quick-input-save" class="save-button">Save</button>  
+        <button id="quick-input-cancel" class="cancel-button">Cancel</button>  
+      </div>  
    </div>  
-  </div>  
-  <h1></h1>  
-  <div id="wrapper" align="center">  
-   <break>  
-   <textarea id="rubric" rows="1" cols="150" placeholder="Paste/enter rubric (Optional)"></textarea>  
-   <textarea id="prompt" rows="1" cols="150" placeholder="Paste/type prompt or any important directions (Optional)"></textarea> 
-   <table align="center" cellspacing="2" cellpadding="5" id="data_table" border="1">  
-    <tr id="header_row">  
-      <th>Essay</th>  
-      <th>Overall Grade</th>  
-      <!-- Subgrade headers will be added here dynamically -->  
-      <th id="actions_header">Actions</th>  
-      <th id="feedback_header">Feedback</th>  
-    </tr>  
-  
-    <tr id="row1">  
-      <td id="essay_row1"><input type="text" value="This is a terrible essay" /></td>  
-      <td id="grade_row1"><input type="text" value="1" /></td>  
-      <!-- Subgrade cells will be added here dynamically -->  
-      <td id="actions_row1">  
-       <input type="button" value="Save" class="save" />  
-       <input type="button" value="Remove Essay" class="delete" />  
-       <input type='button' value='Quick Input' class='quick-input'>  
-      </td>  
-      <td id="feedback_row1"><input type="text" value="" /></td>  
-    </tr>  
-  
-    <tr id="row2">  
-      <td id="essay_row2"><input type="text" value="This is an excellent essay." /></td>  
-      <td id="grade_row2"><input type="text" value="4" /></td>  
-      <!-- Subgrade cells will be added here dynamically -->  
-      <td id="actions_row2">  
-       <input type="button" value="Save" class="save" />  
-       <input type="button" value="Remove Essay" class="delete" />  
-      <input type='button' value='Quick Input' class='quick-input'>  
-      </td>  
-      <td id="feedback_row2"><input type="text" value="" /></td>  
-    </tr>  
-  
-    <tr id="add_row">  
-      <td><input type="text" id="new_name" /></td>  
-      <td><input type="text" id="new_country" /></td>  
-      <!-- Subgrade input cells will be added here dynamically -->  
-      <td id="add_actions">  
-       <input type="button" class="add" value="Add Essay" />  
-       <input type="button" class="add_subgrade" value="Add Subgrade" />  
-      </td>  
-      <td id="add_feedback"><input type="text" value="" /></td>  
-    </tr>  
-   </table>  
-    <input type="number" id="epochs" value="10000">
-     <label for="epochs">Iterations of training (100 per second on a decent computer and usable internet)</label>
-     <br>
-   <input type="button" id="train_model" value="Start" />  
-   <h5>Select at least two options (except using essays entered in the table - that can be used on its own)</h5>  
-   <div id="predict_section" style="display:none;margin-top:20px;margin-left:auto;margin-right:auto">  
-    <h2>Grading</h2>  
-    <h3>Enter a new essay to grade it and generate feedback:</h3>  
-    <textarea id="new_essay_input" rows="4" cols="50" placeholder="Paste/type in essay to be graded"></textarea>  
-    <br />  
-    <input type="button" id="predict_grade" value="Grade Essay" />  
-    <div id="predicted_grade_output"></div>  
-   </div>  
-   <div id="output"></div>  
-  </div>  
-      <!-- Add a button to download the table data -->  
-<input type="button" id="download_data" value="Download Data" />  
-  
-<!-- Add a file input to upload the table data -->  
-<input type="file" id="upload_data" accept=".autograde" />
-<input type="file" id="fileUpload" multiple accept=".docx, .pdf, .pptx">
-<br><br>  
-<!-- Input for folders -->  
-<input type="file" id="folderUpload" webkitdirectory multiple>
-
-    <label for="upload_folder">Upload Essays from Folder</label>
-      <!--Add a button to import images-->  
-<input type="file" id="imageInput" accept="image/*" multiple />
-  <input type="button" id="scan_images" value="Scan Images">  
-<!-- Add this to the HTML body -->  
-<div id="quick-input-modal" style="display: none;">  
-  <h2>Quick Input</h2>  
-  <label for="quick-input-grade">Grade:</label>  
-  <input type="text" id="quick-input-grade" />  
-  <br />  
-  <label for="quick-input-subgrades">Subgrades:</label>  
-  <div id="quick-input-subgrades"></div>  
-  <br />  
-  <label for="quick-input-feedback">Feedback:</label>  
-  <textarea id="quick-input-feedback"></textarea>  
-  <br />  
-  <input type="button" value="Save" id="quick-input-save" />  
-  <input type="button" value="Cancel" id="quick-input-cancel" />  
-</div>
+  <button id="theme-toggle">Toggle Theme</button>
     <script type="module" defer>
    import { feedback } from './feedback.js';  
   import { scanImage } from './image-scan.js';   
@@ -141,20 +143,19 @@
     percentage = Math.max(0, Math.min(100, percentage));  
     percentage = percentage.toFixed(2);  
   
-    // Get the loading bar and percentage label elements  
-    const loadingBar = document.getElementById("loading_bar");  
-    const percentageLabel = document.getElementById("percentage_label");  
-    const timeLabel = document.getElementById("time_label");  
-    const trainingLabelElement = document.getElementById("training_label");  
+ const loadingBar = document.getElementById("loading_bar");  
+   const percentageLabel = document.getElementById("percentage_label");  
+   const timeLabel = document.getElementById("time_label");  
+   const trainingLabelElement = document.getElementById("training_label");  
   
-    // Update the width of the loading bar  
-    loadingBar.style.width = percentage + "%";  
+   // Update the width of the loading bar  
+   loadingBar.style.width = percentage + "%";  
   
-    // Update the percentage label text  
-    percentageLabel.textContent = percentage + "%";  
+   // Update the percentage label text  
+   percentageLabel.textContent = percentage + "%";  
   
-    // Update the training label text  
-    trainingLabelElement.textContent = trainingLabel;  
+   // Update the training label text  
+   trainingLabelElement.textContent = trainingLabel;   
   
     // Calculate the estimated total time based on total time taken and done  
     if (percentage > 0) {  
@@ -1081,6 +1082,11 @@ globalThis.delete_row = function delete_row(rowNumber) {
 
   
    document.getElementById("imageInput").addEventListener('change', handleImageUpload);  
+      const themeToggle = document.getElementById("theme-toggle");  
+  
+themeToggle.addEventListener("click", () => {  
+   document.body.classList.toggle("dark-mode");  
+});
   </script>  
 </body>  
 </html>
