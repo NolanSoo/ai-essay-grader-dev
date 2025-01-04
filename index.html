@@ -91,21 +91,33 @@
    </div>  
    <div id="output"></div>  
   </div>  
-      <!-- Add a button to download the table data -->  
-<input type="button" id="download_data" value="Download Data" />  
-  
-<!-- Add a file input to upload the table data -->  
-<input type="file" id="upload_data" accept=".autograde" />
-<input type="file" id="fileUpload" multiple accept=".docx, .pdf, .pptx">
-<br><br>  
-<!-- Input for folders -->  
-<input type="file" id="folderUpload" webkitdirectory multiple>
+<div class="file-inputs-container">
+  <div class="file-input">
+    <label for="download_data">Export</label>
+    <input type="button" id="download_data" value="Export" />
+  </div>
 
-    <label for="upload_folder">Upload Essays from Folder</label>
-      <!--Add a button to import images-->  
-<input type="file" id="imageInput" accept="image/*" multiple />
-  <input type="button" id="scan_images" value="Scan Images">  
-<!-- Add this to the HTML body -->  
+  <div class="file-input">
+    <label for="upload_data">Import .autograde</label>
+    <input type="file" id="upload_data" accept=".autograde" />
+  </div>
+
+  <div class="file-input">
+    <label for="fileUpload">Import .docx, .pdf, .pptx</label>
+    <input type="file" id="fileUpload" multiple accept=".docx, .pdf, .pptx" />
+  </div>
+
+  <div class="file-input">
+    <label for="folderUpload">Import folders of .docx, .pdf, .pptx</label>
+    <input type="file" id="folderUpload" webkitdirectory multiple />
+  </div>
+
+  <div class="file-input">
+    <label for="imageInput">Import handwritten submissions</label>
+    <input type="file" id="imageInput" multiple accept="image/*" />
+  </div>
+</div>
+
 <div id="quick-input-modal" style="display: none;">  
   <h2>Quick Input</h2>  
   <label for="quick-input-grade">Grade:</label>  
