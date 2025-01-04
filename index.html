@@ -66,14 +66,14 @@
     </tr>  
   
     <tr id="add_row">  
-      <td><input type="text" id="new_name" /></td>  
-      <td><input type="text" id="new_country" /></td>  
-      <!-- Subgrade input cells will be added here dynamically -->  
+      <td></td>  
+      <td></td>  
+      <!-- Subgrade input cells will be added here dynamically + removed useless inputs -->  
       <td id="add_actions">  
        <input type="button" class="add" value="Add Essay" />  
        <input type="button" class="add_subgrade" value="Add Subgrade" />  
       </td>  
-      <td id="add_feedback"><input type="text" value="" /></td>  
+      <td id="add_feedback"></td>  
     </tr>  
    </table>  
     <input type="number" id="epochs" value="10000">
@@ -147,9 +147,9 @@
     const percentageLabel = document.getElementById("percentage_label");  
     const timeLabel = document.getElementById("time_label");  
     const trainingLabelElement = document.getElementById("training_label");  
-  
+    var modifiedPercentage = (percentage * 0.925) + (0.075) // experiment to make bar look nicer
     // Update the width of the loading bar  
-    loadingBar.style.width = percentage + "%";  
+    loadingBar.style.width = modifiedPercentage + "%";  
   
     // Update the percentage label text  
     percentageLabel.textContent = percentage + "%";  
@@ -171,7 +171,7 @@
       const formatTime = (timeInSeconds) => {  
        const minutes = Math.floor(timeInSeconds / 60);  
        const seconds = Math.floor(timeInSeconds % 60);  
-       return `${minutes} minutes - ${seconds  
+       return `${minutes}:${seconds  
         .toString()  
         .padStart(2, "0")} seconds`;  
       };  
