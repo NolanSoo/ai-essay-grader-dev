@@ -108,3 +108,18 @@ td#actions_row1 input, td#actions_row2 input {
 td#actions_row1 input:last-child, td#actions_row2 input:last-child {
   margin-right: 0; /* Remove margin for the last button */
 }
+/* Ensure buttons in the third column stay on one line */
+table td:nth-child(3) {
+  white-space: nowrap; /* Prevent wrapping of text and buttons */
+}
+
+table td:nth-child(3) input {
+  display: inline-block; /* Keep buttons inline */
+  margin-right: 5px; /* Add some spacing between buttons */
+  padding: 5px 10px; /* Add padding to buttons for consistent size */
+  border-radius: 8px; /* Ensure buttons have rounded corners */
+}
+
+table td:nth-child(3) input:last-child {
+  margin-right: 0; /* Remove margin for the last button */
+}
