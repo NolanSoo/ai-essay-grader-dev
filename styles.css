@@ -41,3 +41,31 @@ th { background-color: #f0f0f0; }
     margin-bottom: 20px;           /* Add space between stacked elements */
   }
 }
+.file-inputs-container {
+  display: flex;                /* Use flexbox for alignment */
+  align-items: center;          /* Vertically align items */
+  gap: 10px;                    /* Space between items */
+  padding: 10px;                /* Add padding for aesthetics */
+  background-color: #f9f9f9;    /* Light background for contrast */
+  border: 1px solid #ccc;       /* Subtle border for separation */
+  border-radius: 10px;          /* Rounded corners */
+}
+
+.file-inputs-container input {
+  padding: 5px 10px;            /* Add padding for input elements */
+  font-size: 14px;              /* Consistent font size */
+  border: 1px solid #ddd;       /* Subtle border for inputs */
+  border-radius: 5px;           /* Rounded corners for inputs */
+  background-color: #fff;       /* White background */
+}
+
+.file-inputs-container input[type="button"] {
+  background-color: #007bff;    /* Blue background for button */
+  color: #fff;                  /* White text for button */
+  border: none;                 /* Remove border for button */
+  cursor: pointer;              /* Pointer cursor for button */
+}
+
+.file-inputs-container input[type="button"]:hover {
+  background-color: #0056b3;    /* Darker blue on hover */
+}
