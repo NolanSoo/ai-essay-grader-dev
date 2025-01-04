@@ -181,21 +181,31 @@ A brand-new AI model is newly trained on only your essays so the grades returned
       // Calculate remaining time  
       const remainingTime = expectedTotalTime - elapsedTime;  
   
-      // Format time (minutes:seconds)  
-      const formatTime = (timeInSeconds) => {  
-       const minutes = Math.floor(timeInSeconds / 60);  
-       const seconds = Math.floor(timeInSeconds % 60);  
-       return `${minutes}:${seconds  
-        .toString()  
-        .padStart(2, "0")}`;  
-      };  
+      
+    // Format time (days, hours, minutes, seconds)  
+    const formatTimeDetailed = (timeInSeconds) => {  
+      const days = Math.floor(timeInSeconds / (3600 * 24));  
+      const hours = Math.floor((timeInSeconds % (3600 * 24)) / 3600);  
+      const minutes = Math.floor((timeInSeconds % 3600) / 60);  
+      const seconds = Math.floor(timeInSeconds % 60);  
   
-      // Display the time taken and expected total time in a human-readable format  
-      const timeTaken = formatTime(elapsedTime);  
-      const totalTime = formatTime(expectedTotalTime);  
+      if (timeInSeconds >= 25 * 3600) { // Over 25 hours  
+        return `${days} days - ${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;  
+      } else if (timeInSeconds >= 70 * 60) { // Over 70 minutes  
+        return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;  
+      } else {  
+        const minutes = Math.floor(timeInSeconds / 60);  
+        const seconds = Math.floor(timeInSeconds % 60);  
+        return `${minutes}:${seconds.toString().padStart(2, "0")}`;  
+      }  
+    };  
   
-      // Update the label with time information  
-      timeLabel.textContent = `${timeTaken}/${totalTime}`;  
+    // Format elapsed and expected total time  
+    const elapsedTimeFormatted = formatTimeDetailed(elapsedTime);  
+    const expectedTotalTimeFormatted = formatTimeDetailed(expectedTotalTime);  
+  
+    // Update the label with time information  
+    timeLabel.textContent = `(${elapsedTimeFormatted} / ${expectedTotalTimeFormatted})`;    
     }  
    }  
   
