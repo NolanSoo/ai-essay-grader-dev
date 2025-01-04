@@ -298,10 +298,8 @@ rows.forEach((row) => {
   subgradeCells.forEach((cell, index) => {  
    const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
    if (!inputEssaysSG[subgradeName]) {
-     if (!subgradeName == "Actions") {
-    inputEssaysSG[subgradeName] = [];  // to prevent perennial glitch where action column displays in feedback prompt as a sub grade (always undefined as it should be) 
+    inputEssaysSG[subgradeName] = []; 
     inputGradesSG[subgradeName] = [];  
-     }
    }  
    inputEssaysSG[subgradeName].push(essay);  
    const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
