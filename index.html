@@ -330,7 +330,7 @@ async function predictGrade() {
    const feedbackText = await feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
   
   // Update the feedback table  
-  const studentName = document.getElementById("student-name-input").value;  
+  const studentName = document.getElementById("student_name_input").value;  
   updateFeedbackTable(studentName, essayInput, grades, feedbackText);  
   
   // Display the predicted grade and feedback  
