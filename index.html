@@ -350,7 +350,7 @@ if (!studentGradesTable.querySelector("tr")) {
   
 // Get the student name input  
 const studentNameInput = document.getElementById("student_name_input");  
-  
+
 // Create a table row for each student  
 const tableRow = document.createElement("tr");  
 const studentNameCell = document.createElement("td");  
@@ -366,7 +366,7 @@ gradeCell.textContent = predictedGrade;
 tableRow.appendChild(gradeCell);  
   
 const feedbackCell = document.createElement("td");  
-feedbackCell.textContent = feedback;  
+feedbackCell.textContent = "";  
 tableRow.appendChild(feedbackCell);  
   
 studentGradesTable.appendChild(tableRow);  
@@ -998,14 +998,14 @@ document.addEventListener("click", function(event) {
   
    // Get the current row and its data  
    const row = event.target.parentNode.parentNode;  
-   const essayInput = row.querySelector("td:nth-child(1) input");  
+   const  = row.querySelector("td:nth-child(1) input");  
    const gradeInput = row.querySelector("td:nth-child(2) input");  
    const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
    const feedbackInput = row.querySelector("td:last-child input");  
   
    // Populate the modal with the current data  
    const essayDiv = document.createElement("div");  
-   essayDiv.innerHTML = essayInput.value;  
+   essayDiv.innerHTML = .value;  
    modal.insertBefore(essayDiv, modal.firstChild);  
   
    const gradeInputModal = document.createElement("input");  
@@ -1051,13 +1051,13 @@ document.getElementById("previous-button").addEventListener("click", () => {
   if (currentIndex > 0) {  
    currentIndex--;  
    const previousRow = rows[currentIndex];  
-   const previousEssayInput = previousRow.querySelector("td:nth-child(1) input");  
+   const previous = previousRow.querySelector("td:nth-child(1) input");  
    const previousGradeInput = previousRow.querySelector("td:nth-child(2) input");  
    const previousSubgradeCells = previousRow.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
    const previousFeedbackInput = previousRow.querySelector("td:last-child input");  
   
    // Update the modal with the previous row's data  
-   essayDiv.innerHTML = previousEssayInput.value;  
+   essayDiv.innerHTML = previous.value;  
    gradeInputModal.value = previousGradeInput.value;  
    subgradesDiv.innerHTML = "";  
    previousSubgradeCells.forEach((cell, index) => {  
@@ -1081,13 +1081,13 @@ document.getElementById("next-button").addEventListener("click", () => {
   if (currentIndex < rows.length - 1) {  
    currentIndex++;  
    const nextRow = rows[currentIndex];  
-   const nextEssayInput = nextRow.querySelector("td:nth-child(1) input");  
+   const next = nextRow.querySelector("td:nth-child(1) input");  
    const nextGradeInput = nextRow.querySelector("td:nth-child(2) input");  
    const nextSubgradeCells = nextRow.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
    const nextFeedbackInput = nextRow.querySelector("td:last-child input");  
   
    // Update the modal with the next row's data  
-   essayDiv.innerHTML = nextEssayInput.value;  
+   essayDiv.innerHTML = next.value;  
    gradeInputModal.value = nextGradeInput.value;  
    subgradesDiv.innerHTML = "";  
    nextSubgradeCells.forEach((cell, index) => {  
