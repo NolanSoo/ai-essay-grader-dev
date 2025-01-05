@@ -331,6 +331,7 @@ async function predictGrade() {
 }  
   
 // Function to generate a table with the student's data  
+// Function to generate a table with the student's data  
 function generateStudentTable(studentName, essay, predictedGrade, subgradePredictions) {  
   // Get the existing table or create a new one  
   let studentTable = document.getElementById("student_table");  
@@ -371,35 +372,40 @@ function generateStudentTable(studentName, essay, predictedGrade, subgradePredic
   });  
   
   // Add a button to download the whole class data as JSON  
-  const downloadClassDataButton = document.createElement("button");  
-  downloadClassDataButton.textContent = "Download Class Data";  
-  downloadClassDataButton.addEventListener("click", () => {  
-   const classData = [];  
-   const rows = studentTable.rows;  
-   for (let i = 1; i < rows.length; i++) {  
-    const row = rows[i];  
-    const studentName = row.cells[0].textContent;  
-    const essay = row.cells[1].textContent;  
-    const mainGrade = row.cells[2].textContent;  
-    const subgrades = row.cells[3].textContent;  
-    const feedback = row.cells[4].textContent;  
-    classData.push({  
-      studentName,  
-      essay,  
-      mainGrade,  
-      subgrades,  
-      feedback,  
-    });  
-   }  
-   const jsonData = JSON.stringify(classData, null, 2);  
-   const blob = new Blob([jsonData], { type: "application/json" });  
-   const link = document.createElement("a");  
-   link.href = URL.createObjectURL(blob);  
-   link.download = "class_data.json";  
-   link.click();  
-  });  
-  document.getElementById("output").appendChild(downloadClassDataButton);  
+  const downloadClassDataButton = document.getElementById("download-class-data");  
+  if (!downloadClassDataButton) {  
+   downloadClassDataButton = document.createElement("button");  
+   downloadClassDataButton.textContent = "Download Class Data";  
+   downloadClassDataButton.id = "download-class-data";  
+   downloadClassDataButton.addEventListener("click", () => {  
+    const classData = [];  
+    const rows = studentTable.rows;  
+    for (let i = 1; i < rows.length; i++) {  
+      const row = rows[i];  
+      const studentName = row.cells[0].textContent;  
+      const essay = row.cells[1].textContent;  
+      const mainGrade = row.cells[2].textContent;  
+      const subgrades = row.cells[3].textContent;  
+      const feedback = row.cells[4].textContent;  
+      classData.push({  
+       studentName,  
+       essay,  
+       mainGrade,  
+       subgrades,  
+       feedback,  
+      });  
+    }  
+    const jsonData = JSON.stringify(classData, null, 2);  
+    const blob = new Blob([jsonData], { type: "application/json" });  
+    const link = document.createElement("a");  
+    link.href = URL.createObjectURL(blob);  
+    link.download = "class_data.json";  
+    link.click();  
+   });  
+   document.getElementById("output").appendChild(downloadClassDataButton);  
+  }  
 }
+
    
   
   
