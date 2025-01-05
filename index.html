@@ -363,11 +363,7 @@ console.log("IGSG", inputGradesSG);
 feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);
        // Get the student name from the input field  
   const studentName = document.getElementById("student-name-input").value;  
-  
-  // Get the essay, grades, and feedback from the predict grade function  
-  const essayInput = document.getElementById("new_essay_input").value;  
-  const prediction = await finalModel.predict(preprocessText([essayInput])).data();  
-  const grades = `Main Grade: ${predictedGrade}, Subgrades: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${subgradePredictions[subgrade]}`).join(", ")}`;  
+  const grades = document.getElementById("predicted_grade_output").textContent;
   const feedback = document.getElementById("output").textContent; 
   
   // Update the feedback table  
