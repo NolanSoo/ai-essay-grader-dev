@@ -76,7 +76,7 @@ async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGrades
    const outputElement = document.getElementById("output");  
    outputElement.innerHTML = '';  
   
-   document.getElementById("output").textContent = formattedFeedbackfinal;  
+   document.getElementById("output").textContent = formattedFeedbackFinal;  
   
    console.log("ID:", id);  
    console.log("Model:", model);  
