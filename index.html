@@ -248,7 +248,7 @@ A brand-new AI model is newly trained on only your essays so the grades returned
     }  
   
     // Preprocess the input essay into tensor format  
-    const essayTensor = preprocessText([essayInput]); // Wrap in an array for single input  
+    const essayTensor = preprocessText([]); // Wrap in an array for single input  
   
     if (!finalModel) {  
       alert(  
@@ -322,7 +322,7 @@ rows.forEach((row) => {
   });  
 });  
 console.log("IGSG", inputGradesSG);  
-feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);
+feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, , promptInput, rubricInput);
      // Create a table to display student grades  
 const studentGradesTable = document.getElementById("student_grades_table");  
   
@@ -998,7 +998,7 @@ document.addEventListener("click", function(event) {
   
    // Get the current row and its data  
    const row = event.target.parentNode.parentNode;  
-   const  = row.querySelector("td:nth-child(1) input");  
+   const essayInput = row.querySelector("td:nth-child(1) input");  
    const gradeInput = row.querySelector("td:nth-child(2) input");  
    const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
    const feedbackInput = row.querySelector("td:last-child input");  
