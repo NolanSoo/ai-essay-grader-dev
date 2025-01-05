@@ -330,12 +330,11 @@ async function predictGrade() {
    const feedbackText = await feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
   
   // Update the feedback table  
-  const studentName = document.getElementById("student_name_input").value;  
-  updateFeedbackTable(studentName, essayInput, grades, feedbackText);  
+  const studentName = document.getElementById("student_name_input").value;   
   
   // Display the predicted grade and feedback  
   document.getElementById("predicted_grade_output").innerText = `Predicted Grade: ${predictedGrade}\nSubgrade Predictions: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${subgradePredictions[subgrade]}`).join(", ")}\nFeedback: ${feedbackText}`;  
-  generateStudentTable(studentNameInput, essayInput, predictedGrade, subgradePredictions);  
+  generateStudentTable(studentName, essayInput, predictedGrade, subgradePredictions);  
 }  
   
 // Function to generate a table with the student's data  
