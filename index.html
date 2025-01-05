@@ -336,8 +336,6 @@ async function predictGrade() {
   document.getElementById("predicted_grade_output").innerText = `Predicted Grade: ${predictedGrade}\nSubgrade Predictions: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${subgradePredictions[subgrade]}`).join(", ")}\nFeedback: ${feedbackText}`;  
   generateStudentTable(studentName, essayInput, predictedGrade, subgradePredictions);  
 }  
-  
-// Function to generate a table with the student's data  
 // Function to generate a table with the student's data  
 function generateStudentTable(studentName, essay, predictedGrade, subgradePredictions) {  
    // Get the existing table or create a new one  
@@ -415,10 +413,6 @@ function generateStudentTable(studentName, essay, predictedGrade, subgradePredic
       document.getElementById("output").appendChild(downloadClassDataButton);  
    }  
 }
-
-   
-  
-  
    // Function for training the model  
    async function trainModel() {  
 
