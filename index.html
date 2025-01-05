@@ -325,7 +325,7 @@ async function predictGrade() {
    });  
   });  
   console.log("IGSG", inputGradesSG);  
-  feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
+  await feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
   // Generate a table with the student's data  
   generateStudentTable(studentNameInput, essayInput, predictedGrade, subgradePredictions);  
 }  
