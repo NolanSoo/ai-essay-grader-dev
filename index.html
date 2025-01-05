@@ -326,13 +326,12 @@ async function predictGrade() {
   });  
   console.log("IGSG", inputGradesSG);  
   feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
-  const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
   // Generate a table with the student's data  
-  generateStudentTable(studentNameInput, essayInput, predictedGrade, subgradePredictions, subgradeCells);  
+  generateStudentTable(studentNameInput, essayInput, predictedGrade, subgradePredictions);  
 }  
   
 // Function to generate a table with the student's data  
-function generateStudentTable(studentName, essay, predictedGrade, subgradePredictions, subgradeCells) {  
+function generateStudentTable(studentName, essay, predictedGrade, subgradePredictions) {  
   // Get the existing table or create a new one  
   let studentTable = document.getElementById("student_table");  
   if (!studentTable) {  
