@@ -88,7 +88,8 @@ A brand-new AI model is newly trained on only your essays so the grades returned
     <h3>Enter a new essay to grade it and generate feedback:</h3>  
     <textarea id="new_essay_input" rows="4" cols="50" placeholder="Paste/type in essay to be graded"></textarea>  
     <br />  
-    <input type="button" id="predict_grade" value="Grade Essay" />  
+    <input type="button" id="predict_grade" value="Grade Essay" />
+     <input type="text" id="student_name_input" placeholder="Enter student name">
     <div id="predicted_grade_output"></div>  
    </div>  
    <div id="output"></div>  
@@ -134,19 +135,6 @@ A brand-new AI model is newly trained on only your essays so the grades returned
   <input type="button" value="Save" id="quick-input-save" />  
   <input type="button" value="Cancel" id="quick-input-cancel" />  
 </div>
-<!-- Add a new div to display the feedback table -->  
-<div id="feedback-table-container">  
-  <table id="feedback-table">  
-   <tr>  
-    <th>Student Name</th>  
-    <th>Essay</th>  
-    <th>Grades</th>  
-    <th>Feedback</th>  
-   </tr>  
-  </table>  
-  <input type="button" id="download-class-feedback" value="Download Class Feedback">  
-  <input type="text" id="student-name-input" placeholder="Enter Student Name">  
-</div>
     <script type="module" defer>
    import { feedback } from './feedback.js';  
   import { scanImage } from './image-scan.js';   
@@ -157,34 +145,7 @@ A brand-new AI model is newly trained on only your essays so the grades returned
    const inputEssaysSG = {};  
    const inputGradesSG = {};  
    const inputFeedbackMG = [];  
-  globalThis.updateFeedbackTable = function updateFeedbackTable(studentName, essay, grades, feedback) {  
-  const feedbackTable = document.getElementById("feedback-table");  
-  const row = document.createElement("tr");  
-  const studentNameCell = document.createElement("td");  
-  studentNameCell.textContent = studentName;  
-  row.appendChild(studentNameCell);  
-  const essayCell = document.createElement("td");  
-  essayCell.textContent = essay;  
-  row.appendChild(essayCell);  
-  const gradesCell = document.createElement("td");  
-  gradesCell.textContent = grades;  
-  row.appendChild(gradesCell);  
-  const feedbackCell = document.createElement("td");  
-  feedbackCell.textContent = feedback;  
-  row.appendChild(feedbackCell);  
-  const downloadButton = document.createElement("input");  
-  downloadButton.type = "button";  
-  downloadButton.value = `Download ${studentName}'s Feedback`;  
-  downloadButton.addEventListener("click", () => {  
-   const textBlob = new Blob([`Student Name: ${studentName}\nEssay: ${essay}\nGrades: ${grades}\nFeedback: ${feedback}`], { type: "text/plain" });  
-   const link = document.createElement("a");  
-   link.href = URL.createObjectURL(textBlob);  
-   link.download = `${studentName}_feedback.txt`;  
-   link.click();  
-  });  
-  feedbackCell.appendChild(downloadButton);  
-  feedbackTable.appendChild(row);  
-}  
+  
    // Function to update progress bar  
    function updateProgress(percentage, totalTimeTaken, trainingLabel) {  
     console.log("Updating progress bar...");  
@@ -251,124 +212,195 @@ A brand-new AI model is newly trained on only your essays so the grades returned
    }  
   
    // Function for predicting the grade  
-   async function predictGrade() {  
-    const inputEssaysMG = [];  
-    const inputGradesMG = [];  
-    const inputEssaysSG = {};  
-    const inputGradesSG = {};  
-    const inputFeedbackMG = [];  
-
+// Function for predicting the grade  
+async function predictGrade() {  
+  const inputEssaysMG = [];  
+  const inputGradesMG = [];  
+  const inputEssaysSG = {};  
+  const inputGradesSG = {};  
+  const inputFeedbackMG = [];  
   
-    console.log("Predicting grade...");  
+  console.log("Predicting grade...");  
   
-    function preprocessText(essays) {  
-      console.log("Preprocessing text...");  
-      const tokenizedInputs = essays.map((essay) => {  
-       const words = essay.trim().split(/\s+/);  
-       const vector = new Array(1200).fill(0);  
-       for (let word of words) {  
-        const index = Math.min(word.length, 1199);  
-        vector[index] += 1;  
-       }  
-       return vector;  
-      });  
-      return tf.tensor2d(tokenizedInputs);  
+  function preprocessText(essays) {  
+   console.log("Preprocessing text...");  
+   const tokenizedInputs = essays.map((essay) => {  
+    const words = essay.trim().split(/\s+/);  
+    const vector = new Array(1200).fill(0);  
+    for (let word of words) {  
+      const index = Math.min(word.length, 1199);  
+      vector[index] += 1;  
     }  
-  
-    const essayInput = document  
-      .getElementById("new_essay_input")  
-      .value.trim();  
-  
-    // Check if the input is not empty  
-    if (!essayInput) {  
-      alert("Please enter an essay to predict the grade.");  
-      return;  
-    }  
-  
-    // Preprocess the input essay into tensor format  
-    const essayTensor = preprocessText([essayInput]); // Wrap in an array for single input  
-  
-    if (!finalModel) {  
-      alert(  
-       "The model is not trained yet. Please train the model before predicting."  
-      );  
-      return;  
-    }  
-  
-    // Use the trained model to predict  
-    const prediction = await finalModel.predict(essayTensor).data();  
-  
-    // Round the predicted grade and display it  
-    const predictedGrade = prediction[0];  
-    console.log("Predicted grade: " + predictedGrade);  
-    document.getElementById(  
-      "predicted_grade_output"  
-    ).innerText = `Predicted Grade: ${Math.round(predictedGrade)}`;  
-  
-    // Predict subgrades  
-    const subgradePredictions = {};  
-    for (const subgrade in subgradeModels) {  
-      const subgradePrediction = await subgradeModels[subgrade].predict(essayTensor).data();  
-      subgradePredictions[subgrade] = subgradePrediction[0];  
-      console.log("Subgrade prediction for " + subgrade + ": " + subgradePrediction[0]);  
-    }  
-  
-    // Display subgrade predictions  
-    const subgradePredictionText = Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(',');  
-    document.getElementById("predicted_grade_output").innerText += `\nSubgrade Predictions: ${subgradePredictionText}`;  
-    var promptInput = document  
-      .getElementById("prompt")  
-      .value.trim();  
-    // Check if the input is not empty  
-    if (!promptInput) {  
-      promptInput = "No specific prompt or directions"  
-    }  
-    var rubricInput = document  
-      .getElementById("rubric")  
-      .value.trim();  
-    // Call the feedback function  
-    // Collect data from table rows  
-    //Call the feedback function  
-//Collect data from table rows  
-const rows = document.querySelectorAll(  
-  "#data_table tr:not(:first-child):not(:last-child)"  
-); // Excluding header row and add row  
-rows.forEach((row) => {  
-  const essay = row.querySelector("td:nth-child(1) input").value.trim();  
-  const grade = parseFloat(  
-   row.querySelector("td:nth-child(2) input").value.trim()  
-  );  
-  const feedback = row.querySelector("td:last-child input").value.trim(); // Get feedback from last column  
-  if (essay && !isNaN(grade)) {  
-   inputEssaysMG.push(essay);  
-   inputGradesMG.push(grade);  
-   inputFeedbackMG.push(feedback); // Add feedback to inputFeedbackMG array  
+    return vector;  
+   });  
+   return tf.tensor2d(tokenizedInputs);  
   }  
-  // Collect subgrade data  
-  const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
-  subgradeCells.forEach((cell, index) => {  
-   const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
-   if (!inputEssaysSG[subgradeName]) {
-    inputEssaysSG[subgradeName] = []; 
-    inputGradesSG[subgradeName] = [];  
-   }  
-   inputEssaysSG[subgradeName].push(essay);  
-   const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
-   if (!isNaN(subgradeValue)) {  
-    inputGradesSG[subgradeName].push(subgradeValue);  
-   }  
-  });  
-});  
-console.log("IGSG", inputGradesSG);  
-feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);
-       // Get the student name from the input field  
-  const studentName = document.getElementById("student-name-input").value;  
-  const grades = document.getElementById("predicted_grade_output").textContent;
-  const feedback = document.getElementById("output").textContent; 
   
-  // Update the feedback table  
-  updateFeedbackTable(studentName, essayInput, grades, feedback); 
-  } 
+  const essayInput = document  
+   .getElementById("new_essay_input")  
+   .value.trim();  
+  
+  // Get the student name input  
+  const studentNameInput = document.getElementById("student_name_input").value.trim();  
+  
+  // Check if the input is not empty  
+  if (!essayInput) {  
+   alert("Please enter an essay to predict the grade.");  
+   return;  
+  }  
+  
+  // Preprocess the input essay into tensor format  
+  const essayTensor = preprocessText([essayInput]); // Wrap in an array for single input  
+  
+  if (!finalModel) {  
+   alert(  
+    "The model is not trained yet. Please train the model before predicting."  
+   );  
+   return;  
+  }  
+  
+  // Use the trained model to predict  
+  const prediction = await finalModel.predict(essayTensor).data();  
+  
+  // Round the predicted grade and display it  
+  const predictedGrade = prediction[0];  
+  console.log("Predicted grade:", predictedGrade);  
+  document.getElementById(  
+   "predicted_grade_output"  
+  ).innerText = `Predicted Grade: ${Math.round(predictedGrade)}`;  
+  
+  // Predict subgrades  
+  const subgradePredictions = {};  
+  for (const subgrade in subgradeModels) {  
+   const subgradePrediction = await subgradeModels[subgrade].predict(essayTensor).data();  
+   subgradePredictions[subgrade] = subgradePrediction[0];  
+   console.log("Subgrade prediction for " + subgrade + ":", subgradePrediction[0]);  
+  }  
+  
+  // Display subgrade predictions  
+  const subgradePredictionText = Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(',');  
+  document.getElementById("predicted_grade_output").innerText += `\nSubgrade Predictions: ${subgradePredictionText}`;  
+  
+  var promptInput = document  
+   .getElementById("prompt")  
+   .value.trim();  
+  // Check if the input is not empty  
+  if (!promptInput) {  
+   promptInput = "No specific prompt or directions"  
+  }  
+  var rubricInput = document  
+   .getElementById("rubric")  
+   .value.trim();  
+  // Call the feedback function  
+  // Collect data from table rows  
+  // Call the feedback function  
+  // Collect data from table rows  
+  const rows = document.querySelectorAll(  
+   "#data_table tr:not(:first-child):not(:last-child)"  
+  ); // Excluding header row and add row  
+  rows.forEach((row) => {  
+   const essay = row.querySelector("td:nth-child(1) input").value.trim();  
+   const grade = parseFloat(  
+    row.querySelector("td:nth-child(2) input").value.trim()  
+   );  
+   const feedback = row.querySelector("td:last-child input").value.trim(); // Get feedback from last column  
+   if (essay && !isNaN(grade)) {  
+    inputEssaysMG.push(essay);  
+    inputGradesMG.push(grade);  
+    inputFeedbackMG.push(feedback); // Add feedback to inputFeedbackMG array  
+   }  
+   // Collect subgrade data  
+   const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+   subgradeCells.forEach((cell, index) => {  
+    const subgradeName = document.querySelector(`#header_row th:nth-child(${index + 3})`).innerText;  
+    if (!inputEssaysSG[subgradeName]) {  
+      inputEssaysSG[subgradeName] = [];  
+      inputGradesSG[subgradeName] = [];  
+    }  
+    inputEssaysSG[subgradeName].push(essay);  
+    const subgradeValue = parseFloat(cell.querySelector("input").value.trim());  
+    if (!isNaN(subgradeValue)) {  
+      inputGradesSG[subgradeName].push(subgradeValue);  
+    }  
+   });  
+  });  
+  console.log("IGSG", inputGradesSG);  
+  feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
+  
+  // Generate a table with the student's data  
+  generateStudentTable(studentNameInput, essayInput, predictedGrade, subgradePredictions, subgradeCells);  
+}  
+  
+// Function to generate a table with the student's data  
+function generateStudentTable(studentName, essay, predictedGrade, subgradePredictions, subgradeCells) {  
+  // Get the existing table or create a new one  
+  let studentTable = document.getElementById("student_table");  
+  if (!studentTable) {  
+   studentTable = document.createElement("table");  
+   studentTable.id = "student_table";  
+   studentTable.innerHTML = `  
+    <tr>  
+      <th>Student Name</th>  
+      <th>Essay</th>  
+      <th>Main Grade</th>  
+      <th>Subgrades</th>  
+      <th>Feedback</th>  
+    </tr>  
+   `;  
+   document.getElementById("output").appendChild(studentTable);  
+  }  
+  
+  // Add a new row to the table  
+  const newRow = studentTable.insertRow(-1);  
+  newRow.innerHTML = `  
+   <td>${studentName}</td>  
+   <td>${essay}</td>  
+   <td>${predictedGrade}</td>  
+   <td>${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(', ')}</td>  
+   <td><button class="download-feedback">Download Feedback</button></td>  
+  `;  
+  
+  // Add event listener to the download feedback button  
+  const downloadFeedbackButton = newRow.querySelector(".download-feedback");  
+  downloadFeedbackButton.addEventListener("click", () => {  
+   const feedbackText = `Student Name: ${studentName}\nEssay: ${essay}\nMain Grade: ${predictedGrade}\nSubgrades: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(', ')}\n`;  
+   const blob = new Blob([feedbackText], { type: "text/plain" });  
+   const link = document.createElement("a");  
+   link.href = URL.createObjectURL(blob);  
+   link.download = `${studentName}_feedback.txt`;  
+   link.click();  
+  });  
+  
+  // Add a button to download the whole class data as JSON  
+  const downloadClassDataButton = document.createElement("button");  
+  downloadClassDataButton.textContent = "Download Class Data";  
+  downloadClassDataButton.addEventListener("click", () => {  
+   const classData = [];  
+   const rows = studentTable.rows;  
+   for (let i = 1; i < rows.length; i++) {  
+    const row = rows[i];  
+    const studentName = row.cells[0].textContent;  
+    const essay = row.cells[1].textContent;  
+    const mainGrade = row.cells[2].textContent;  
+    const subgrades = row.cells[3].textContent;  
+    const feedback = row.cells[4].textContent;  
+    classData.push({  
+      studentName,  
+      essay,  
+      mainGrade,  
+      subgrades,  
+      feedback,  
+    });  
+   }  
+   const jsonData = JSON.stringify(classData, null, 2);  
+   const blob = new Blob([jsonData], { type: "application/json" });  
+   const link = document.createElement("a");  
+   link.href = URL.createObjectURL(blob);  
+   link.download = "class_data.json";  
+   link.click();  
+  });  
+  document.getElementById("output").appendChild(downloadClassDataButton);  
+}
    
   
   
@@ -1171,58 +1203,7 @@ function switchTheme() {
 
 // Add event listener to the button
 themeToggle.addEventListener('click', switchTheme);
-// Function to update the feedback table  
 
-  
-// Function to download the entire class's table as a JSON file  
-function downloadClassFeedback() {  
-  const feedbackTable = document.getElementById("feedback-table");  
-  const rows = feedbackTable.querySelectorAll("tr:not(:first-child)");  
-  const jsonData = [];  
-  Array.from(rows).forEach((row) => {  
-   const studentName = row.querySelector("td:nth-child(1)").textContent;  
-   const essay = row.querySelector("td:nth-child(2)").textContent;  
-   const grades = row.querySelector("td:nth-child(3)").textContent;  
-   const feedback = row.querySelector("td:nth-child(4)").textContent;  
-   jsonData.push({  
-    studentName,  
-    essay,  
-    grades,  
-    feedback,  
-   });  
-  });  
-  const jsonBlob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });  
-  const link = document.createElement("a");  
-  link.href = URL.createObjectURL(jsonBlob);  
-  link.download = "class_feedback.json";  
-  link.click();  
-}  
-  
-
-  
-// Add an event listener to the download class feedback button  
-document.getElementById("download-class-feedback").addEventListener("click", () => {  
-  const feedbackTable = document.getElementById("feedback-table");  
-  const rows = feedbackTable.querySelectorAll("tr:not(:first-child)");  
-  const jsonData = [];  
-  Array.from(rows).forEach((row) => {  
-   const studentName = row.querySelector("td:nth-child(1)").textContent;  
-   const essay = row.querySelector("td:nth-child(2)").textContent;  
-   const grades = row.querySelector("td:nth-child(3)").textContent;  
-   const feedback = row.querySelector("td:nth-child(4)").textContent;  
-   jsonData.push({  
-    studentName,  
-    essay,  
-    grades,  
-    feedback,  
-   });  
-  });  
-  const jsonBlob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });  
-  const link = document.createElement("a");  
-  link.href = URL.createObjectURL(jsonBlob);  
-  link.download = "class_feedback.json";  
-  link.click();  
-});
   </script>  
 </body>  
 </html>
