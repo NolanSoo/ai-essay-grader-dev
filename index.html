@@ -117,9 +117,18 @@ A brand-new AI model is newly trained on only your essays so the grades returned
   <div class="file-input">
     <label for="imageInput">Import handwritten submissions</label>
     <input type="file" id="imageInput" multiple accept="image/*" />
-  </div>
+  </div>  
+  
+  <div class="file-input">  
+   <label for="download_feedback">Download Feedback</label>  
+   <input type="button" id="download_feedback" value="Download Feedback"/>  
+  </div>  
+  
+  <div class="file-input">  
+   <label for="download_all_data">Download All Data</label>  
+   <input type="button" id="download_all_data" value="Download All Data"/>  
 </div>
-
+</div>
 <div id="quick-input-modal" style="display: none;">  
   <h2>Quick Input</h2>  
   <label for="quick-input-grade">Grade:</label>  
@@ -661,6 +670,101 @@ globalThis.downloadData = function downloadData() {
   link.download = "table_data.autograde";  
   link.click();  
 };
+      // Function to download feedback  
+globalThis.downloadFeedback = function downloadFeedback() {  
+  console.log("Downloading feedback...");  
+  const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
+  const data = [];  
+  
+  // Collect data from table rows  
+  rows.forEach((row) => {  
+   const studentName = row.querySelector("td:nth-child(1) input").value.trim();  
+   const feedback = row.querySelector("td:last-child input").value.trim();  
+  
+   data.push({  
+    studentName,  
+    feedback,  
+   });  
+  });  
+  
+  // Create a blob with the feedback data  
+  const blob = new Blob([data.map((item) => `${item.studentName}: ${item.feedback}`).join("\n")], { type: "text/plain" });  
+  
+  // Create a link to download the blob  
+  const link = document.createElement("a");  
+  link.href = URL.createObjectURL(blob);  
+  link.download = "feedback.txt";  
+  link.click();  
+};  
+  
+// Function to download all data  
+globalThis.downloadAllData = function downloadAllData() {  
+  console.log("Downloading all data...");  
+  const rows = document.querySelectorAll("#data_table tr:not(:first-child):not(:last-child)");  
+  const data = [];  
+  
+  // Collect data from table rows  
+  rows.forEach((row) => {  
+   const studentName = row.querySelector("td:nth-child(1) input").value.trim();  
+   const essay = row.querySelector("td:nth-child(2) input").value.trim();  
+   const grade = row.querySelector("td:nth-child(3) input").value.trim();  
+   const subgradeCells = row.querySelectorAll("td:nth-child(n+4):not(:last-child):not(:nth-child(3))");  
+   const feedback = row.querySelector("td:last-child input").value.trim();  
+   const subgrades = {};  
+  
+   // Dynamically check for subgrade headers  
+   const subgradeHeaders = document.getElementById("header_row").querySelectorAll("th:not(.actions_header):not(.feedback_header):not(:first-child):not(:nth-child(2))");  
+  
+   subgradeCells.forEach((cell, index) => {  
+    const subgradeName = subgradeHeaders[index].innerText;  
+    subgrades[subgradeName] = cell.querySelector("input").value.trim();  
+   });  
+  
+   data.push({  
+    studentName,  
+    essay,  
+    grade,  
+    feedback,  
+    subgrades,  
+   });  
+  });  
+  
+  // Create a blob with the all data  
+  const blob = new Blob([data.map((item) => `Student Name: ${item.studentName}\nEssay: ${item.essay}\nGrade: ${item.grade}\nFeedback: ${item.feedback}\nSubgrades: ${JSON.stringify(item.subgrades)}\n`).join("\n\n")], { type: "text/plain" });  
+  
+  // Create a link to download the blob  
+  const link = document.createElement("a");  
+  link.href = URL.createObjectURL(blob);  
+  link.download = "all_data.txt";  
+  link.click();  
+};  
+  
+// Add event listeners to the download buttons  
+document.getElementById("download_data").addEventListener("click", downloadData);  
+document.getElementById("download_feedback").addEventListener("click", downloadFeedback);  
+document.getElementById("download_all_data").addEventListener("click", downloadAllData);  
+  
+// Add a new button to download feedback for each student  
+const table = document.getElementById("data_table");  
+const rows = table.rows;  
+for (let i = 1; i < rows.length - 1; i++) {  
+  const row = rows[i];  
+  const studentName = row.querySelector("td:nth-child(1) input").value.trim();  
+  const feedback = row.querySelector("td:last-child input").value.trim();  
+  
+  const downloadButton = document.createElement("input");  
+  downloadButton.type = "button";  
+  downloadButton.value = `Download ${studentName}'s Feedback`;  
+  downloadButton.addEventListener("click", () => {  
+   const blob = new Blob([feedback], { type: "text/plain" });  
+   const link = document.createElement("a");  
+   link.href = URL.createObjectURL(blob);  
+   link.download = `${studentName}_feedback.txt`;  
+   link.click();  
+  });  
+  
+  row.querySelector("td:last-child").appendChild(downloadButton);  
+}
       globalThis.uploadData = function uploadData(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
