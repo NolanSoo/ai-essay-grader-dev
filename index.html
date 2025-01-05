@@ -1129,8 +1129,8 @@ function switchTheme() {
 
 // Add event listener to the button
 themeToggle.addEventListener('click', switchTheme);
-// Function to generate the feedback table  
-  function generateFeedbackTable() {  
+ // Function to generate the feedback table  
+  globalThis.generateFeedbackTable = function generateFeedbackTable() {  
    const table = document.getElementById("data_table");  
    const rows = table.querySelectorAll("tr:not(:first-child):not(:last-child)");  
    const feedbackTable = document.createElement("table");  
@@ -1153,17 +1153,17 @@ themeToggle.addEventListener('click', switchTheme);
    feedbackTable.appendChild(headerRow);  
   
    // Create the table rows  
-   rows.forEach((row) => {  
+   Array.from(rows).forEach((row, index) => {  
     const studentNameCell = document.createElement("td");  
-    studentNameCell.textContent = `Student ${rows.indexOf(row) + 1}`;  
+    studentNameCell.textContent = `Student ${index + 1}`;  
     const essayCell = document.createElement("td");  
     essayCell.textContent = row.querySelector("td:nth-child(1) input").value;  
     const gradesCell = document.createElement("td");  
     const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
     const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
     const gradesText = [];  
-    subgradeCells.forEach((cell, index) => {  
-      const subgradeName = subgradeHeaders[index].textContent;  
+    subgradeCells.forEach((cell, subIndex) => {  
+      const subgradeName = subgradeHeaders[subIndex].textContent;  
       if (subgradeName !== "Actions") {  
        gradesText.push(`${subgradeName}: ${cell.querySelector("input").value}`);  
       }  
@@ -1189,7 +1189,7 @@ themeToggle.addEventListener('click', switchTheme);
    downloadButton.addEventListener("click", () => {  
     const jsonData = [];  
     const rows = feedbackTable.querySelectorAll("tr:not(:first-child)");  
-    rows.forEach((row) => {  
+    Array.from(rows).forEach((row, index) => {  
       const studentName = row.querySelector("td:nth-child(1)").textContent;  
       const essay = row.querySelector("td:nth-child(2)").textContent;  
       const grades = row.querySelector("td:nth-child(3)").textContent;  
@@ -1210,18 +1210,18 @@ themeToggle.addEventListener('click', switchTheme);
    document.getElementById("feedback-table-container").appendChild(downloadButton);  
   
    // Add a button to download individual student feedback as a .txt file  
-   rows.forEach((row) => {  
+   Array.from(rows).forEach((row, index) => {  
     const downloadButton = document.createElement("input");  
     downloadButton.type = "button";  
-    downloadButton.value = `Download Student ${rows.indexOf(row) + 1} Feedback`;  
+    downloadButton.value = `Download Student ${index + 1} Feedback`;  
     downloadButton.addEventListener("click", () => {  
-      const studentName = `Student ${rows.indexOf(row) + 1}`;  
+      const studentName = `Student ${index + 1}`;  
       const essay = row.querySelector("td:nth-child(1) input").value;  
       const grades = [];  
       const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
       const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
-      subgradeCells.forEach((cell, index) => {  
-       const subgradeName = subgradeHeaders[index].textContent;  
+      subgradeCells.forEach((cell, subIndex) => {  
+       const subgradeName = subgradeHeaders[subIndex].textContent;  
        if (subgradeName !== "Actions") {  
         grades.push(`${subgradeName}: ${cell.querySelector("input").value}`);  
        }  
