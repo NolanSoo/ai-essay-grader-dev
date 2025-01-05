@@ -1193,31 +1193,13 @@ function downloadClassFeedback() {
   
 // Add an event listener to the predict grade button  
 document.getElementById("predict_grade").addEventListener("click", async () => {
-      function preprocessText(essays) {  
-      console.log("Preprocessing text...");  
-      const tokenizedInputs = essays.map((essay) => {  
-       const words = essay.trim().split(/\s+/);  
-       const vector = new Array(1200).fill(0);  
-       for (let word of words) {  
-        const index = Math.min(word.length, 1199);  
-        vector[index] += 1;  
-       }  
-       return vector;  
-      });  
-      return tf.tensor2d(tokenizedInputs);  
-    }  
+
   // Get the student name from the input field  
   const studentName = document.getElementById("student-name-input").value;  
   
   // Get the essay, grades, and feedback from the predict grade function  
   const essayInput = document.getElementById("new_essay_input").value;  
   const prediction = await finalModel.predict(preprocessText([essayInput])).data();  
-  const predictedGrade = Math.round(prediction[0]);  
-  const subgradePredictions = {};  
-  for (const subgrade in subgradeModels) {  
-   const subgradePrediction = await subgradeModels[subgrade].predict(preprocessText([essayInput])).data();  
-   subgradePredictions[subgrade] = Math.round(subgradePrediction[0]);  
-  }  
   const grades = `Main Grade: ${predictedGrade}, Subgrades: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${subgradePredictions[subgrade]}`).join(", ")}`;  
   const feedback = await feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput);  
   
