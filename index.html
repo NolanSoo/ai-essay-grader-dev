@@ -157,7 +157,34 @@ A brand-new AI model is newly trained on only your essays so the grades returned
    const inputEssaysSG = {};  
    const inputGradesSG = {};  
    const inputFeedbackMG = [];  
-  
+  globalThis.updateFeedbackTable = function updateFeedbackTable(studentName, essay, grades, feedback) {  
+  const feedbackTable = document.getElementById("feedback-table");  
+  const row = document.createElement("tr");  
+  const studentNameCell = document.createElement("td");  
+  studentNameCell.textContent = studentName;  
+  row.appendChild(studentNameCell);  
+  const essayCell = document.createElement("td");  
+  essayCell.textContent = essay;  
+  row.appendChild(essayCell);  
+  const gradesCell = document.createElement("td");  
+  gradesCell.textContent = grades;  
+  row.appendChild(gradesCell);  
+  const feedbackCell = document.createElement("td");  
+  feedbackCell.textContent = feedback;  
+  row.appendChild(feedbackCell);  
+  const downloadButton = document.createElement("input");  
+  downloadButton.type = "button";  
+  downloadButton.value = `Download ${studentName}'s Feedback`;  
+  downloadButton.addEventListener("click", () => {  
+   const textBlob = new Blob([`Student Name: ${studentName}\nEssay: ${essay}\nGrades: ${grades}\nFeedback: ${feedback}`], { type: "text/plain" });  
+   const link = document.createElement("a");  
+   link.href = URL.createObjectURL(textBlob);  
+   link.download = `${studentName}_feedback.txt`;  
+   link.click();  
+  });  
+  feedbackCell.appendChild(downloadButton);  
+  feedbackTable.appendChild(row);  
+}  
    // Function to update progress bar  
    function updateProgress(percentage, totalTimeTaken, trainingLabel) {  
     console.log("Updating progress bar...");  
@@ -334,7 +361,18 @@ rows.forEach((row) => {
 });  
 console.log("IGSG", inputGradesSG);  
 feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);
-   } 
+       // Get the student name from the input field  
+  const studentName = document.getElementById("student-name-input").value;  
+  
+  // Get the essay, grades, and feedback from the predict grade function  
+  const essayInput = document.getElementById("new_essay_input").value;  
+  const prediction = await finalModel.predict(preprocessText([essayInput])).data();  
+  const grades = `Main Grade: ${predictedGrade}, Subgrades: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${subgradePredictions[subgrade]}`).join(", ")}`;  
+  const feedback = document.getElementById("output").textContent; 
+  
+  // Update the feedback table  
+  updateFeedbackTable(studentName, essayInput, grades, feedback); 
+  } 
    
   
   
@@ -1138,34 +1176,7 @@ function switchTheme() {
 // Add event listener to the button
 themeToggle.addEventListener('click', switchTheme);
 // Function to update the feedback table  
-globalThis.updateFeedbackTable = function updateFeedbackTable(studentName, essay, grades, feedback) {  
-  const feedbackTable = document.getElementById("feedback-table");  
-  const row = document.createElement("tr");  
-  const studentNameCell = document.createElement("td");  
-  studentNameCell.textContent = studentName;  
-  row.appendChild(studentNameCell);  
-  const essayCell = document.createElement("td");  
-  essayCell.textContent = essay;  
-  row.appendChild(essayCell);  
-  const gradesCell = document.createElement("td");  
-  gradesCell.textContent = grades;  
-  row.appendChild(gradesCell);  
-  const feedbackCell = document.createElement("td");  
-  feedbackCell.textContent = feedback;  
-  row.appendChild(feedbackCell);  
-  const downloadButton = document.createElement("input");  
-  downloadButton.type = "button";  
-  downloadButton.value = `Download ${studentName}'s Feedback`;  
-  downloadButton.addEventListener("click", () => {  
-   const textBlob = new Blob([`Student Name: ${studentName}\nEssay: ${essay}\nGrades: ${grades}\nFeedback: ${feedback}`], { type: "text/plain" });  
-   const link = document.createElement("a");  
-   link.href = URL.createObjectURL(textBlob);  
-   link.download = `${studentName}_feedback.txt`;  
-   link.click();  
-  });  
-  feedbackCell.appendChild(downloadButton);  
-  feedbackTable.appendChild(row);  
-}  
+
   
 // Function to download the entire class's table as a JSON file  
 function downloadClassFeedback() {  
@@ -1191,21 +1202,7 @@ function downloadClassFeedback() {
   link.click();  
 }  
   
-// Add an event listener to the predict grade button  
-document.getElementById("predict_grade").addEventListener("click", async () => {
 
-  // Get the student name from the input field  
-  const studentName = document.getElementById("student-name-input").value;  
-  
-  // Get the essay, grades, and feedback from the predict grade function  
-  const essayInput = document.getElementById("new_essay_input").value;  
-  const prediction = await finalModel.predict(preprocessText([essayInput])).data();  
-  const grades = `Main Grade: ${predictedGrade}, Subgrades: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${subgradePredictions[subgrade]}`).join(", ")}`;  
-  const feedback = await feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput);  
-  
-  // Update the feedback table  
-  updateFeedbackTable(studentName, essayInput, grades, feedback);  
-});  
   
 // Add an event listener to the download class feedback button  
 document.getElementById("download-class-feedback").addEventListener("click", () => {  
