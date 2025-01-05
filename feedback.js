@@ -62,15 +62,19 @@ async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGrades
    // Extract the main fields  
    const { id, model, created, choices, usage } = chatCompletion;  
    const messageContent = choices[0].message.content;  
-   const { prompt_tokens, total_tokens } = usage;  
-   // Display the response in the output div  
+   const { prompt_tokens, total_tokens } = usage;    
+  // Display the response in the output div  
    // Replace \n\n with <br> (newlines)  
    let formattedFeedback = messageContent.replace(/\n\n/g, '<br>');  
   
    // Replace ** with <strong> for bold text  
    formattedFeedback = formattedFeedback.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  
    const lines = formattedFeedback.trim().split("\n");  
-   const formattedFeedbackfinal = lines.map(line => line.trim() + "<br>").join("");  
+   const formattedFeedbackFinal = lines.map(line => line.trim() + "<br>").join("");  
+  
+   // Clear the output element  
+   const outputElement = document.getElementById("output");  
+   outputElement.innerHTML = '';  
   
    document.getElementById("output").textContent = formattedFeedbackfinal;  
   
