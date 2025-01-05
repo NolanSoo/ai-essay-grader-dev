@@ -325,85 +325,96 @@ async function predictGrade() {
    });  
   });  
   console.log("IGSG", inputGradesSG);  
-  await feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
+
   // Generate a table with the student's data  
+   const feedbackText = await feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput);  
+  
+  // Update the feedback table  
+  const studentName = document.getElementById("student-name-input").value;  
+  updateFeedbackTable(studentName, essayInput, grades, feedbackText);  
+  
+  // Display the predicted grade and feedback  
+  document.getElementById("predicted_grade_output").innerText = `Predicted Grade: ${predictedGrade}\nSubgrade Predictions: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${subgradePredictions[subgrade]}`).join(", ")}\nFeedback: ${feedbackText}`;  
   generateStudentTable(studentNameInput, essayInput, predictedGrade, subgradePredictions);  
 }  
   
 // Function to generate a table with the student's data  
 // Function to generate a table with the student's data  
 function generateStudentTable(studentName, essay, predictedGrade, subgradePredictions) {  
-  // Get the existing table or create a new one  
-  let studentTable = document.getElementById("student_table");  
-  if (!studentTable) {  
-   studentTable = document.createElement("table");  
-   studentTable.id = "student_table";  
-   studentTable.innerHTML = `  
-    <tr>  
-      <th>Student Name</th>  
-      <th>Essay</th>  
-      <th>Main Grade</th>  
-      <th>Subgrades</th>  
-      <th>Feedback</th>  
-    </tr>  
+   // Get the existing table or create a new one  
+   let studentTable = document.getElementById("student_table");  
+   if (!studentTable) {  
+      studentTable = document.createElement("table");  
+      studentTable.id = "student_table";  
+      studentTable.innerHTML = `  
+        <tr>  
+           <th>Student Name</th>  
+           <th>Essay</th>  
+           <th>Main Grade</th>  
+           <th>Subgrades</th>  
+           <th>Feedback</th>  
+        </tr>  
+      `;  
+      document.getElementById("output").appendChild(studentTable);  
+   }  
+  
+   // Add a new row to the table  
+   const newRow = document.createElement("tr");  
+   newRow.innerHTML = `  
+      <td>${studentName}</td>  
+      <td>${essay}</td>  
+      <td>${predictedGrade}</td>  
+      <td>${Object.keys(subgradePredictions).map(subgrade => `${subgrade}:${Math.round(subgradePredictions[subgrade])}`).join(',')}</td>  
+      <td><button class="download-feedback">Download Feedback</button></td>  
    `;  
-   document.getElementById("output").appendChild(studentTable);  
-  }  
   
-  // Add a new row to the table  
-  const newRow = studentTable.insertRow(-1);  
-  newRow.innerHTML = `  
-   <td>${studentName}</td>  
-   <td>${essay}</td>  
-   <td>${predictedGrade}</td>  
-   <td>${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(', ')}</td>  
-   <td><button class="download-feedback">Download Feedback</button></td>  
-  `;  
-  
-  // Add event listener to the download feedback button  
-  const downloadFeedbackButton = newRow.querySelector(".download-feedback");  
-  downloadFeedbackButton.addEventListener("click", () => {  
-   const feedbackText = `Student Name: ${studentName}\nEssay: ${essay}\nMain Grade: ${predictedGrade}\nSubgrades: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${Math.round(subgradePredictions[subgrade])}`).join(', ')}\n`;  
-   const blob = new Blob([feedbackText], { type: "text/plain" });  
-   const link = document.createElement("a");  
-   link.href = URL.createObjectURL(blob);  
-   link.download = `${studentName}_feedback.txt`;  
-   link.click();  
-  });  
-  
-  // Add a button to download the whole class data as JSON  
-  const downloadClassDataButton = document.getElementById("download-class-data");  
-  if (!downloadClassDataButton) {  
-   downloadClassDataButton = document.createElement("button");  
-   downloadClassDataButton.textContent = "Download Class Data";  
-   downloadClassDataButton.id = "download-class-data";  
-   downloadClassDataButton.addEventListener("click", () => {  
-    const classData = [];  
-    const rows = studentTable.rows;  
-    for (let i = 1; i < rows.length; i++) {  
-      const row = rows[i];  
-      const studentName = row.cells[0].textContent;  
-      const essay = row.cells[1].textContent;  
-      const mainGrade = row.cells[2].textContent;  
-      const subgrades = row.cells[3].textContent;  
-      const feedback = row.cells[4].textContent;  
-      classData.push({  
-       studentName,  
-       essay,  
-       mainGrade,  
-       subgrades,  
-       feedback,  
-      });  
-    }  
-    const jsonData = JSON.stringify(classData, null, 2);  
-    const blob = new Blob([jsonData], { type: "application/json" });  
-    const link = document.createElement("a");  
-    link.href = URL.createObjectURL(blob);  
-    link.download = "class_data.json";  
-    link.click();  
+   // Add event listener to the download feedback button  
+   const downloadFeedbackButton = newRow.querySelector(".download-feedback");  
+   downloadFeedbackButton.addEventListener("click", () => {  
+      const feedbackText = `Student Name: ${studentName}\nEssay: ${essay}\nMain Grade: ${predictedGrade}\nSubgrades: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}:${Math.round(subgradePredictions[subgrade])}`).join(',')}\n`;  
+      const blob = new Blob([feedbackText], { type: "text/plain" });  
+      const link = document.createElement("a");  
+      link.href = URL.createObjectURL(blob);  
+      link.download = `${studentName}_feedback.txt`;  
+      link.click();  
    });  
-   document.getElementById("output").appendChild(downloadClassDataButton);  
-  }  
+  
+   // Append the new row to the table  
+   studentTable.tBodies[0].appendChild(newRow);  
+  
+   // Add a button to download the whole class data as JSON  
+   const downloadClassDataButton = document.getElementById("download-class-data");  
+   if (!downloadClassDataButton) {  
+      downloadClassDataButton = document.createElement("button");  
+      downloadClassDataButton.textContent = "Download Class Data";  
+      downloadClassDataButton.id = "download-class-data";  
+      downloadClassDataButton.addEventListener("click", () => {  
+        const classData = [];  
+        const rows = studentTable.rows;  
+        for (let i = 1; i < rows.length; i++) {  
+           const row = rows[i];  
+           const studentName = row.cells[0].textContent;  
+           const essay = row.cells[1].textContent;  
+           const mainGrade = row.cells[2].textContent;  
+           const subgrades = row.cells[3].textContent;  
+           const feedback = row.cells[4].textContent;  
+           classData.push({  
+              studentName,  
+              essay,  
+              mainGrade,  
+              subgrades,  
+              feedback,  
+           });  
+        }  
+        const jsonData = JSON.stringify(classData, null, 2);  
+        const blob = new Blob([jsonData], { type: "application/json" });  
+        const link = document.createElement("a");  
+        link.href = URL.createObjectURL(blob);  
+        link.download = "class_data.json";  
+        link.click();  
+      });  
+      document.getElementById("output").appendChild(downloadClassDataButton);  
+   }  
 }
 
    
