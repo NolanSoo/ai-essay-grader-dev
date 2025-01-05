@@ -382,7 +382,7 @@ function generateStudentTable(studentName, essay, predictedGrade, subgradePredic
    studentTable.tBodies[0].appendChild(newRow);  
   
    // Add a button to download the whole class data as JSON  
-   const downloadClassDataButton = document.getElementById("download-class-data");  
+   var downloadClassDataButton = document.getElementById("download-class-data");  
    if (!downloadClassDataButton) {  
       downloadClassDataButton = document.createElement("button");  
       downloadClassDataButton.textContent = "Download Class Data";  
