@@ -72,7 +72,7 @@ async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGrades
    const lines = formattedFeedback.trim().split("\n");  
    const formattedFeedbackfinal = lines.map(line => line.trim() + "<br>").join("");  
   
-   document.getElementById("output").innerHTML = formattedFeedbackfinal;  
+   document.getElementById("output").textContent = formattedFeedbackfinal;  
   
    console.log("ID:", id);  
    console.log("Model:", model);  
