@@ -1192,7 +1192,20 @@ function downloadClassFeedback() {
 }  
   
 // Add an event listener to the predict grade button  
-document.getElementById("predict_grade").addEventListener("click", async () => {  
+document.getElementById("predict_grade").addEventListener("click", async () => {
+      function preprocessText(essays) {  
+      console.log("Preprocessing text...");  
+      const tokenizedInputs = essays.map((essay) => {  
+       const words = essay.trim().split(/\s+/);  
+       const vector = new Array(1200).fill(0);  
+       for (let word of words) {  
+        const index = Math.min(word.length, 1199);  
+        vector[index] += 1;  
+       }  
+       return vector;  
+      });  
+      return tf.tensor2d(tokenizedInputs);  
+    }  
   // Get the student name from the input field  
   const studentName = document.getElementById("student-name-input").value;  
   
