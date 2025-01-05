@@ -84,7 +84,7 @@ async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGrades
    console.log("Message Content:", messageContent);  
    console.log("Prompt Tokens Used:", prompt_tokens);  
    console.log("Total Tokens Used:", total_tokens);
-  return formattedFeedbackfinal // for the class table
+  return formattedFeedbackFinal // for the class table
   } catch (err) {  
    if (err instanceof Groq.APIError) {  
     console.error("API Error:", err);  
