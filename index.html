@@ -134,6 +134,11 @@ A brand-new AI model is newly trained on only your essays so the grades returned
   <input type="button" value="Save" id="quick-input-save" />  
   <input type="button" value="Cancel" id="quick-input-cancel" />  
 </div>
+      <!-- Add a new button to generate the feedback table -->  
+<input type="button" id="generate-feedback-table" value="Generate Feedback Table">  
+  
+<!-- Add a new div to display the feedback table -->  
+<div id="feedback-table-container"></div>  
     <script type="module" defer>
    import { feedback } from './feedback.js';  
   import { scanImage } from './image-scan.js';   
@@ -1124,7 +1129,116 @@ function switchTheme() {
 
 // Add event listener to the button
 themeToggle.addEventListener('click', switchTheme);
-
+// Function to generate the feedback table  
+  function generateFeedbackTable() {  
+   const table = document.getElementById("data_table");  
+   const rows = table.querySelectorAll("tr:not(:first-child):not(:last-child)");  
+   const feedbackTable = document.createElement("table");  
+   feedbackTable.id = "feedback-table";  
+  
+   // Create the table headers  
+   const headerRow = document.createElement("tr");  
+   const studentNameHeader = document.createElement("th");  
+   studentNameHeader.textContent = "Student Name";  
+   headerRow.appendChild(studentNameHeader);  
+   const essayHeader = document.createElement("th");  
+   essayHeader.textContent = "Essay";  
+   headerRow.appendChild(essayHeader);  
+   const gradesHeader = document.createElement("th");  
+   gradesHeader.textContent = "Grades";  
+   headerRow.appendChild(gradesHeader);  
+   const feedbackHeader = document.createElement("th");  
+   feedbackHeader.textContent = "Feedback";  
+   headerRow.appendChild(feedbackHeader);  
+   feedbackTable.appendChild(headerRow);  
+  
+   // Create the table rows  
+   rows.forEach((row) => {  
+    const studentNameCell = document.createElement("td");  
+    studentNameCell.textContent = `Student ${rows.indexOf(row) + 1}`;  
+    const essayCell = document.createElement("td");  
+    essayCell.textContent = row.querySelector("td:nth-child(1) input").value;  
+    const gradesCell = document.createElement("td");  
+    const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+    const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
+    const gradesText = [];  
+    subgradeCells.forEach((cell, index) => {  
+      const subgradeName = subgradeHeaders[index].textContent;  
+      if (subgradeName !== "Actions") {  
+       gradesText.push(`${subgradeName}: ${cell.querySelector("input").value}`);  
+      }  
+    });  
+    gradesCell.textContent = gradesText.join(", ");  
+    const feedbackCell = document.createElement("td");  
+    feedbackCell.textContent = row.querySelector("td:last-child input").value;  
+    const rowElement = document.createElement("tr");  
+    rowElement.appendChild(studentNameCell);  
+    rowElement.appendChild(essayCell);  
+    rowElement.appendChild(gradesCell);  
+    rowElement.appendChild(feedbackCell);  
+    feedbackTable.appendChild(rowElement);  
+   });  
+  
+   // Add the feedback table to the page  
+   document.getElementById("feedback-table-container").appendChild(feedbackTable);  
+  
+   // Add a button to download the entire class's table as a JSON file  
+   const downloadButton = document.createElement("input");  
+   downloadButton.type = "button";  
+   downloadButton.value = "Download Class Feedback";  
+   downloadButton.addEventListener("click", () => {  
+    const jsonData = [];  
+    const rows = feedbackTable.querySelectorAll("tr:not(:first-child)");  
+    rows.forEach((row) => {  
+      const studentName = row.querySelector("td:nth-child(1)").textContent;  
+      const essay = row.querySelector("td:nth-child(2)").textContent;  
+      const grades = row.querySelector("td:nth-child(3)").textContent;  
+      const feedback = row.querySelector("td:nth-child(4)").textContent;  
+      jsonData.push({  
+       studentName,  
+       essay,  
+       grades,  
+       feedback,  
+      });  
+    });  
+    const jsonBlob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });  
+    const link = document.createElement("a");  
+    link.href = URL.createObjectURL(jsonBlob);  
+    link.download = "class_feedback.json";  
+    link.click();  
+   });  
+   document.getElementById("feedback-table-container").appendChild(downloadButton);  
+  
+   // Add a button to download individual student feedback as a .txt file  
+   rows.forEach((row) => {  
+    const downloadButton = document.createElement("input");  
+    downloadButton.type = "button";  
+    downloadButton.value = `Download Student ${rows.indexOf(row) + 1} Feedback`;  
+    downloadButton.addEventListener("click", () => {  
+      const studentName = `Student ${rows.indexOf(row) + 1}`;  
+      const essay = row.querySelector("td:nth-child(1) input").value;  
+      const grades = [];  
+      const subgradeCells = row.querySelectorAll("td:nth-child(n+3):not(:last-child)");  
+      const subgradeHeaders = document.querySelectorAll("#header_row th:not(:first-child):not(:nth-child(2)):not(:last-child)");  
+      subgradeCells.forEach((cell, index) => {  
+       const subgradeName = subgradeHeaders[index].textContent;  
+       if (subgradeName !== "Actions") {  
+        grades.push(`${subgradeName}: ${cell.querySelector("input").value}`);  
+       }  
+      });  
+      const feedback = row.querySelector("td:last-child input").value;  
+      const textBlob = new Blob([`Student Name: ${studentName}\nEssay: ${essay}\nGrades: ${grades.join(", ")}\nFeedback: ${feedback}`], { type: "text/plain" });  
+      const link = document.createElement("a");  
+      link.href = URL.createObjectURL(textBlob);  
+      link.download = `${studentName}_feedback.txt`;  
+      link.click();  
+    });  
+    row.querySelector("td:last-child").appendChild(downloadButton);  
+   });  
+  }  
+  
+  // Add an event listener to the generate feedback table button  
+  document.getElementById("generate-feedback-table").addEventListener("click", generateFeedbackTable);  
   </script>  
 </body>  
 </html>
