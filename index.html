@@ -334,10 +334,10 @@ async function predictGrade() {
   
   // Display the predicted grade and feedback  
   document.getElementById("predicted_grade_output").innerText = `Predicted Grade: ${predictedGrade}\nSubgrade Predictions: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${subgradePredictions[subgrade]}`).join(", ")}\nFeedback: ${feedbackText}`;  
-  generateStudentTable(studentName, essayInput, predictedGrade, subgradePredictions);  
+  generateStudentTable(studentName, essayInput, predictedGrade, subgradePredictions, feedbackText);  
 }  
 // Function to generate a table with the student's data  
-function generateStudentTable(studentName, essay, predictedGrade, subgradePredictions) {  
+function generateStudentTable(studentName, essay, predictedGrade, subgradePredictions, feedbackText) {  
    // Get the existing table or create a new one  
    let studentTable = document.getElementById("student_table");  
    if (!studentTable) {  
@@ -362,19 +362,8 @@ function generateStudentTable(studentName, essay, predictedGrade, subgradePredic
       <td>${essay}</td>  
       <td>${predictedGrade}</td>  
       <td>${Object.keys(subgradePredictions).map(subgrade => `${subgrade}:${Math.round(subgradePredictions[subgrade])}`).join(',')}</td>  
-      <td><button class="download-feedback">Download Feedback</button></td>  
+      <td>${feedbackText}</td>  
    `;  
-  
-   // Add event listener to the download feedback button  
-   const downloadFeedbackButton = newRow.querySelector(".download-feedback");  
-   downloadFeedbackButton.addEventListener("click", () => {  
-      const feedbackText = `Student Name: ${studentName}\nEssay: ${essay}\nMain Grade: ${predictedGrade}\nSubgrades: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}:${Math.round(subgradePredictions[subgrade])}`).join(',')}\n`;  
-      const blob = new Blob([feedbackText], { type: "text/plain" });  
-      const link = document.createElement("a");  
-      link.href = URL.createObjectURL(blob);  
-      link.download = `${studentName}_feedback.txt`;  
-      link.click();  
-   });  
   
    // Append the new row to the table  
    studentTable.tBodies[0].appendChild(newRow);  
@@ -413,6 +402,7 @@ function generateStudentTable(studentName, essay, predictedGrade, subgradePredic
       document.getElementById("output").appendChild(downloadClassDataButton);  
    }  
 }
+
    // Function for training the model  
    async function trainModel() {  
 
