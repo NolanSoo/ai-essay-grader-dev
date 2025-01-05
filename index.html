@@ -1213,7 +1213,28 @@ document.getElementById("predict_grade").addEventListener("click", async () => {
 });  
   
 // Add an event listener to the download class feedback button  
-document.getElementById("download-class-feedback").addEventListener("click", downloadClassFeedback); 
+document.getElementById("download-class-feedback").addEventListener("click", () => {  
+  const feedbackTable = document.getElementById("feedback-table");  
+  const rows = feedbackTable.querySelectorAll("tr:not(:first-child)");  
+  const jsonData = [];  
+  Array.from(rows).forEach((row) => {  
+   const studentName = row.querySelector("td:nth-child(1)").textContent;  
+   const essay = row.querySelector("td:nth-child(2)").textContent;  
+   const grades = row.querySelector("td:nth-child(3)").textContent;  
+   const feedback = row.querySelector("td:nth-child(4)").textContent;  
+   jsonData.push({  
+    studentName,  
+    essay,  
+    grades,  
+    feedback,  
+   });  
+  });  
+  const jsonBlob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });  
+  const link = document.createElement("a");  
+  link.href = URL.createObjectURL(jsonBlob);  
+  link.download = "class_feedback.json";  
+  link.click();  
+});
   </script>  
 </body>  
 </html>
