@@ -63,7 +63,7 @@ async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGrades
    const { id, model, created, choices, usage } = chatCompletion;  
    const messageContent = choices[0].message.content;  
    const { prompt_tokens, total_tokens } = usage;    
-  // Display the response in the output div  
+    // Display the response in the output div  
    // Replace \n\n with <br> (newlines)  
    let formattedFeedback = messageContent.replace(/\n\n/g, '<br>');  
   
@@ -71,6 +71,8 @@ async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGrades
    formattedFeedback = formattedFeedback.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  
    const lines = formattedFeedback.trim().split("\n");  
    const formattedFeedbackFinal = lines.map(line => line.trim() + "<br>").join("");  
+  
+   document.getElementById("output").innerHTML = formattedFeedbackFinal;  
   
    // Clear the output element  
    const outputElement = document.getElementById("output");  
