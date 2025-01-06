@@ -268,13 +268,13 @@ async function predictGrade() {
   document.getElementById(  
    "predicted_grade_output"  
   ).innerText = `Predicted Grade: ${Math.round(predictedGrade)}`;  
-  
+  const roundedPG = predictedGrade.toFixed(2);
   // Predict subgrades  
   const subgradePredictions = {};  
   for (const subgrade in subgradeModels) {  
    const subgradePrediction = await subgradeModels[subgrade].predict(essayTensor).data();  
    subgradePredictions[subgrade] = subgradePrediction[0];  
-   console.log("Subgrade prediction for " + subgrade + ":", subgradePrediction[0]);  
+   console.log("Subgrade prediction for " + subgrade + ":", subgradePrediction[0].toFixed(2));  
   }  
   
   // Display subgrade predictions  
@@ -331,14 +331,11 @@ async function predictGrade() {
   
   // Update the feedback table  
   const studentName = document.getElementById("student_name_input").value;   
-  
-  // Display the predicted grade and feedback  
-  document.getElementById("predicted_grade_output").innerText = `Predicted Grade: ${predictedGrade}\nSubgrade Predictions: ${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${subgradePredictions[subgrade]}`).join(", ")}\nFeedback: ${feedbackText}`;  
-  generateStudentTable(studentName, essayInput, predictedGrade, subgradePredictions, feedbackText);  
+  generateStudentTable(studentName, essayInput, roundedPG, subgradePredictions, feedbackText);  
 }  
 // Function to generate a table with the student's data  
 function generateStudentTable(studentName, essay, predictedGrade, subgradePredictions, feedbackText) {  
-   // Get the existing table or create a new one  
+ // Get the existing table or create a new one  
    let studentTable = document.getElementById("student_table");  
    if (!studentTable) {  
       studentTable = document.createElement("table");  
@@ -357,16 +354,22 @@ function generateStudentTable(studentName, essay, predictedGrade, subgradePredic
   
    // Add a new row to the table  
    const newRow = document.createElement("tr");  
-   newRow.innerHTML = `  
+   newRow.innerHTML += `  
       <td>${studentName}</td>  
       <td>${essay}</td>  
-      <td>${predictedGrade}</td>  
-      <td>${Object.keys(subgradePredictions).map(subgrade => `${subgrade}:${Math.round(subgradePredictions[subgrade])}`).join(',')}</td>  
+      <td>${predictedGrade.toFixed(2)}</td>  
+      <td>${Object.keys(subgradePredictions).map(subgrade => `${subgrade}: ${subgradePredictions[subgrade].toFixed(2)}`).join(',')}</td>  
       <td>${feedbackText}</td>  
    `;  
   
-   // Append the new row to the table  
-   studentTable.tBodies[0].appendChild(newRow);  
+   // Append the new row to the table body  
+   if (studentTable.tBodies.length === 0) {  
+      const tbody = document.createElement("tbody");  
+      studentTable.appendChild(tbody);  
+      tbody.appendChild(newRow);  
+   } else {  
+      studentTable.tBodies[0].appendChild(newRow);  
+   }    
   
    // Add a button to download the whole class data as JSON  
    var downloadClassDataButton = document.getElementById("download-class-data");  
