@@ -64,21 +64,22 @@ async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGrades
    const messageContent = choices[0].message.content;  
    const { prompt_tokens, total_tokens } = usage;    
     // Display the response in the output div  
-   // Replace \n\n with <br> (newlines)  
-   let formattedFeedback = messageContent.replace(/\n\n/g, '<br>');  
-  
-   // Replace ** with <strong> for bold text  
-   formattedFeedback = formattedFeedback.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  
-   const lines = formattedFeedback.trim().split("\n");  
-   const formattedFeedbackFinal = lines.map(line => line.trim() + "<br>").join("");  
-  
-   document.getElementById("output").innerHTML = formattedFeedbackFinal;  
-  
-   // Clear the output element  
-   const outputElement = document.getElementById("output");  
-   outputElement.innerHTML = '';  
-  
-   document.getElementById("output").textContent = formattedFeedbackFinal;  
+  // Display the response in the output div
+let formattedFeedback = messageContent
+  .replace(/\n\n/g, '<br>') // Replace double newlines with <br>
+  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Replace **bold** with <strong>bold</strong>
+
+// Add <br> to the end of each line
+const lines = formattedFeedback.trim().split("\n");
+const formattedFeedbackFinal = lines.map(line => line.trim()).join("<br>");
+
+// Clear the output element first (if needed)
+const outputElement = document.getElementById("output");
+outputElement.innerHTML = ''; // Clear the previous content
+
+// Set the formatted content as HTML
+outputElement.innerHTML = formattedFeedbackFinal;
+
   
    console.log("ID:", id);  
    console.log("Model:", model);  
