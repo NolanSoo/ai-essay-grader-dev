@@ -14,8 +14,8 @@ const client = new Groq({
   
 // Function to get feedback from the model  
 async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGradesSG, inputFeedbackMG, subgradePredictions, predictedGrade, essayInput, promptInput, rubricInput) {  
-  console.log("Getting feedback...");  
-  console.log("feedbackMG", JSON.stringify(inputFeedbackMG));
+    console.log("Getting feedback...");  
+  
   let message = "Hello. Please give professional feedback on essays (1-2 sentences for overall and for every subgrade)...";  
   for (let i = 0; i < inputEssaysMG.length; i++) {  
    message += `Essay ${(i + 1)}: ${inputEssaysMG[i]} - Main Grade: ${inputGradesMG[i]} - Feedback: ${inputFeedbackMG[i]}`;  
@@ -62,32 +62,25 @@ async function feedback(inputEssaysMG, inputGradesMG, inputEssaysSG, inputGrades
    // Extract the main fields  
    const { id, model, created, choices, usage } = chatCompletion;  
    const messageContent = choices[0].message.content;  
-   const { prompt_tokens, total_tokens } = usage;    
-    // Display the response in the output div  
-  // Display the response in the output div
-let formattedFeedback = messageContent
-  .replace(/\n\n/g, '<br>') // Replace double newlines with <br>
-  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Replace **bold** with <strong>bold</strong>
-
-// Add <br> to the end of each line
-const lines = formattedFeedback.trim().split("\n");
-const formattedFeedbackFinal = lines.map(line => line.trim()).join("<br>");
-
-// Clear the output element first (if needed)
-const outputElement = document.getElementById("output");
-outputElement.innerHTML = ''; // Clear the previous content
-
-// Set the formatted content as HTML
-outputElement.innerHTML = formattedFeedbackFinal;
-
+   const { prompt_tokens, total_tokens } = usage;  
+   // Display the response in the output div  
+   // Replace \n\n with <br> (newlines)  
+   let formattedFeedback = messageContent.replace(/\n\n/g, '<br>');  
+  
+   // Replace ** with <strong> for bold text  
+   formattedFeedback = formattedFeedback.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  
+   const lines = formattedFeedback.trim().split("\n");  
+   const formattedFeedbackfinal = lines.map(line => line.trim() + "<br>").join("");  
+  
+   document.getElementById("output").innerHTML = formattedFeedbackfinal;  
   
    console.log("ID:", id);  
    console.log("Model:", model);  
    console.log("Created Timestamp:", created);  
    console.log("Message Content:", messageContent);  
    console.log("Prompt Tokens Used:", prompt_tokens);  
-   console.log("Total Tokens Used:", total_tokens);
-  return formattedFeedbackFinal // for the class table
+   console.log("Total Tokens Used:", total_tokens);  
+  return formattedFeedbackfinal
   } catch (err) {  
    if (err instanceof Groq.APIError) {  
     console.error("API Error:", err);  
