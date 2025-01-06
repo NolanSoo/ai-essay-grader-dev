@@ -569,28 +569,31 @@ function generateStudentTable(studentName, essay, predictedGrade, subgradePredic
       
    }  
   
-   // Function to add a new subgrade  
-   globalThis.add_subgrade = function add_subgrade() {  
-    console.log("Adding new subgrade...");  
-    const subgradeName = prompt("Enter the name of the new subgrade:");  
-    if (subgradeName) {  
-      // Add a new header cell for the subgrade  
-      const headerRow = document.getElementById("header_row");  
-      const newHeaderCell = document.createElement("th");  
-      newHeaderCell.innerText = subgradeName;  
-      const feedbackHeader = document.getElementById("feedback_header");  
-      headerRow.insertBefore(newHeaderCell, feedbackHeader);  
-  
-  // Add a new cell for the subgrade in each row except the last row
-const rows = document.querySelectorAll("#data_table tr:not(:last-child)");
-rows.forEach((row) => {
-  const newCell = document.createElement("td");
-  newCell.innerHTML = "<input type='text'/>";
-  const feedbackCell = row.querySelector("td:last-child");
-  row.insertBefore(newCell, feedbackCell);
-});  
-    }  
-   };  
+// Function to add a new subgrade
+globalThis.add_subgrade = function add_subgrade() {
+  console.log("Adding new subgrade...");
+  const subgradeName = prompt("Enter the name of the new subgrade:");
+  if (subgradeName) {
+    // Add a new header cell for the subgrade
+    const headerRow = document.getElementById("header_row");
+    const newHeaderCell = document.createElement("th");
+    newHeaderCell.innerText = subgradeName;
+    const feedbackHeader = document.getElementById("feedback_header");
+    headerRow.insertBefore(newHeaderCell, feedbackHeader);
+
+    // Add a new cell for the subgrade in each row except the last row
+    const rows = document.querySelectorAll("#data_table tr:not(:last-child)");
+    rows.forEach((row, index) => {
+      // Debugging log to check row iteration
+      console.log(`Processing row ${index + 1}`);
+      const newCell = document.createElement("td");
+      newCell.innerHTML = "<input type='text'/>";
+      const feedbackCell = row.querySelector("td:last-child");
+      row.insertBefore(newCell, feedbackCell);
+    });
+  }
+};
+
   
    // Function to save a row  
    globalThis.save_row = function save_row(no) {  
